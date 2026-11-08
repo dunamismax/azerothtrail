@@ -53,8 +53,8 @@ export const talents: Talent[] = [
   { id: 'natures-splendor', name: 'Nature’s Splendor', tree: 'balance', row: 3, maxRank: 1, requires: 'natures-majesty', summary: 'Longer Moonfire, Rejuvenation, Regrowth and Insect Swarm.' },
 ];
 
-// Feral, one point per level from 10 to 60 (PDF page 4). Blood Frenzy is split
-// across 29 and 31 around Leader of the Pack at 30, exactly as the PDF orders it.
+// Feral, one point per level from 10 to 60. Blood Frenzy is split across 29
+// and 31 around Leader of the Pack at 30.
 export const feralLeveling: TalentBuild = {
   id: 'feral-leveling',
   name: 'Feral leveling',
@@ -87,7 +87,7 @@ export const feralLeveling: TalentBuild = {
   sources: ['16', '03', '05'],
 };
 
-// Deep Restoration on the second spec: 31 points at 40, then one per level (PDF page 6).
+// Deep Restoration on the second spec: 31 points at 40, then one per level.
 export const restorationBuild: TalentBuild = {
   id: 'restoration-deep',
   name: 'Deep Restoration (dungeons)',

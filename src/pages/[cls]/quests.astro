@@ -32,7 +32,7 @@ const forLabel = (step: QuestStep): string | null => {
     <button type="button" data-toggle-show-all aria-pressed="false" hidden>Show every faction and race</button>
   </div>
 
-  <nav aria-label="Forms">
+  <nav aria-label={guide.questsLabel}>
     <ul class="bracket-index">
       {guide.forms.map((f) => <li><a href={`#${f.id}`}><b>{f.level}</b> {f.name}</a></li>)}
     </ul>

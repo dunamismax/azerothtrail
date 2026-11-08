@@ -56,7 +56,7 @@ live=$(local_get /version.txt) || die 'site did not answer over HTTPS'
 [[ $live == "$commit" ]] || die "live version.txt is $live, expected $commit"
 local_get /druid/ >/dev/null || die '/druid/ failed'
 local_get /druid/route/ >/dev/null || die '/druid/route/ failed'
-local_get /guides/druid/WoW-Forever-Druid-Leveling-Guide.pdf >/dev/null || die 'PDF failed'
+local_get /paladin/ >/dev/null || die '/paladin/ failed'
 
 preserved > "$backup/preserved-after"
 cmp -s "$backup/preserved-before" "$backup/preserved-after" || die 'another site or shared Caddy file changed during cutover'

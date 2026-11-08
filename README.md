@@ -1,9 +1,16 @@
 # Azeroth Trail
 
 A personal World of Warcraft: Forever leveling guide, live at
-<https://azerothtrail.com>. The first guide is **Druid, Normal PvE ruleset**:
-solo Feral to 60, Bear for occasional dungeons, Restoration from 40 and as the
-main group role at 60.
+<https://azerothtrail.com>. Two class guides, both on the **Normal PvE ruleset**:
+
+- **Druid** (`/druid/`): solo Feral to 60, Bear for occasional dungeons,
+  Restoration from 40 and as the main group role at 60.
+- **Paladin** (`/paladin/`): Human-first Protection from 10 to 60, tanking
+  dungeons on the way, with a Retribution questing spec from 40. Built from
+  Blizzard's notes, the live spell list and the current Icy Veins and Mobalytics
+  guides, with dated notes where they disagree.
+
+The home page (`/`) opens on the Druid guide; the header switches class.
 
 The home page answers "What should I do at my level?" for levels 1-60: where
 to quest, what to train or which class quest to do, the next talent point, and
@@ -39,12 +46,13 @@ node scripts/smoke.ts https://azerothtrail.com <commit>   # check the live site
 - a level from 1 to 60 maps to zero or two route brackets, or brackets leave a gap;
 - a talent point breaks a row gate (5 points per row), exceeds max rank or skips
   a prerequisite, or a build doesn't end on its stated split;
-- the Druid builds or brackets drift from the PDF's own wording, or a dungeon's
-  range drifts from Blizzard's official one;
+- a class's builds or brackets drift from the reference orders written out in
+  the verifier (for the Paladin, the Mobalytics and Icy Veins orders), or a
+  dungeon's range drifts from Blizzard's official one;
 - a section cites a source or note id that doesn't exist.
 
 `scripts/smoke.ts` checks every page and level page, every internal link and
-`#anchor`, assets, the PDF's SHA-256, bracket links, talent rows, the absence
+`#anchor`, assets, bracket links, talent rows, the absence
 of inline code and, for a URL, HTTPS headers, the 404 page and `/version.txt`.
 
 ## Layout
@@ -53,7 +61,7 @@ of inline code and, for a URL, HTTPS headers, the 404 page and `/version.txt`.
 src/data/types.ts                 shared content types (ClassGuide and friends)
 src/data/registry.ts              list of classes; pages are generated from it
 src/data/classes/druid/
-  index.ts                        races, milestones, PDF metadata, wiring
+  index.ts                        races, milestones, labels, wiring
   route.ts                        level brackets, both factions, race branches
   training.ts                     trainer schedule with gold-tight priorities
   forms.ts                        forms and class-quest walkthroughs
@@ -61,10 +69,11 @@ src/data/classes/druid/
   feral.ts, restoration.ts        spec pages: sections, gear, checklist
   dungeons.ts                     official ranges (new) and Classic dungeons
   sources.ts                      numbered sources and dated update notes
+src/data/classes/paladin/         same shape: route, training, quests (class quests),
+                                  talents, protection.ts, retribution.ts, sources
 src/lib/guide.ts                  level lookups, build expansion, validation
 src/components/                   LevelPanel, BracketCard, TalentTable, ...
 src/pages/[cls]/                  /druid/, /route/, /quests/, /<spec>/, /sources/, /level/N/
-public/guides/druid/              the original PDF, served for download
 caddy/azerothtrail.com.caddy      the site's Caddy fragment
 deploy/                           prepare, cutover and rollback scripts
 ```
@@ -77,8 +86,10 @@ Mostly a content task:
    each file. Keep bracket ids in the form `lvl-<min>-<max>`; they are public
    link targets, so never rename one after publishing.
 2. Give the class its `races` (with factions), `trees` and `talents` (row and
-   max rank from a launch calculator), a `leveling` and an `endgame`
-   `SpecGuide`, its brackets, trainer schedule, class quests, sources and notes.
+   max rank from a launch calculator), a `leveling` spec and an `endgame` spec
+   (the second spec from 40), its brackets, trainer schedule, class quests,
+   sources and notes, and its labels (`questsNav`, `deferLabel`,
+   `sourcesLead`).
 3. Add it to `classes` in `src/data/registry.ts`. All pages, including the 60
    level pages, are generated for it at `/<class>/...`.
 4. Add class-specific cross-checks to `scripts/verify-content.ts` when there's

@@ -264,3 +264,10 @@ code { font-family: var(--mono); font-size: 0.85em; overflow-wrap: anywhere; }
 .steps .tag, .branch .tag { white-space: normal; }
 tr[id] { scroll-margin-top: 5rem; }
 @media (max-width: 30rem) { .col-tree { display: none; } }
+
+/* Class switcher in the header, shown once more than one class guide exists. */
+.class-switch ul { list-style: none; display: flex; gap: 0.2rem; margin: 0; padding: 0; }
+.class-switch li + li { margin: 0; }
+.class-switch a { display: block; padding: 0.2rem 0.55rem; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); text-decoration: none; font-size: 0.82rem; }
+.class-switch a:hover { color: var(--text); background: var(--surface-2); }
+.class-switch a[aria-current="true"] { color: var(--text); border-color: var(--accent); background: var(--surface-2); }

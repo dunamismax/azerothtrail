@@ -5,6 +5,7 @@ export const feral: SpecGuide = {
   slug: 'feral',
   name: 'Feral talents and play',
   nav: 'Feral',
+  blurb: 'Point-by-point talents, Cat or Bear, solo pulls, dungeon packs, training on a budget.',
   lead: 'Level as Feral all the way to 60. Start in caster form, use Bear from 10, and do most solo quests in Cat from 20. Tank in Bear whenever a convenient group comes together.',
   build: feralLeveling,
   variant: {

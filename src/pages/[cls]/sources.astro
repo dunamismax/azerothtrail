@@ -9,43 +9,33 @@ import { classPath, formatDate } from '../../lib/guide.ts';
 export const getStaticPaths = (() => classes.map((guide) => ({ params: { cls: guide.id }, props: { guide } }))) satisfies GetStaticPaths;
 
 const { guide } = Astro.props as { guide: ClassGuide };
-const kb = Math.round(guide.pdf.bytes / 1024);
 const order = { correction: 0, update: 1, uncertain: 2, confirmed: 3 } as const;
 const notes = [...guide.notes].sort((a, b) => order[a.kind] - order[b.kind] || b.date.localeCompare(a.date));
 ---
-<Layout guide={guide} path={classPath(guide, 'sources')} title={`${guide.name} sources`} description={`References behind the ${guide.name} guide, update notes, and the original PDF.`}>
+<Layout guide={guide} path={classPath(guide, 'sources')} title={`${guide.name} sources`} description={`References behind the ${guide.name} guide, with dated update notes.`}>
   <header class="page-head">
     <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
     <h1>Sources</h1>
-    <p class="lead">This guide started from the original PDF. Patch-sensitive details were rechecked against Blizzard’s notes and Forever-specific references; Classic guides were used only for familiar zone geography.</p>
+    <p class="lead">{guide.sourcesLead}</p>
     <p class="verified">Last verified {formatDate(guide.lastVerified)}.</p>
   </header>
 
-  <section class="section" id="pdf" aria-labelledby="pdf-title">
-    <h2 id="pdf-title">Original PDF</h2>
-    <p><a class="button" href={guide.pdf.path} download>Download the PDF</a> <span class="small muted">{guide.pdf.pages} pages, {kb} KB, dated {formatDate(guide.pdf.dated)}</span></p>
-    <p class="small muted">SHA-256 <code>{guide.pdf.sha256}</code></p>
-    <p class="small">The guide on this site is the same plan as native web pages, with the corrections and updates listed below.</p>
-  </section>
-
   <section class="section" id="updates" aria-labelledby="updates-title">
     <h2 id="updates-title">Update notes</h2>
-    <p class="small muted">Where newer evidence changes or qualifies the PDF, the note also appears next to the section it affects.</p>
+    <p class="small muted">Where sources disagree or a patch changed something, the note also appears next to the section it affects.</p>
     {notes.map((n) => <UpdateNote guide={guide} id={n.id} />)}
   </section>
 
   <section class="section" id="references" aria-labelledby="references-title">
     <h2 id="references-title">References</h2>
-    <p class="small muted">Numbers 01-16 match the PDF. Later numbers were added while verifying it.</p>
     <ol class="source-list">
       {guide.sources.map((s) => (
         <li id={`src-${s.id}`} class="note">
           <p class="note-title"><span class="tag">[{s.id}]</span> <a href={s.url} rel="noopener noreferrer">{s.title}</a> <span class="muted small">{s.publisher}</span></p>
           <p class="small">{s.covers}</p>
           <p class="small muted">
-            {s.checked ? `Checked ${formatDate(s.checked)}` : 'Cited by the PDF; not rechecked for this site'}
+            {s.checked ? `Checked ${formatDate(s.checked)}` : 'Listed for reference; not rechecked for this site'}
             {s.sourceUpdated && ` · source updated ${formatDate(s.sourceUpdated)}`}
-            {s.inPdf ? ' · in the PDF' : ' · added'}
           </p>
         </li>
       ))}

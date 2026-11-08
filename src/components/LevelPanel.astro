@@ -95,7 +95,7 @@ const headingId = `panel-${level}-title`;
             {core(trainNow.spells).map((s) => <li><b>{spellName(s)}</b>{s.talent && <span class="tag">Talent</span>}{s.note && <span class="why">{s.note}</span>}</li>)}
             {extra(trainNow.spells).map((s) => <li>{spellName(s)} <span class="why">if you use it{s.note ? `. ${s.note}` : ''}</span></li>)}
           </ul>
-          {deferred(trainNow.spells).length > 0 && <p class="small muted">Skip while Feral if gold is tight: {deferred(trainNow.spells).map(spellName).join(', ')}.</p>}
+          {deferred(trainNow.spells).length > 0 && <p class="small muted">{guide.deferLabel}: {deferred(trainNow.spells).map(spellName).join(', ')}.</p>}
         </>
       ) : (
         <p>No new training at {level}.{trainNext && <> Next trainer visit at <b>{trainNext.level}</b>: {core(trainNext.spells).map(spellName).join(', ') || 'optional ranks only'}.</>}</p>

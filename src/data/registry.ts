@@ -1,9 +1,10 @@
 import type { ClassGuide } from './types.ts';
 import { druid } from './classes/druid/index.ts';
+import { paladin } from './classes/paladin/index.ts';
 
 // Add a class: create src/data/classes/<id>/ with the same files as druid/,
 // export a ClassGuide, and list it here. Pages are generated from this list.
-export const classes: readonly ClassGuide[] = [druid];
+export const classes: readonly ClassGuide[] = [druid, paladin];
 
 /** The class the home page opens on. */
 export const defaultClass: ClassGuide = druid;

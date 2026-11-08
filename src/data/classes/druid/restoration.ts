@@ -5,6 +5,7 @@ export const restoration: SpecGuide = {
   slug: 'restoration',
   name: 'Restoration and level 60',
   nav: 'Restoration',
+  blurb: 'Dual spec, the build from 40, healing priorities, gear and your first week at 60.',
   lead: 'Open a Restoration second spec at 40 and heal a few dungeons. At 60, make Restoration your main group role and keep Feral for soloing, tanking and occasional Cat DPS.',
   build: restorationBuild,
   notes: ['raid-build', 'bloom-fix', 'swiftmend-tooltip'],

@@ -14,14 +14,6 @@ export const druid: ClassGuide = {
   ruleset: 'Normal PvE',
   tagline: 'Solo Feral to 60. Restoration after.',
   lastVerified: '2026-11-07',
-  pdf: {
-    path: '/guides/druid/WoW-Forever-Druid-Leveling-Guide.pdf',
-    title: 'WoW Forever Druid Leveling Guide (original PDF)',
-    bytes: 122673,
-    sha256: 'ea9b6cef43898460c2e6090c3ae34a10365b32d7ed1938f784422d4498510fe6',
-    pages: 7,
-    dated: '2026-11-07',
-  },
   races: [
     { id: 'nightelf', name: 'Night Elf', faction: 'alliance', startZone: 'Teldrassil' },
     { id: 'skyborne-high', name: 'High Order Skyborne', faction: 'alliance', startZone: 'Zephras Isle' },
@@ -54,5 +46,8 @@ export const druid: ClassGuide = {
   sources,
   notes,
   questsLabel: 'Forms and class quests',
+  questsNav: 'Forms & quests',
+  deferLabel: 'Skip while Feral if gold is tight',
+  sourcesLead: 'Built from Blizzard’s notes and Forever-specific guides, with patch-sensitive details rechecked against the live spell list and talent calculators. Where sources disagree, a dated note says which one this guide follows. Classic guides were used only for familiar zone geography.',
   questsLead: 'Bear, Aquatic and Cat come from class quests. Travel Form and Dire Bear come straight from the trainer.',
 };

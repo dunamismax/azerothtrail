@@ -14,7 +14,7 @@ interface Props {
 const { guide, build, variant, caption, idPrefix = 'lvl-' } = Astro.props;
 const points = expandBuild(guide, build, variant);
 
-// Group by decade of level (10-19, 20-29 ...), with 60 joining 50s as the PDF does.
+// Group by decade of level (10-19, 20-29 ...), with 60 joining the 50s.
 const groups: { label: string; points: TalentPoint[] }[] = [];
 for (const p of points) {
   const start = p.level >= 50 ? 50 : Math.floor(p.level / 10) * 10;

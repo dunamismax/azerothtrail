@@ -1,6 +1,6 @@
 import type { Bracket } from '../../types.ts';
 
-// Brackets follow the PDF exactly (pages 2-3). Ids are stable link targets:
+// Bracket ranges are fixed and checked by scripts/verify-content.ts. Ids are stable link targets:
 // /druid/route/#lvl-10-15. Hub names marked from [08] are Classic geography
 // cross-checks; new-zone details come from [07], [09] and [10].
 export const brackets: Bracket[] = [

@@ -15,9 +15,9 @@ const { guide, path } = Astro.props;
 const sections = [
   { href: classPath(guide, 'route'), title: 'Leveling route', text: 'Every bracket from 1 to 60, both factions, race branches and optional dungeons.' },
   { href: classPath(guide, 'quests'), title: guide.questsLabel, text: guide.questsLead },
-  { href: classPath(guide, guide.leveling.slug), title: guide.leveling.name, text: 'Point-by-point talents, Cat or Bear, solo pulls, dungeon packs, training on a budget.' },
-  { href: classPath(guide, guide.endgame.slug), title: guide.endgame.name, text: 'Dual spec, the build from 40, healing priorities, gear and your first week at 60.' },
-  { href: classPath(guide, 'sources'), title: 'Sources', text: 'Every reference, update notes and the original PDF.' },
+  { href: classPath(guide, guide.leveling.slug), title: guide.leveling.name, text: guide.leveling.blurb },
+  { href: classPath(guide, guide.endgame.slug), title: guide.endgame.name, text: guide.endgame.blurb },
+  { href: classPath(guide, 'sources'), title: 'Sources', text: 'Every reference, with dated update notes where sources disagree.' },
 ];
 ---
 <Layout

@@ -23,19 +23,17 @@ export interface Race {
 }
 
 export interface Source {
-  /** Two-digit id matching the PDF's numbering where the PDF cites it. */
+  /** Two-digit id, stable once published (pages link to #src-<id>). */
   id: string;
   title: string;
   publisher: string;
   url: string;
   /** What we rely on this source for. */
   covers: string;
-  /** Date we last read it, or null when we only carry the PDF's citation. */
+  /** Date we last read it, or null when it is listed for reference but not rechecked. */
   checked: IsoDate | null;
   /** Source's own "last updated" date, when it shows one. */
   sourceUpdated?: IsoDate;
-  /** True when cited by the original PDF. */
-  inPdf: boolean;
 }
 
 export type NoteKind = 'update' | 'correction' | 'uncertain' | 'confirmed';
@@ -47,8 +45,8 @@ export interface UpdateNote {
   date: IsoDate;
   title: string;
   body: string;
-  /** What the PDF said, when the note changes or qualifies it. */
-  pdfSaid?: string;
+  /** The earlier advice, when the note changes or qualifies it. */
+  previously?: string;
   sources: string[];
 }
 
@@ -222,6 +220,8 @@ export interface SpecGuide {
   name: string;
   /** Short label for navigation. */
   nav: string;
+  /** One line for the "full guide" card on the class home page. */
+  blurb: string;
   lead: string;
   build: TalentBuild;
   variant?: BuildVariant;
@@ -236,11 +236,12 @@ export interface ClassGuide {
   ruleset: string;
   tagline: string;
   lastVerified: IsoDate;
-  pdf: { path: string; title: string; bytes: number; sha256: string; pages: number; dated: IsoDate };
+  /** Lead paragraph for the Sources page. */
+  sourcesLead: string;
   races: Race[];
   trees: TalentTree[];
   talents: Talent[];
-  /** The leveling spec (shown on the level panel) and the max-level role spec. */
+  /** The leveling spec (shown on the level panel) and the second spec opened with dual spec at 40. */
   leveling: SpecGuide;
   endgame: SpecGuide;
   brackets: Bracket[];
@@ -252,5 +253,9 @@ export interface ClassGuide {
   notes: UpdateNote[];
   /** Label for the class-quest page, so a class can name it in its own words. */
   questsLabel: string;
+  /** Short nav label for the class-quest page. */
+  questsNav: string;
   questsLead: string;
+  /** Shown before deferred trainer spells, e.g. "Skip while Feral if gold is tight". */
+  deferLabel: string;
 }

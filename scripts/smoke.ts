@@ -1,9 +1,8 @@
 // Smoke test for a built site, either a dist/ directory or a live URL:
 //   node scripts/smoke.ts dist
 //   node scripts/smoke.ts https://azerothtrail.com [expected-commit]
-// Checks every page and level, internal links and #anchors, assets, the PDF,
+// Checks every page and level, internal links and #anchors, assets,
 // bracket links, talent rows, and (for URLs) TLS, headers and the revision.
-import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { classes } from '../src/data/registry.ts';
@@ -72,7 +71,7 @@ for (const [p, text] of html) {
     const [pathPart, hash] = h.split('#');
     const path = pathPart === '' ? p : pathPart ?? '';
     if (!path.startsWith('/')) { fail(`${p}: relative link ${h}`); continue; }
-    if (/\.(css|js|svg|pdf|txt)$/.test(path)) { assets.add(path); continue; }
+    if (/\.(css|js|svg|txt)$/.test(path)) { assets.add(path); continue; }
     const r = await get(path);
     if (r.status !== 200) { fail(`${p}: broken link ${h} (${r.status})`); continue; }
     if (hash) {
@@ -85,18 +84,12 @@ for (const a of assets) {
   const r = await get(a);
   if (r.status !== 200) { fail(`asset ${a}: HTTP ${r.status}`); continue; }
   if (remote) {
-    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : a.endsWith('.pdf') ? 'application/pdf' : 'text/plain';
+    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : 'text/plain';
     if (!r.type.includes(want)) fail(`asset ${a}: content-type ${r.type}`);
   }
 }
 
 for (const g of classes) {
-  // The PDF is byte-identical to the original.
-  const pdf = await get(g.pdf.path);
-  const sha = createHash('sha256').update(pdf.body).digest('hex');
-  if (pdf.body.length !== g.pdf.bytes || sha !== g.pdf.sha256) fail(`${g.pdf.path}: ${pdf.body.length} bytes, sha256 ${sha}`);
-  if (pdf.body.subarray(0, 5).toString() !== '%PDF-') fail(`${g.pdf.path}: not a PDF`);
-
   // Home: one panel per level; route: every bracket anchor; level pages: right bracket.
   const home = html.get(`/${g.id}/`) ?? '';
   const panels = [...home.matchAll(/data-level-panel="(\d+)"/g)].map((m) => Number(m[1]));

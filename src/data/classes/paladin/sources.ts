@@ -1,0 +1,251 @@
+import type { Source, UpdateNote } from '../../types.ts';
+
+// Every source was read for this guide on the `checked` date. Guide sites that were written during the level-30 beta are
+// marked as such in `covers`, and the notes below say where they are out of date.
+export const sources: Source[] = [
+  {
+    id: '01', checked: '2026-11-07',
+    title: 'World of Warcraft: Forever is now live', publisher: 'Blizzard',
+    url: 'https://news.blizzard.com/en-us/article/24315820/world-of-warcraft-forever-now-live',
+    covers: 'Rulesets, new zones (Zephras Isle 1-12, Riverglades mid-30s to mid-40s), nine new dungeons, raids from December 9.',
+  },
+  {
+    id: '02', checked: '2026-11-08',
+    title: 'World of Warcraft: Forever class deep dives: Paladin', publisher: 'Blizzard',
+    url: 'https://news.blizzard.com/en-us/article/24302099',
+    covers: 'Holy Strike at 6, Judgement no longer consumes the Seal, Seal of Fury at 10 with a 10-yard Judgement taunt, baseline Consecration at 20 (first 4 targets), Lay on Hands on a 20 min cooldown, dual spec at 40. Some talent details were superseded by [03].',
+  },
+  {
+    id: '03', checked: '2026-11-08', sourceUpdated: '2026-11-02',
+    title: 'WoW Forever beta development notes (updated November 2)', publisher: 'Blizzard forums',
+    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-%E2%80%93-updated-november-2/2360696/9',
+    covers: 'Launch Paladin changes: Righteous Fury at 10 with 33% threat plus 90% from Holy damage; Salvation, Revoke and Blessing of Light removed; Improved Seal of Fury and One-Handed Weapon Specialization removed; Shieldsworn, Stoicism and Iron Creed added; Reckoning fixed; training costs about 206-207 gold.',
+  },
+  {
+    id: '04', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Protection Paladin leveling guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/protection-paladin-leveling',
+    covers: 'Leveling rotation, Seal of Fury over Seal of Righteousness, Retribution Aura while leveling, stat order, Alliance zone picks to 30, water and the five-second rule. Its own build paths through Retribution first.',
+  },
+  {
+    id: '05', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Protection Paladin spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/protection-paladin-tank-pve-spec-builds-talents',
+    covers: 'Deep Protection (0/35/16) and Deep Holy (23/28/0) level-60 builds; the live calculator used for talent rows, max ranks and prerequisites.',
+  },
+  {
+    id: '06', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Protection Paladin rotation, cooldowns and abilities', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/protection-paladin-tank-pve-rotation-cooldowns-abilities',
+    covers: 'Single-target and AoE tank priority, Shieldsworn timing, swapping off Seal of Fury when off-tanking, auras and utility.',
+  },
+  {
+    id: '07', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Protection Paladin stat priority', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/protection-paladin-tank-pve-stat-priority',
+    covers: 'Level-60 order: Stamina, Defense to 440, Spell Power, Intellect, Strength. Strength gives 1 Attack Power and 1 Block Value per 20.',
+  },
+  {
+    id: '08', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Paladin class quests guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/paladin-class-quests',
+    covers: 'The Tome of Divinity at 12, The Test of Righteousness (Verigan’s Fist) at 20 from Jordan Stilwell outside Ironforge, Cloak of the Divine Storm at 22 from the Tower of Althalaxx, mount quests at 40 and 60.',
+  },
+  {
+    id: '09', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Retribution Paladin leveling guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-leveling',
+    covers: 'Retribution leveling build (18/0/33), Seal of Command against Seal of Righteousness, the Repentance and Judgement macro, Consecration timing.',
+  },
+  {
+    id: '10', checked: '2026-11-08', sourceUpdated: '2026-11-08',
+    title: 'Protection Paladin guide (Progress)', publisher: 'Mobalytics',
+    url: 'https://mobalytics.gg/wow-forever/classes/protection-paladin-guide-progress',
+    covers: 'Prot leveling 1-60 build (0/39/12, also its raid build), pulls of four, weapon speed for Seal of Fury, early weapons and shields, racials, water levels, Cozy Sleeping Bag chain, free mount and 50 g dual spec at 40, reduced dungeon XP, raid pulling. Some text predates launch.',
+  },
+  {
+    id: '11', checked: '2026-11-08',
+    title: 'Paladin guide', publisher: 'Warcraft Tavern',
+    url: 'https://www.warcrafttavern.com/forever/guides/paladin/',
+    covers: 'Paladin races (Human, Dwarf, Undead), one-hour Blessings, 30-second Seals, plate from the trainer at 40.',
+  },
+  {
+    id: '12', checked: '2026-11-08',
+    title: 'Protection Paladin guide', publisher: 'Warcraft Tavern',
+    url: 'https://www.warcrafttavern.com/forever/guides/protection-paladin/',
+    covers: 'Which Seal’s Judgement to keep up in groups, threat through bubbles, Librams, mail before 40 and plate after, Blacksmithing for armor. Built for the level-30 beta.',
+  },
+  {
+    id: '13', checked: '2026-11-08',
+    title: 'Paladin leveling guide', publisher: 'Warcraft Tavern',
+    url: 'https://www.warcrafttavern.com/forever/guides/paladin-leveling/',
+    covers: 'Seal choice by spec, weapon skills, Polearms at 20, water every ten levels, class quest overview. Written during the beta: its Righteous Fury, Salvation and Blessing of Light entries are out of date.',
+  },
+  {
+    id: '14', checked: '2026-11-08',
+    title: 'Paladin talent calculator', publisher: 'Forever Guide',
+    url: 'https://foreverguide.net/tools/talent-calculator/paladin/',
+    covers: 'Second calculator for max ranks and row thresholds, and full-rank talent text.',
+  },
+  {
+    id: '15', checked: '2026-11-08',
+    title: 'Paladin spells by level (build 1.60.1.70862)', publisher: 'The Forever Era',
+    url: 'https://theforeverera.com/en/spells/paladin/levels/',
+    covers: 'Trainer level and rank for every Paladin spell, talent ranks for Holy Shield, and which Classic spells are gone.',
+  },
+  {
+    id: '16', checked: '2026-11-07',
+    title: 'Explore the new dungeons of World of Warcraft: Forever', publisher: 'Blizzard',
+    url: 'https://news.blizzard.com/en-us/article/24301455/explore-the-new-dungeons-of-world-of-warcraft-forever',
+    covers: 'Official level ranges and locations for the nine new dungeons; City of Dalaran entry quests.',
+  },
+  {
+    id: '17', checked: '2026-11-07',
+    title: 'Raid overview: locations, raid sizes and attunement', publisher: 'Blizzard',
+    url: 'https://news.blizzard.com/en-gb/article/24303009/world-of-warcraft-forever-raid-overviewlocations-raid-sizes-and-attunement',
+    covers: 'Barrow Deeps (10), Hyjal Summit (20), Onyxia’s Lair (40) from December 9, and both Onyxia attunement chains.',
+  },
+  {
+    id: '18', checked: '2026-11-08', sourceUpdated: '2026-11-05',
+    title: 'Leveling routes', publisher: 'Forever Mastery',
+    url: 'https://forevermastery.com/en/guides/leveling',
+    covers: 'Zone level bands for both factions. New zones had no route yet when checked.',
+  },
+  {
+    id: '19', checked: null,
+    title: 'Alliance and Horde leveling guides (Classic)', publisher: 'Wowhead Classic',
+    url: 'https://www.wowhead.com/classic/guide/alliance-leveling-classic-wow',
+    covers: 'Classic zone geography and hub names, used only as a cross-check. Horde: https://www.wowhead.com/classic/guide/horde-leveling-classic-wow',
+  },
+  {
+    id: '20', checked: '2026-11-08',
+    title: 'Paladin quests', publisher: 'Warcraft Wiki',
+    url: 'https://warcraft.wiki.gg/wiki/Paladin_quests',
+    covers: 'Classic steps of The Tome of Divinity, The Test of Righteousness and the Charger chain. Forever sources confirm the quest names and levels, not every step.',
+  },
+  {
+    id: '21', checked: '2026-11-08',
+    title: 'WoW Forever hotfixes, November 6, 2026', publisher: 'Blizzard forums',
+    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-hotfixes-november-6-2026/2403040',
+    covers: 'Ruins of Lordaeron quest at 15 for Horde; Drowned City portal fix. No Paladin changes.',
+  },
+  {
+    id: '22', checked: '2026-11-07', sourceUpdated: '2026-11-07',
+    title: 'Riverglades zone overview', publisher: 'Wowhead',
+    url: 'https://www.wowhead.com/forever/guide/riverglades-zone-overview',
+    covers: 'Riverglades 36-44, Farholde Keep and Rog’mar flight points, road entrances, Tanaris boat docks, Krol’dok entrance.',
+  },
+  {
+    id: '23', checked: '2026-11-07', sourceUpdated: '2026-11-06',
+    title: 'WoW Forever zones by level', publisher: 'ByteTavern',
+    url: 'https://bytetavern.com/wow-forever-zones-by-level/',
+    covers: 'Mount Hyjal 55-60 (live Group Finder), Shen’dralas 38-43 (player-recorded), Classic zone ranges.',
+  },
+  {
+    id: '24', checked: '2026-11-08',
+    title: 'Class deep dive: Paladin (forum discussion)', publisher: 'Blizzard forums',
+    url: 'https://us.forums.blizzard.com/en/wow/t/2383403',
+    covers: 'Player reports only: Hammer of the Righteous appeared on the level-40 trainer in a beta build and was later missing.',
+  },
+];
+
+export const notes: UpdateNote[] = [
+  {
+    id: 'two-builds', kind: 'update', date: '2026-11-08',
+    title: 'Two good Protection leveling orders',
+    body: 'Icy Veins (November 4) spends the first 12 points in Retribution for Benediction, Conviction, Improved Judgement and run speed, which delays Holy Shield to 42 and Shieldsworn to 52. Mobalytics’ Progress guide (read November 8) goes Protection first and gets Holy Shield at 30 and Shieldsworn at 40. This guide follows the Protection-first order because it makes you a complete tank for every dungeon on the way. Both end on a level-60 tank build.',
+    sources: ['04', '10', '05'],
+  },
+  {
+    id: 'improved-seal-of-fury', kind: 'correction', date: '2026-11-02',
+    title: 'Improved Seal of Fury no longer exists',
+    body: 'Blizzard’s deep dive listed Improved Seal of Fury as an 11-point Protection talent, and some guides still mention it (Icy Veins’ milestones at 32, Mobalytics’ mana note at 20). The November 2 notes removed it. Mana return now comes from Redoubt into Shield Specialization.',
+    previously: 'Improved Seal of Fury returns mana when a Seal of Fury shield is used up.',
+    sources: ['03', '02', '04', '10'],
+  },
+  {
+    id: 'removed-blessings', kind: 'correction', date: '2026-11-02',
+    title: 'No Salvation and no Blessing of Light',
+    body: 'Salvation, Mass Salvation, Revoke and Blessing of Light were removed on November 2. The live spell list marks Blessing of Light, Blessing of Sanctuary and Greater Blessing of Salvation as Classic-only. Your Blessings are Might, Wisdom, Kings, Freedom, Protection and Sacrifice. Without Salvation, tanks got a larger threat bonus instead.',
+    previously: 'Salvation and Revoke at 26; Blessing of Light at 40.',
+    sources: ['03', '15', '13', '04'],
+  },
+  {
+    id: 'righteous-fury', kind: 'update', date: '2026-11-02',
+    title: 'Righteous Fury at 10',
+    body: 'Righteous Fury now trains at 10 (was 16), when other tanks get their stance. It adds 33% to all your threat plus another 90% to threat from Holy damage. Keep it on whenever you tank, solo included: Improved Righteous Fury and Iron Creed only work while it is active.',
+    sources: ['03', '15'],
+  },
+  {
+    id: 'seal-of-fury', kind: 'confirmed', date: '2026-11-08',
+    title: 'How Seal of Fury works',
+    body: 'Seal of Fury adds flat Holy damage to every melee swing and gives you a small, non-stacking absorb worth half of that damage, so faster weapons get more of both. Judging it deals Holy damage and taunts from 10 yards, twice the reach of Taunt or Growl. Judgement of Fury lasts 3 seconds. Judgement no longer consumes your Seal, so you set it once.',
+    sources: ['02', '03', '10'],
+  },
+  {
+    id: 'consecration', kind: 'confirmed', date: '2026-11-08',
+    title: 'Consecration is baseline and favors four targets',
+    body: 'Consecration is trained at 20 by every Paladin. It deals full damage only to the first 4 enemies that enter it and very little to the rest, so pulls of four are the sweet spot. It takes 8 seconds to deal all its damage.',
+    sources: ['02', '10', '09'],
+  },
+  {
+    id: 'hammer-of-the-righteous', kind: 'uncertain', date: '2026-11-08',
+    title: 'Hammer of the Righteous at 40?',
+    body: 'The live spell list shows Hammer of the Righteous at 40, but a forum report says it was taken off the trainer late in the beta and none of the guides we read use it. If your trainer offers it, read its tooltip before buying.',
+    sources: ['15', '24'],
+  },
+  {
+    id: 'holy-shield-requirement', kind: 'uncertain', date: '2026-11-08',
+    title: 'Does Holy Shield need Templar’s Bulwark?',
+    body: 'Blizzard’s deep dive said Holy Shield requires Templar’s Bulwark. The live calculator instead puts that requirement on Swift Judgement and shows none on Holy Shield. Both builds here take Templar’s Bulwark at 22 anyway.',
+    sources: ['02', '05'],
+  },
+  {
+    id: 'dungeon-xp', kind: 'update', date: '2026-11-08',
+    title: 'Dungeon experience was cut',
+    body: 'Mob kills inside dungeons give much less experience in Forever, and dungeon quest rewards were halved during the beta. Quest in the world and run a dungeon when you hold its quests, need gear, or want tanking practice.',
+    sources: ['10', '04'],
+  },
+  {
+    id: 'mount-and-dual-spec', kind: 'update', date: '2026-11-08',
+    title: 'Free Warhorse, 50 g dual spec',
+    body: 'Mobalytics reports that Summon Warhorse is free at 40 from the Paladin trainer in your capital, not from a mount vendor, and that dual spec costs 50 gold. Blizzard only confirms that dual spec unlocks at 40.',
+    sources: ['10', '15', '02'],
+  },
+  {
+    id: 'class-quest-steps', kind: 'uncertain', date: '2026-11-08',
+    title: 'Class quest steps are the Classic ones',
+    body: 'Forever guides confirm the class quests, their levels and Jordan Stilwell’s location, but not every step. The walkthroughs here follow the Classic chains. If an NPC or step differs, follow the quest log.',
+    sources: ['08', '20'],
+  },
+  {
+    id: 'reckoning-fix', kind: 'update', date: '2026-11-02',
+    title: 'Reckoning works properly now',
+    body: 'Reckoning now performs one extra attack per stored charge and no longer gains charges while you sit, so it is a real damage talent again. It triggers from blocks (40%, once every 1.5 seconds) as well as from crits.',
+    sources: ['03', '10'],
+  },
+  {
+    id: 'lay-on-hands', kind: 'confirmed', date: '2026-11-08',
+    title: 'Lay on Hands every 20 minutes',
+    body: 'Lay on Hands is on a 20-minute cooldown (was 1 hour). It still costs all your remaining mana, so it is a real emergency button you can use most play sessions.',
+    sources: ['02', '10'],
+  },
+  {
+    id: 'training-cost', kind: 'update', date: '2026-11-02',
+    title: 'Training costs',
+    body: 'Training every class ability from 1 to 60 costs about 206-207 gold for every class. Dual spec is reported at 50 gold.',
+    sources: ['03', '10'],
+  },
+  {
+    id: 'lordaeron-quest', kind: 'update', date: '2026-11-06',
+    title: 'Ruins of Lordaeron quest at 15 for Horde',
+    body: 'The Abomination’s Head offers “Unending Torment” to Horde players from level 15 (previously 16).',
+    sources: ['21'],
+  },
+  {
+    id: 'zone-ranges', kind: 'update', date: '2026-11-07',
+    title: 'Zone ranges for the new zones',
+    body: 'Riverglades is 36-44 per Wowhead (Blizzard says mid-30s to mid-40s). Mount Hyjal shows 55-60 in the live Group Finder. Shen’dralas is 38-43 from player-recorded quests. Darkwhisper Gorge, on the way to Hyjal, is a level 60 area.',
+    sources: ['22', '23', '01'],
+  },
+];
