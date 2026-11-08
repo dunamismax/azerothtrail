@@ -1,0 +1,105 @@
+---
+import type { GetStaticPaths } from 'astro';
+import GuideSectionView from '../../components/GuideSectionView.astro';
+import PrefsControls from '../../components/PrefsControls.astro';
+import SourceRefs from '../../components/SourceRefs.astro';
+import TalentTable from '../../components/TalentTable.astro';
+import UpdateNote from '../../components/UpdateNote.astro';
+import { classes } from '../../data/registry.ts';
+import type { ClassGuide, SpecGuide } from '../../data/types.ts';
+import Layout from '../../layouts/Layout.astro';
+import { classPath, expandBuild, finalSplit, formatDate, levelSpan, pointsAtLevel, runs, splitLabel, treeName } from '../../lib/guide.ts';
+
+export const getStaticPaths = (() =>
+  classes.flatMap((guide) =>
+    [guide.leveling, guide.endgame].map((spec) => ({ params: { cls: guide.id, spec: spec.slug }, props: { guide, spec } })),
+  )) satisfies GetStaticPaths;
+
+const { guide, spec } = Astro.props as { guide: ClassGuide; spec: SpecGuide };
+const points = expandBuild(guide, spec.build);
+const split = splitLabel(guide, finalSplit(guide, points));
+const atStart = pointsAtLevel(points, spec.build.startLevel);
+const startRuns = runs(atStart);
+const laterRuns = runs(points.filter((p) => p.level > spec.build.startLevel));
+const variantSplit = spec.variant ? splitLabel(guide, finalSplit(guide, expandBuild(guide, spec.build, spec.variant))) : null;
+const isLeveling = spec.slug === guide.leveling.slug;
+---
+<Layout guide={guide} path={classPath(guide, spec.slug)} title={spec.name} description={`${guide.name} ${spec.name.toLowerCase()} for World of Warcraft: Forever. ${spec.build.summary}`}>
+  <header class="page-head">
+    <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
+    <h1>{spec.name}</h1>
+    <p class="lead">{spec.lead}</p>
+    <p class="verified">Last verified {formatDate(guide.lastVerified)}.</p>
+  </header>
+
+  <PrefsControls guide={guide} />
+  {spec.notes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+
+  <section class="section" id="build" aria-labelledby="build-title">
+    <h2 id="build-title">{spec.build.name}: every talent point</h2>
+    <p>{spec.build.summary} <span class="tag tag-accent">{guide.trees.map((t) => treeName(guide, t.id)).join(' / ')}: {split}</span></p>
+    <p class="js-only small">Your level is highlighted. <a href="#build" data-jump-level="tr">Jump to level <span data-level-text>1</span></a>.</p>
+
+    {atStart.length > 1 && (
+      <div class="callout">
+        <p class="card-label">At {spec.build.startLevel}: {atStart.length} points, in this order</p>
+        <ol>{startRuns.map((r) => <li>{r.from.talent.name} {r.to.rank}/{r.to.talent.maxRank} <span class="muted small">({treeName(guide, r.from.talent.tree)})</span></li>)}</ol>
+        <p class="card-label">Then one point per level</p>
+        <ul>{laterRuns.map((r) => <li><b>{levelSpan(r.from.level, r.to.level)}</b> {r.from.talent.name} {r.from.rank === r.to.rank ? `${r.to.rank}` : `${r.from.rank}-${r.to.rank}`}/{r.to.talent.maxRank} <span class="muted small">({treeName(guide, r.from.talent.tree)})</span></li>)}</ul>
+      </div>
+    )}
+    {atStart.length === 1 && (
+      <div class="callout">
+        <p class="card-label">Summary</p>
+        <ul>{runs(points).map((r) => <li><b>{levelSpan(r.from.level, r.to.level)}</b> {r.from.talent.name} {r.to.rank}/{r.to.talent.maxRank} <span class="muted small">({treeName(guide, r.from.talent.tree)})</span></li>)}</ul>
+      </div>
+    )}
+
+    <TalentTable guide={guide} build={spec.build} caption={`${spec.build.name} talent order`} />
+    <SourceRefs guide={guide} ids={spec.build.sources} />
+
+    {spec.variant && (
+      <div class="note note-update" id="variant">
+        <p class="note-title">{spec.variant.title} <span class="tag tag-accent">{variantSplit}</span></p>
+        <p>{spec.variant.body}</p>
+        <SourceRefs guide={guide} ids={spec.variant.sources} />
+      </div>
+    )}
+
+    <h3>Talent notes</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Talent</th><th scope="col">Tree, row</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          {[...new Map(points.map((p) => [p.talent.id, p.talent])).values()].map((t) => (
+            <tr><th scope="row">{t.name}</th><td class="nowrap">{treeName(guide, t.tree)}, {t.row}</td><td>{t.summary}</td></tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Row n unlocks at 5 &times; (n &minus; 1) points in that tree. &ldquo;(Classic)&rdquo; marks an effect carried over from Classic that Forever sources don&rsquo;t restate.</p>
+  </section>
+
+  {spec.sections.map((s) => <GuideSectionView guide={guide} section={s} />)}
+
+  {spec.checklist && (
+    <section class="section" id={spec.checklist.id} aria-labelledby={`${spec.checklist.id}-title`}>
+      <h2 id={`${spec.checklist.id}-title`}>{spec.checklist.title}</h2>
+      <p class="lead">{spec.checklist.lead}</p>
+      <ul class="checklist">
+        {spec.checklist.items.map((item) => (
+          <li>
+            <input type="checkbox" id={`check-${item.id}`} data-check-id={`${spec.checklist?.id}:${item.id}`} />
+            <label for={`check-${item.id}`}><b>{item.title}.</b> {item.body}</label>
+          </li>
+        ))}
+      </ul>
+      <p class="js-only small muted">Ticks are saved in this browser. <button type="button" data-reset-checks>Clear ticks</button></p>
+      <SourceRefs guide={guide} ids={spec.checklist.sources} />
+    </section>
+  )}
+
+  {isLeveling && (
+    <p class="small"><a href={classPath(guide, guide.endgame.slug)}>Next: {guide.endgame.name}</a></p>
+  )}
+</Layout>

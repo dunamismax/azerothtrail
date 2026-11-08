@@ -1,0 +1,11 @@
+---
+import { defaultClass } from '../data/registry.ts';
+import Layout from '../layouts/Layout.astro';
+import { classPath } from '../lib/guide.ts';
+
+const guide = defaultClass;
+---
+<Layout guide={guide} path="/404.html" title="Page not found" description="That page isn't on the trail.">
+  <h1>Off the trail</h1>
+  <p>That page doesn&rsquo;t exist. Try <a href={classPath(guide)}>what to do at your level</a> or the <a href={classPath(guide, 'route')}>full route</a>.</p>
+</Layout>

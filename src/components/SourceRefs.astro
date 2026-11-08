@@ -1,0 +1,23 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { classPath, sourceById } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  ids: readonly string[];
+  label?: string;
+}
+
+const { guide, ids, label = 'Sources' } = Astro.props;
+const list = [...new Set(ids)].map((id) => sourceById(guide, id));
+---
+{list.length > 0 && (
+  <p class="sources">
+    {label}:{' '}
+    {list.map((s, i) => (
+      <>
+        <a href={`${classPath(guide, 'sources')}#src-${s.id}`} title={`${s.publisher}: ${s.title}`}>[{s.id}]</a>{i < list.length - 1 ? ' ' : ''}
+      </>
+    ))}
+  </p>
+)}

@@ -1,0 +1,43 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import { LEVELS } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  /** Show the level selector (off on per-level pages, where the URL sets the level). */
+  level?: boolean;
+}
+
+const { guide, level = true } = Astro.props;
+---
+<div class="prefs js-only" role="group" aria-label="Your character">
+  {level && (
+    <div>
+      <label class="label" for="pref-level">Level</label>
+      <div class="stepper">
+        <button type="button" data-level-step="-1" aria-label="Previous level">&minus;</button>
+        <select id="pref-level" name="level">
+          {LEVELS.map((n) => <option value={n}>{n}</option>)}
+        </select>
+        <button type="button" data-level-step="1" aria-label="Next level">+</button>
+      </div>
+    </div>
+  )}
+  <fieldset>
+    <legend>Faction</legend>
+    <div class="choices">
+      {FACTIONS.map((f) => (
+        <label class="choice"><input type="radio" name="faction" value={f} /><span>{FACTION_LABEL[f]}</span></label>
+      ))}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Starting race</legend>
+    <div class="choices">
+      {guide.races.map((r) => (
+        <label class="choice"><input type="radio" name="race" value={r.id} data-faction={r.faction} /><span>{r.name}</span></label>
+      ))}
+    </div>
+  </fieldset>
+</div>

@@ -1,0 +1,77 @@
+---
+import '../styles/global.css';
+import type { ClassGuide } from '../data/types.ts';
+import { classPath, formatDate } from '../lib/guide.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  guide: ClassGuide;
+  /** Path of this page, for aria-current and the canonical URL. */
+  path: string;
+  canonical?: string;
+  pageLevel?: number;
+}
+
+const { title, description, guide, path, canonical, pageLevel } = Astro.props;
+const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
+const nav = [
+  { href: classPath(guide), label: 'My level' },
+  { href: classPath(guide, 'route'), label: 'Route' },
+  { href: classPath(guide, 'quests'), label: 'Forms & quests' },
+  { href: classPath(guide, guide.leveling.slug), label: guide.leveling.nav },
+  { href: classPath(guide, guide.endgame.slug), label: guide.endgame.nav },
+  { href: classPath(guide, 'sources'), label: 'Sources' },
+];
+const fullTitle = title === 'Azeroth Trail' ? title : `${title} · Azeroth Trail`;
+---
+<!doctype html>
+<html lang="en" data-class={guide.id}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={`${site}${canonical ?? path}`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#12100c" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f5efe1" media="(prefers-color-scheme: light)" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${site}${canonical ?? path}`} />
+    <script is:inline src="/boot.js"></script>
+  </head>
+  <body data-class={guide.id} data-page-level={pageLevel}>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/"><span class="mark" aria-hidden="true">&#10022;</span> Azeroth Trail <small>{guide.name} · {guide.ruleset}</small></a>
+        <nav class="site-nav" aria-label="Guide sections">
+          <ul>
+            {nav.map((item) => (
+              <li><a href={item.href} aria-current={path === item.href || (item.href !== classPath(guide) && path.startsWith(item.href)) ? 'page' : undefined}>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <div class="wrap">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>Azeroth Trail: a personal World of Warcraft: Forever leveling guide. {guide.name} guide last verified {formatDate(guide.lastVerified)}.</p>
+        <p>Unofficial fan guide, not affiliated with Blizzard Entertainment. Preferences are stored only in this browser.</p>
+      </div>
+    </footer>
+    <div hidden>
+      {guide.races.map((r) => <span data-race-id={r.id} data-race-name={r.name} data-faction={r.faction}></span>)}
+    </div>
+    <script>
+      import '../scripts/app.ts';
+    </script>
+  </body>
+</html>

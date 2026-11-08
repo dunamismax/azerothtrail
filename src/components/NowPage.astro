@@ -1,0 +1,55 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import Layout from '../layouts/Layout.astro';
+import LevelGrid from './LevelGrid.astro';
+import LevelPanel from './LevelPanel.astro';
+import PrefsControls from './PrefsControls.astro';
+import { LEVELS, classPath, formatDate } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  path: string;
+}
+
+const { guide, path } = Astro.props;
+const sections = [
+  { href: classPath(guide, 'route'), title: 'Leveling route', text: 'Every bracket from 1 to 60, both factions, race branches and optional dungeons.' },
+  { href: classPath(guide, 'quests'), title: guide.questsLabel, text: guide.questsLead },
+  { href: classPath(guide, guide.leveling.slug), title: guide.leveling.name, text: 'Point-by-point talents, Cat or Bear, solo pulls, dungeon packs, training on a budget.' },
+  { href: classPath(guide, guide.endgame.slug), title: guide.endgame.name, text: 'Dual spec, the build from 40, healing priorities, gear and your first week at 60.' },
+  { href: classPath(guide, 'sources'), title: 'Sources', text: 'Every reference, update notes and the original PDF.' },
+];
+---
+<Layout
+  guide={guide}
+  path={path}
+  canonical={classPath(guide)}
+  title={path === '/' ? 'Azeroth Trail' : `${guide.name} leveling guide`}
+  description={`${guide.tagline} What to do at every level, 1-60: where to quest, what to train, the next talent point and the dungeon worth trying. ${guide.ruleset}.`}
+>
+  <section id="now" aria-labelledby="now-title">
+    <p class="eyebrow">World of Warcraft: Forever · {guide.name} · {guide.ruleset}</p>
+    <h1 id="now-title">What should I do at level <span data-level-text>1</span>?</h1>
+    <p class="verified">{guide.tagline} Last verified {formatDate(guide.lastVerified)} against the <a href={classPath(guide, 'sources')}>sources</a>.</p>
+    <PrefsControls guide={guide} />
+    <noscript>
+      <p class="callout">Pick your level below to open its page. Every page also lists both factions and every starting race.</p>
+    </noscript>
+    <div aria-live="polite">
+      {LEVELS.map((n) => <LevelPanel guide={guide} level={n} switcher visible={n === 1} />)}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="levels-title">
+    <h2 id="levels-title">Any level</h2>
+    <p class="small muted">A thicker top edge marks the first level of each questing bracket.</p>
+    <LevelGrid guide={guide} />
+  </section>
+
+  <section class="section" aria-labelledby="sections-title">
+    <h2 id="sections-title">The full guide</h2>
+    <ul class="nav-cards">
+      {sections.map((s) => <li><a href={s.href}><b>{s.title}</b><span>{s.text}</span></a></li>)}
+    </ul>
+  </section>
+</Layout>

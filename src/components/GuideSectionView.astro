@@ -1,0 +1,34 @@
+---
+import type { ClassGuide, GuideSection } from '../data/types.ts';
+import SourceRefs from './SourceRefs.astro';
+import UpdateNote from './UpdateNote.astro';
+
+interface Props {
+  guide: ClassGuide;
+  section: GuideSection;
+}
+
+const { guide, section: s } = Astro.props;
+---
+<section class="section" id={s.id} aria-labelledby={`${s.id}-title`}>
+  <h2 id={`${s.id}-title`}>{s.title}</h2>
+  {s.lead && <p class="lead">{s.lead}</p>}
+  {s.paragraphs?.map((p) => <p>{p}</p>)}
+  {s.table && (
+    <div class="table-wrap">
+      <table>
+        <thead><tr>{s.table.head.map((h) => <th scope="col">{h}</th>)}</tr></thead>
+        <tbody>
+          {s.table.rows.map((row) => (
+            <tr>{row.map((cell, i) => (i === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>))}</tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+  {s.ordered && <ol>{s.ordered.map((x) => <li>{x}</li>)}</ol>}
+  {s.bullets && <ul>{s.bullets.map((x) => <li>{x}</li>)}</ul>}
+  {s.callout && <div class="callout"><p>{s.callout}</p></div>}
+  {s.notes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+  <SourceRefs guide={guide} ids={s.sources} />
+</section>

@@ -1,0 +1,42 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BracketCard from '../../components/BracketCard.astro';
+import PrefsControls from '../../components/PrefsControls.astro';
+import { classes } from '../../data/registry.ts';
+import type { ClassGuide } from '../../data/types.ts';
+import Layout from '../../layouts/Layout.astro';
+import { classPath, formatDate, levelSpan } from '../../lib/guide.ts';
+
+export const getStaticPaths = (() => classes.map((guide) => ({ params: { cls: guide.id }, props: { guide } }))) satisfies GetStaticPaths;
+
+const { guide } = Astro.props as { guide: ClassGuide };
+---
+<Layout guide={guide} path={classPath(guide, 'route')} title={`${guide.name} leveling route`} description={`The full ${guide.name} leveling route for World of Warcraft: Forever, 1-60, for both factions and every starting race.`}>
+  <header class="page-head">
+    <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
+    <h1>Leveling route</h1>
+    <p class="lead">Quest in clusters and follow one main loop per bracket; use the alternative zone to fill gaps. Dungeons are optional. Use one when the group and travel line up.</p>
+    <p class="verified">Last verified {formatDate(guide.lastVerified)}.</p>
+  </header>
+
+  <PrefsControls guide={guide} />
+  <div class="toolbar js-only">
+    <span class="small muted" data-filter-summary></span>
+    <button type="button" data-toggle-show-all aria-pressed="false" hidden>Show every faction and race</button>
+    <a class="button" href="#" data-jump-bracket>Jump to my bracket</a>
+  </div>
+
+  <nav aria-label="Brackets">
+    <ul class="bracket-index">
+      {guide.brackets.map((b) => (
+        <li><a href={`#${b.id}`} data-min={b.min} data-max={b.max}><b>{levelSpan(b.min, b.max)}</b> {b.title}</a></li>
+      ))}
+    </ul>
+  </nav>
+
+  <div class="callout">
+    <p><b>When to move on:</b> finish quests you can turn in together. Switch hubs when the board is mostly low-value, long errands, elites, or mobs well above your level. Pick up every flight path you pass and bind to the inn for your current cluster.</p>
+  </div>
+
+  {guide.brackets.map((b) => <BracketCard guide={guide} bracket={b} />)}
+</Layout>

@@ -1,0 +1,52 @@
+# azerothtrail.com: installed as /etc/caddy/sites/azerothtrail.com.caddy by
+# deploy/cutover.sh and loaded by the host's main Caddyfile
+# (`import /etc/caddy/sites/*.caddy`), which this file never replaces.
+#
+# Static Astro output only: Caddy serves the active release's dist/ directory.
+# Automatic HTTPS: DNS for both names points straight at the host, so Caddy
+# obtains and renews the certificates itself.
+#
+# Check and reload: caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+
+www.azerothtrail.com {
+	redir https://azerothtrail.com{uri} permanent
+}
+
+azerothtrail.com {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# Everything is served from here; Astro emits no inline scripts or styles.
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+
+	root * /srv/www/azerothtrail.com/current/dist
+
+	# Astro fingerprints everything under /_astro/, so it can be cached forever.
+	@immutable path /_astro/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+	# Pages, the PDF and version.txt change with each deploy: revalidate (cheap, ETags).
+	@fresh not path /_astro/*
+	header @fresh Cache-Control "public, max-age=0, must-revalidate"
+
+	file_server
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+
+	log {
+		output file /var/log/caddy/azerothtrail-access.log {
+			roll_size 10MiB
+			roll_keep 7
+			roll_keep_for 168h
+		}
+	}
+}

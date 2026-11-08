@@ -1,0 +1,38 @@
+---
+import type { GetStaticPaths } from 'astro';
+import LevelGrid from '../../../components/LevelGrid.astro';
+import LevelPanel from '../../../components/LevelPanel.astro';
+import PrefsControls from '../../../components/PrefsControls.astro';
+import { classes } from '../../../data/registry.ts';
+import type { ClassGuide } from '../../../data/types.ts';
+import Layout from '../../../layouts/Layout.astro';
+import { LEVELS, MAX_LEVEL, MIN_LEVEL, bracketFor, classPath, levelHref } from '../../../lib/guide.ts';
+
+export const getStaticPaths = (() =>
+  classes.flatMap((guide) => LEVELS.map((n) => ({ params: { cls: guide.id, n: String(n) }, props: { guide, level: n } })))) satisfies GetStaticPaths;
+
+const { guide, level } = Astro.props as { guide: ClassGuide; level: number };
+const b = bracketFor(guide, level);
+const path = levelHref(guide, level);
+---
+<Layout
+  guide={guide}
+  path={path}
+  pageLevel={level}
+  title={`${guide.name} level ${level}`}
+  description={`${guide.name} at level ${level}: quest in ${b.alliance.hubs[0] ?? b.title} (Alliance) or ${b.horde.hubs[0] ?? b.title} (Horde), what to train, the talent point and the dungeon worth trying.`}
+>
+  <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
+  <h1>What should I do at level {level}?</h1>
+  <p class="small"><a href={classPath(guide)}>Use the level picker</a> to switch levels in place and remember your choice.</p>
+  <PrefsControls guide={guide} level={false} />
+  <LevelPanel guide={guide} level={level} />
+  <nav class="pager" aria-label="Neighbouring levels">
+    {level > MIN_LEVEL ? <a class="button" href={levelHref(guide, level - 1)} rel="prev">&larr; Level {level - 1}</a> : <span></span>}
+    {level < MAX_LEVEL ? <a class="button" href={levelHref(guide, level + 1)} rel="next">Level {level + 1} &rarr;</a> : <span></span>}
+  </nav>
+  <section class="section" aria-labelledby="levels-title">
+    <h2 id="levels-title">Any level</h2>
+    <LevelGrid guide={guide} current={level} />
+  </section>
+</Layout>

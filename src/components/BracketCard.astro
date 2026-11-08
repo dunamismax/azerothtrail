@@ -1,0 +1,86 @@
+---
+import type { Bracket, ClassGuide } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import { dungeonById, levelSpan, rangeLabel } from '../lib/guide.ts';
+import SourceRefs from './SourceRefs.astro';
+import UpdateNote from './UpdateNote.astro';
+
+interface Props {
+  guide: ClassGuide;
+  bracket: Bracket;
+}
+
+const { guide, bracket: b } = Astro.props;
+const headingId = `${b.id}-title`;
+---
+<article class="bracket" id={b.id} data-min={b.min} data-max={b.max} aria-labelledby={headingId}>
+  <header class="bracket-head">
+    <span class="levels">{levelSpan(b.min, b.max)}</span>
+    <h2 id={headingId}>{b.title}</h2>
+    <a class="anchor" href={`#${b.id}`} aria-label={`Link to levels ${levelSpan(b.min, b.max)}`}>#</a>
+    <span class="tag">Suggested questing bracket</span>
+    <span class="tag tag-accent here">You are here</span>
+  </header>
+
+  <div class="grid grid-2">
+    {FACTIONS.map((f) => {
+      const r = b[f];
+      return (
+        <section class="faction-col" data-for={f} aria-label={`${FACTION_LABEL[f]} route`}>
+          <h3><span class={`tag tag-${f}`}>{FACTION_LABEL[f]}</span></h3>
+          <p>{r.primary}</p>
+          {r.hubs.length > 0 && (<><p class="card-label">Main hubs</p><ul class="chips">{r.hubs.map((h) => <li>{h}</li>)}</ul></>)}
+          {r.alternatives.length > 0 && (<><p class="card-label">Useful alternatives</p><ul>{r.alternatives.map((a) => <li>{a}</li>)}</ul></>)}
+          {r.travel.length > 0 && (<><p class="card-label">Travel</p><ul>{r.travel.map((t) => <li>{t}</li>)}</ul></>)}
+        </section>
+      );
+    })}
+  </div>
+
+  {b.raceBranches.length > 0 && (
+    <section aria-label="Starting-race branches">
+      <p class="card-label">Starting-race branches</p>
+      {b.raceBranches.map((r) => (
+        <div class="branch" data-for={r.races}>
+          <h4>{r.title}{r.uncertain && <span class="tag tag-uncertain">Unconfirmed</span>}</h4>
+          <ul>{r.steps.map((s) => <li>{s}</li>)}</ul>
+        </div>
+      ))}
+    </section>
+  )}
+
+  <p class="card-label">What to do</p>
+  <ul>{b.plan.map((p) => <li>{p}</li>)}</ul>
+
+  {b.zoneNotes && (
+    <p class="small muted">{b.zoneNotes.join(' ')}</p>
+  )}
+
+  {b.dungeons.length > 0 && (
+    <>
+      <p class="card-label">Dungeons <span class="tag tag-optional">Optional</span></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Dungeon</th><th scope="col">Official range</th><th scope="col">Where</th><th scope="col">Why go</th></tr></thead>
+          <tbody>
+            {b.dungeons.map((p) => {
+              const d = dungeonById(guide, p.dungeon);
+              return (
+                <tr>
+                  <th scope="row">{d.name}{d.isNew && <> <span class="tag tag-accent">New</span></>}</th>
+                  <td class="nowrap">{d.official ? rangeLabel(d) : <span class="muted">Not published</span>}</td>
+                  <td>{d.zone}<span class="muted small">. {d.location}</span></td>
+                  <td>{p.note}{d.access && <span class="small"> {d.access}</span>}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="small muted">Questing brackets are suggestions. Dungeon ranges are Blizzard’s official ones; Classic dungeons show none because Forever hasn’t published them. Check the in-game Group Finder.</p>
+    </>
+  )}
+
+  {b.notes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+  <SourceRefs guide={guide} ids={b.sources} />
+</article>

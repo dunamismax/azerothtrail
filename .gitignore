@@ -1,0 +1,24 @@
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+
+# Secrets: never commit
+.env
+.env.*
+**/*.env
+**/secrets/
+*.pem
+*.key
+
+# Local agent/session metadata
+.agents/
+.codex/
+.claude/
+
+# OS and editor clutter
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

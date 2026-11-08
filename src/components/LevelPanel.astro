@@ -1,0 +1,161 @@
+---
+import type { ClassGuide, TrainSpell } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import {
+  FIRST_TALENT_LEVEL,
+  MAX_LEVEL,
+  bracketFor,
+  bracketHref,
+  classPath,
+  dungeonsForLevel,
+  expandBuild,
+  formsAt,
+  nextForm,
+  nextTraining,
+  pointsAtLevel,
+  rangeLabel,
+  splitLabel,
+  runs,
+  levelSpan,
+  trainingAt,
+  treeName,
+} from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  level: number;
+  /** Render as a hidden panel for the home page switcher. */
+  switcher?: boolean;
+  visible?: boolean;
+}
+
+const { guide, level, switcher = false, visible = true } = Astro.props;
+const bracket = bracketFor(guide, level);
+const leveling = expandBuild(guide, guide.leveling.build);
+const endgame = expandBuild(guide, guide.endgame.build);
+const point = pointsAtLevel(leveling, level)[0];
+const nextPoint = pointsAtLevel(leveling, level + 1)[0];
+const endgamePoints = pointsAtLevel(endgame, level);
+const endgameRuns = runs(endgamePoints);
+const trainNow = trainingAt(guide, level);
+const trainNext = nextTraining(guide, level);
+const questsNow = formsAt(guide, level);
+const questNext = nextForm(guide, level);
+const dungeons = dungeonsForLevel(guide, level);
+const milestone = guide.milestones.find((m) => m.level === level);
+const nextMilestone = guide.milestones.find((m) => m.level > level);
+const branches = bracket.raceBranches;
+const core = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'core');
+const extra = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'situational');
+const deferred = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'defer');
+const spellName = (s: TrainSpell) => `${s.name}${s.rank ? ` ${s.rank}` : ''}`;
+const statusTag = { 'in-range': ['tag-ok', 'In range'], below: ['tag-warn', 'Below range'], above: ['tag', 'Above range'], unknown: ['tag', 'Range not published'] } as const;
+const headingId = `panel-${level}-title`;
+---
+<section class="panel" data-level-panel={switcher ? String(level) : undefined} hidden={switcher && !visible ? true : undefined} aria-labelledby={headingId}>
+  <div class="panel-head">
+    <h2 id={headingId}>Level {level}</h2>
+    <a class="tag tag-accent" href={bracketHref(guide, bracket)}>Questing bracket {levelSpan(bracket.min, bracket.max)}: {bracket.title}</a>
+    {milestone && <span class="tag tag-ok">Milestone: {milestone.text}</span>}
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <p class="card-label">Where to quest</p>
+      {FACTIONS.map((f) => {
+        const route = bracket[f];
+        return (
+          <div class="faction-col" data-for={f}>
+            <h3><span class={`tag tag-${f}`}>{FACTION_LABEL[f]}</span></h3>
+            <p>{route.primary}</p>
+            {route.hubs.length > 0 && <ul class="chips" aria-label="Hubs">{route.hubs.map((h) => <li>{h}</li>)}</ul>}
+            {route.alternatives.length > 0 && <p class="small"><b>Alternative:</b> {route.alternatives.join('; ')}.</p>}
+            {route.travel.length > 0 && <p class="small muted"><b>Travel:</b> {route.travel.join(' ')}</p>}
+          </div>
+        );
+      })}
+      {branches.map((b) => (
+        <div class="branch" data-for={b.races}>
+          <h4>{b.title}{b.uncertain && <span class="tag tag-uncertain">Unconfirmed</span>}</h4>
+          <ul>{b.steps.map((s) => <li>{s}</li>)}</ul>
+        </div>
+      ))}
+      <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a></p>
+    </div>
+
+    <div class="card">
+      <p class="card-label">Trainer and class quests</p>
+      {questsNow.map((f) => (
+        <p class="big"><a href={`${classPath(guide, 'quests')}#${f.id}`}>{f.name}</a> {f.how === 'class quest' ? <span class="tag tag-accent">Class quest now</span> : <span class="tag tag-accent">At the trainer</span>}</p>
+      ))}
+      {trainNow ? (
+        <>
+          <h3>Train at {level}</h3>
+          <ul class="spells">
+            {core(trainNow.spells).map((s) => <li><b>{spellName(s)}</b>{s.talent && <span class="tag">Talent</span>}{s.note && <span class="why">{s.note}</span>}</li>)}
+            {extra(trainNow.spells).map((s) => <li>{spellName(s)} <span class="why">if you use it{s.note ? `. ${s.note}` : ''}</span></li>)}
+          </ul>
+          {deferred(trainNow.spells).length > 0 && <p class="small muted">Skip while Feral if gold is tight: {deferred(trainNow.spells).map(spellName).join(', ')}.</p>}
+        </>
+      ) : (
+        <p>No new training at {level}.{trainNext && <> Next trainer visit at <b>{trainNext.level}</b>: {core(trainNext.spells).map(spellName).join(', ') || 'optional ranks only'}.</>}</p>
+      )}
+      {trainNow && trainNext && <p class="small muted">Next visit at {trainNext.level}: {core(trainNext.spells).map(spellName).join(', ') || 'optional ranks only'}.</p>}
+      {questNext && <p class="small">Next class unlock: <a href={`${classPath(guide, 'quests')}#${questNext.id}`}>{questNext.name}</a> at {questNext.level} ({questNext.how}).</p>}
+    </div>
+
+    <div class="card">
+      <p class="card-label">Talent point</p>
+      {level < FIRST_TALENT_LEVEL ? (
+        <p>Talents start at {FIRST_TALENT_LEVEL}. Your first point goes into <b>{pointsAtLevel(leveling, FIRST_TALENT_LEVEL)[0]?.talent.name}</b>.</p>
+      ) : point ? (
+        <>
+          <p class="big">{point.talent.name} <span class="muted">{point.rank}/{point.talent.maxRank}</span></p>
+          <p class="small muted">{treeName(guide, point.talent.tree)} · point {point.n} of {MAX_LEVEL - FIRST_TALENT_LEVEL + 1} · split now {splitLabel(guide, point.totals)} ({guide.trees.map((t) => t.name).join(" / ")})</p>
+          <p class="small">{point.talent.summary}</p>
+          {nextPoint && <p class="small">Next at {nextPoint.level}: <b>{nextPoint.talent.name}</b> {nextPoint.rank}/{nextPoint.talent.maxRank}.</p>}
+          <p class="small"><a href={`${classPath(guide, guide.leveling.slug)}#lvl-${level}`}>Full {guide.leveling.nav} order</a></p>
+        </>
+      ) : null}
+      {endgamePoints.length > 0 && (
+        <div class="branch">
+          <h4>{guide.endgame.nav} spec at {level}</h4>
+          {endgamePoints.length > 1 ? (
+            <>
+              <p class="small">Open your second spec and spend all {endgamePoints.length} points:</p>
+              <ol class="small">{endgameRuns.map((r) => <li>{r.from.talent.name} {r.to.rank}/{r.to.talent.maxRank}</li>)}</ol>
+            </>
+          ) : (
+            <p class="small"><b>{endgamePoints[0]?.talent.name}</b> {endgamePoints[0]?.rank}/{endgamePoints[0]?.talent.maxRank} ({treeName(guide, endgamePoints[0]?.talent.tree ?? '')}), split {splitLabel(guide, endgamePoints[0]?.totals ?? {})}.</p>
+          )}
+          <p class="small"><a href={`${classPath(guide, guide.endgame.slug)}#lvl-${level}`}>{guide.endgame.nav} build</a></p>
+        </div>
+      )}
+    </div>
+
+    <div class="card">
+      <p class="card-label">Dungeon nearby <span class="tag tag-optional">Optional</span></p>
+      {dungeons.length === 0 ? (
+        <p>No dungeon worth the trip yet. Keep questing; the first new dungeon opens at 13.</p>
+      ) : (
+        <ul class="spells">
+          {dungeons.map(({ dungeon, note, status }) => (
+            <li>
+              <b>{dungeon.name}</b>
+              <span class="tag">{dungeon.official ? `Official ${rangeLabel(dungeon)}` : 'Classic dungeon'}</span>
+              <span class={`tag ${statusTag[status][0]}`}>{statusTag[status][1]}</span>
+              {dungeon.easierFor && <span class={`tag tag-${dungeon.easierFor}`}>Easier {FACTION_LABEL[dungeon.easierFor]} access</span>}
+              <span class="why">{dungeon.zone}. {note}{dungeon.access ? ` ${dungeon.access}` : ''}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {nextMilestone && <p class="small muted">Coming up at {nextMilestone.level}: {nextMilestone.text}</p>}
+    </div>
+  </div>
+
+  <div class="callout">
+    <p class="card-label">Plan for {levelSpan(bracket.min, bracket.max)}</p>
+    <ul>{bracket.plan.map((p) => <li>{p}</li>)}</ul>
+  </div>
+</section>

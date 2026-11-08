@@ -1,0 +1,53 @@
+---
+import type { BuildVariant, ClassGuide, TalentBuild } from '../data/types.ts';
+import { expandBuild, finalSplit, splitLabel, treeName, type TalentPoint } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  build: TalentBuild;
+  variant?: BuildVariant;
+  caption: string;
+  /** Prefix for row ids; rows get `<prefix><level>` so links can target a level. */
+  idPrefix?: string;
+}
+
+const { guide, build, variant, caption, idPrefix = 'lvl-' } = Astro.props;
+const points = expandBuild(guide, build, variant);
+
+// Group by decade of level (10-19, 20-29 ...), with 60 joining 50s as the PDF does.
+const groups: { label: string; points: TalentPoint[] }[] = [];
+for (const p of points) {
+  const start = p.level >= 50 ? 50 : Math.floor(p.level / 10) * 10;
+  const label = start === 50 ? '50-60' : `${start}-${start + 9}`;
+  const g = groups.at(-1);
+  if (g && g.label === label) g.points.push(p);
+  else groups.push({ label, points: [p] });
+}
+const seen = new Set<number>();
+---
+<div class="table-wrap">
+  <table>
+    <caption class="sr-only">{caption}. Final split {splitLabel(guide, finalSplit(guide, points))}.</caption>
+    <thead>
+      <tr><th scope="col" class="num">Level</th><th scope="col">Talent</th><th scope="col" class="num">Rank</th><th scope="col" class="col-tree">Tree</th><th scope="col" class="num">Split after</th></tr>
+    </thead>
+    {groups.map((g) => (
+      <tbody>
+        <tr class="group-row"><th scope="rowgroup" colspan="5">Levels {g.label}</th></tr>
+        {g.points.map((p) => {
+          const first = !seen.has(p.level);
+          seen.add(p.level);
+          return (
+            <tr data-level={first ? String(p.level) : undefined} id={first ? `${idPrefix}${p.level}` : undefined}>
+              <td class="num">{p.level}</td>
+              <td>{p.talent.name}{variant && p.talent.id === variant.swap.to && <> <span class="tag tag-accent">Swap</span></>}</td>
+              <td class="num">{p.rank}/{p.talent.maxRank}</td>
+              <td class="col-tree">{treeName(guide, p.talent.tree)}</td>
+              <td class="num">{splitLabel(guide, p.totals)}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    ))}
+  </table>
+</div>

@@ -1,0 +1,21 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { formatDate, noteById } from '../lib/guide.ts';
+import SourceRefs from './SourceRefs.astro';
+
+interface Props {
+  guide: ClassGuide;
+  id: string;
+}
+
+const { guide, id } = Astro.props;
+const note = noteById(guide, id);
+const kindLabel = { update: 'Update', correction: 'Correction', uncertain: 'Unconfirmed', confirmed: 'Checked' }[note.kind];
+const kindTag = { update: 'tag-optional', correction: 'tag-horde', uncertain: 'tag-uncertain', confirmed: 'tag-ok' }[note.kind];
+---
+<aside class={`note note-${note.kind}`} id={`note-${note.id}`} aria-label={`${kindLabel}: ${note.title}`}>
+  <p class="note-title"><span class={`tag ${kindTag}`}>{kindLabel}</span> {note.title} <span class="muted small">{formatDate(note.date)}</span></p>
+  <p>{note.body}</p>
+  {note.pdfSaid && <p class="note-was small">PDF said: {note.pdfSaid}</p>}
+  <SourceRefs guide={guide} ids={note.sources} />
+</aside>

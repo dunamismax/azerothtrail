@@ -1,0 +1,12 @@
+---
+import type { GetStaticPaths } from 'astro';
+import NowPage from '../../components/NowPage.astro';
+import { classes } from '../../data/registry.ts';
+import type { ClassGuide } from '../../data/types.ts';
+import { classPath } from '../../lib/guide.ts';
+
+export const getStaticPaths = (() => classes.map((guide) => ({ params: { cls: guide.id }, props: { guide } }))) satisfies GetStaticPaths;
+
+const { guide } = Astro.props as { guide: ClassGuide };
+---
+<NowPage guide={guide} path={classPath(guide)} />

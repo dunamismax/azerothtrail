@@ -1,0 +1,30 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { LEVELS, bracketFor, levelHref } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  current?: number;
+  label?: string;
+}
+
+const { guide, current, label = 'Jump to a level' } = Astro.props;
+---
+<nav aria-label={label}>
+  <ul class="level-grid">
+    {LEVELS.map((n) => {
+      const b = bracketFor(guide, n);
+      return (
+        <li>
+          <a
+            href={levelHref(guide, n)}
+            data-level-link={String(n)}
+            class={b.min === n ? 'bracket-start' : undefined}
+            aria-current={current === n ? 'true' : undefined}
+            aria-label={`Level ${n} (bracket ${b.min}-${b.max})`}
+          >{n}</a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>
