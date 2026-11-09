@@ -3,6 +3,12 @@
 (function () {
   var root = document.documentElement;
   root.classList.add('js');
+  try {
+    var theme = window.localStorage.getItem('azerothtrail:v1:theme');
+    if (theme === 'light' || theme === 'dark') root.setAttribute('data-theme', theme);
+  } catch (e) {
+    /* storage blocked: follow the device */
+  }
   var cls = root.getAttribute('data-class');
   if (!cls) return;
   var specs = (root.getAttribute('data-specs') || '').split(' ');

@@ -1,0 +1,25 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { MAX_LEVEL, MIN_LEVEL, levelHref, levelSpan } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+}
+
+// The trail from 1 to 60: a slider for the level over the questing brackets,
+// each as wide as the levels it covers. Without JavaScript the brackets are
+// plain links to their first level's page.
+const { guide } = Astro.props;
+---
+<div class="trail">
+  <input class="trail-range js-only" type="range" min={MIN_LEVEL} max={MAX_LEVEL} step="1" value="1" data-level-range aria-label="Level" />
+  <ol class="trail-brackets" aria-label="Questing brackets">
+    {guide.brackets.map((b) => (
+      <li data-span={b.max - b.min + 1}>
+        <a href={levelHref(guide, b.min)} data-level-link={String(b.min)} data-trail-link data-min={b.min} data-max={b.max} title={`${levelSpan(b.min, b.max)}: ${b.title}`} aria-label={`Levels ${levelSpan(b.min, b.max)}: ${b.title}`}>
+          <span class="trail-from">{b.min}</span><span class="trail-span">{levelSpan(b.min, b.max)}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>

@@ -24,6 +24,14 @@ const checklist = spec.endgame.checklist;
 ---
 <Layout guide={guide} path={specPath(guide, spec, true)} title={`${spec.name} ${guide.name} at 60`} description={`${spec.name} ${guide.name} at level 60 in World of Warcraft: Forever: talent builds, rotation, stats and your first week.`}>
   <SpecHeader guide={guide} spec={spec} endgame={true} title={`${spec.name} ${guide.name} at level 60`} lead={spec.endgame.lead} />
+  <nav class="toc" aria-label="On this page">
+    <p class="card-label">On this page</p>
+    <ul>
+      <li><a href="#builds">Talent builds</a></li>
+      {spec.endgame.sections.map((s) => <li><a href={`#${s.id}`}>{s.title}</a></li>)}
+      {checklist && <li><a href={`#${checklist.id}`}>{checklist.title}</a></li>}
+    </ul>
+  </nav>
   {spec.endgameNotes?.map((id) => <UpdateNote guide={guide} id={id} />)}
 
   <section class="section" id="builds" aria-labelledby="builds-title">
@@ -57,6 +65,7 @@ const checklist = spec.endgame.checklist;
     <section class="section" id={checklist.id} aria-labelledby={`${checklist.id}-title`}>
       <h2 id={`${checklist.id}-title`}>{checklist.title}</h2>
       <p class="lead">{checklist.lead}</p>
+      <p class="check-progress js-only"><progress class="points" value="0" max={checklist.items.length} data-check-progress aria-label="Checklist progress"></progress> <span class="small muted" data-check-count>0 of {checklist.items.length} done</span></p>
       <ul class="checklist">
         {checklist.items.map((item) => (
           <li>

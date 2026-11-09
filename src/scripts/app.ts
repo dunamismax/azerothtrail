@@ -199,6 +199,12 @@ function applyLevel(): void {
 
   const select = document.querySelector<HTMLSelectElement>('#pref-level');
   if (select && select.value !== String(level)) select.value = String(level);
+  // The trail slider: its filled part follows the level.
+  for (const range of document.querySelectorAll<HTMLInputElement>('[data-level-range]')) {
+    if (range.value !== String(level)) range.value = String(level);
+    range.style.setProperty('--p', `${((level - 1) / 59) * 100}%`);
+    range.setAttribute('aria-valuetext', `Level ${level}`);
+  }
 }
 
 function syncControls(): void {
@@ -222,6 +228,9 @@ function initControls(): void {
   select?.addEventListener('change', () => setLevel(Number(select.value)));
   for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-level-step]')) {
     btn.addEventListener('click', () => setLevel(prefs.level + Number(btn.dataset.levelStep)));
+  }
+  for (const range of document.querySelectorAll<HTMLInputElement>('[data-level-range]')) {
+    range.addEventListener('input', () => setLevel(Number(range.value)));
   }
   for (const input of document.querySelectorAll<HTMLInputElement>('input[name="faction"]')) {
     input.addEventListener('change', () => {
@@ -264,25 +273,145 @@ function initControls(): void {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
         e.preventDefault();
         setLevel(Number(a.dataset.levelLink));
+        // The trail sits next to the panel already: no need to move the page.
+        if (a.hasAttribute('data-trail-link')) return;
         document.querySelector<HTMLElement>('#now')?.scrollIntoView({ block: 'start' });
         select?.focus({ preventScroll: true });
       });
     }
   }
   // Checklists.
-  for (const box of document.querySelectorAll<HTMLInputElement>('input[data-check-id]')) {
+  const boxes = [...document.querySelectorAll<HTMLInputElement>('input[data-check-id]')];
+  const showProgress = (): void => {
+    const done = boxes.filter((b) => b.checked).length;
+    for (const bar of document.querySelectorAll<HTMLProgressElement>('[data-check-progress]')) bar.value = done;
+    for (const el of document.querySelectorAll<HTMLElement>('[data-check-count]')) {
+      el.textContent = done === boxes.length ? `All ${boxes.length} done` : `${done} of ${boxes.length} done`;
+    }
+  };
+  for (const box of boxes) {
     const id = box.dataset.checkId ?? '';
     box.checked = prefs.checks[id] === true;
     box.addEventListener('change', () => {
       prefs.checks[id] = box.checked;
       save(prefs);
+      showProgress();
     });
   }
+  if (boxes.length > 0) showProgress();
   for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-reset-checks]')) {
     btn.addEventListener('click', () => {
-      prefs.checks = {};
+      // Only this page's ticks: other specs keep theirs.
+      for (const box of boxes) {
+        delete prefs.checks[box.dataset.checkId ?? ''];
+        box.checked = false;
+      }
       save(prefs);
-      for (const box of document.querySelectorAll<HTMLInputElement>('input[data-check-id]')) box.checked = false;
+      showProgress();
+    });
+  }
+  initShortcuts();
+  initCopyLink();
+}
+
+/** True when a key press belongs to a form control, so shortcuts stay out of the way. */
+function typing(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) return true;
+  return target instanceof HTMLInputElement && !['checkbox', 'radio', 'range', 'button'].includes(target.type);
+}
+
+/** `[` and `]` step a level: in place where there is a level picker, else to the neighbouring level page. */
+function initShortcuts(): void {
+  const picker = document.querySelector('#pref-level');
+  if (!picker && !pageLevel) return;
+  document.addEventListener('keydown', (e) => {
+    if ((e.key !== '[' && e.key !== ']') || e.metaKey || e.ctrlKey || e.altKey || typing(e.target)) return;
+    const step = e.key === ']' ? 1 : -1;
+    if (picker) {
+      e.preventDefault();
+      setLevel(prefs.level + step);
+      return;
+    }
+    const link = document.querySelector<HTMLAnchorElement>(`.pager a[rel="${step === 1 ? 'next' : 'prev'}"]`);
+    if (link) location.assign(link.href);
+  });
+}
+
+/** Copy a link that opens this class at the current level and spec. */
+function initCopyLink(): void {
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-copy-link]')) {
+    const status = document.querySelector<HTMLElement>('[data-copy-status]');
+    btn.addEventListener('click', () => {
+      const params = new URLSearchParams({ level: String(followLevel()) });
+      const spec = currentSpec();
+      if (spec) params.set('spec', spec);
+      const url = `${location.origin}${btn.dataset.copyBase ?? location.pathname}?${params.toString()}`;
+      const say = (text: string): void => {
+        if (status) status.textContent = text;
+      };
+      if (!navigator.clipboard) {
+        say(url);
+        return;
+      }
+      navigator.clipboard.writeText(url).then(
+        () => say(`Copied a link to level ${followLevel()}.`),
+        () => say(url),
+      );
+    });
+  }
+}
+
+// Theme: follows the device until the visitor picks one. public/boot.js applies
+// the saved choice before first paint.
+const THEME_KEY = 'azerothtrail:v1:theme';
+type Theme = 'auto' | 'light' | 'dark';
+const THEMES: readonly Theme[] = ['auto', 'light', 'dark'];
+const THEME_TEXT: Record<Theme, [string, string]> = {
+  auto: ['Auto', 'Theme: follows your device'],
+  light: ['Light', 'Theme: light'],
+  dark: ['Dark', 'Theme: dark'],
+};
+
+function currentTheme(): Theme {
+  const t = root.dataset.theme;
+  return t === 'light' || t === 'dark' ? t : 'auto';
+}
+
+function applyTheme(theme: Theme): void {
+  // Switch every colour at once: no hover transitions half-way between themes.
+  root.classList.add('theme-switching');
+  if (theme === 'auto') delete root.dataset.theme;
+  else root.dataset.theme = theme;
+  void root.offsetWidth;
+  setTimeout(() => root.classList.remove('theme-switching'), 0);
+  // The browser chrome follows too.
+  for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[data-theme-color]')) {
+    const own = meta.dataset.themeColor ?? 'dark';
+    meta.media = theme === 'auto' ? `(prefers-color-scheme: ${own})` : own === theme ? 'all' : 'not all';
+  }
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    const [label, title] = THEME_TEXT[theme];
+    btn.dataset.themeNow = theme;
+    btn.setAttribute('aria-label', `${title}. Press to change.`);
+    btn.title = title;
+    const text = btn.querySelector<HTMLElement>('[data-theme-label]');
+    if (text) text.textContent = label;
+  }
+}
+
+function initTheme(): void {
+  applyTheme(currentTheme());
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    btn.addEventListener('click', () => {
+      const next = THEMES[(THEMES.indexOf(currentTheme()) + 1) % THEMES.length] ?? 'auto';
+      try {
+        if (next === 'auto') localStorage.removeItem(THEME_KEY);
+        else localStorage.setItem(THEME_KEY, next);
+      } catch {
+        // Storage blocked: the choice lasts for this page view.
+      }
+      applyTheme(next);
     });
   }
 }
@@ -314,6 +443,7 @@ function applyContinue(): void {
   box.hidden = false;
 }
 
+initTheme();
 initControls();
 syncControls();
 applyFilters();

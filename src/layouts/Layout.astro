@@ -43,12 +43,15 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
     <link rel="stylesheet" href="/spec-filter.css" />
     {manifest && <link rel="manifest" href="/manifest.json" />}
     {manifest && <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />}
-    <meta name="theme-color" content="#12100c" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#f5efe1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12100c" media="(prefers-color-scheme: dark)" data-theme-color="dark" />
+    <meta name="theme-color" content="#f5efe1" media="(prefers-color-scheme: light)" data-theme-color="light" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`${site}${canonical ?? path}`} />
+    <meta property="og:site_name" content="Azeroth Trail" />
+    <meta property="og:image" content={`${site}/icons/status-512.png`} />
+    <meta name="twitter:card" content="summary" />
     <script is:inline src="/boot.js"></script>
   </head>
   <body data-class={guide?.id} data-page-level={pageLevel}>
@@ -58,12 +61,15 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
         <a class="brand" href="/"><span class="mark" aria-hidden="true">&#10022;</span> Azeroth Trail <small>WoW Forever leveling</small></a>
         <nav class="class-switch" aria-label="Class guides and server status">
           <ul>
-            {classes.map((c) => <li><a href={classPath(c)} aria-current={c.id === guide?.id ? 'true' : undefined}>{c.name}</a></li>)}
-            <li class="status-link-item"><a class="status-link" href="/status/" aria-current={path === '/status/' ? 'page' : undefined}><span class="status-dot" data-status-dot aria-hidden="true"></span>Server status</a></li>
+            {classes.map((c) => <li><a href={classPath(c)} data-class={c.id} aria-current={c.id === guide?.id ? 'true' : undefined}>{c.name}</a></li>)}
+            <li class="status-link-item"><a class="status-link" href="/status/" aria-current={path === '/status/' ? 'page' : undefined}><span class="status-dot" data-status-dot aria-hidden="true"></span><span>Server status</span></a></li>
           </ul>
         </nav>
+        <button type="button" class="theme-toggle js-only" data-theme-toggle aria-label="Theme: follows your device"><span class="theme-glyph" aria-hidden="true"></span><span data-theme-label>Auto</span></button>
       </div>
-      {guide && (
+    </header>
+    {guide && (
+      <div class="subnav">
         <div class="wrap header-nav">
           <nav class="site-nav" aria-label={`${guide.name} guide`}>
             <ul>
@@ -80,8 +86,8 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
             </ul>
           </nav>
         </div>
-      )}
-    </header>
+      </div>
+    )}
     <main id="main" tabindex="-1">
       <div class="wrap">
         <slot />

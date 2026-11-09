@@ -4,6 +4,7 @@ import { ROLE_LABEL } from '../data/types.ts';
 import Layout from '../layouts/Layout.astro';
 import LevelGrid from './LevelGrid.astro';
 import LevelPanel from './LevelPanel.astro';
+import LevelTrail from './LevelTrail.astro';
 import PrefsControls from './PrefsControls.astro';
 import { LEVELS, classPath, formatDate, specPath } from '../lib/guide.ts';
 
@@ -32,6 +33,12 @@ const sections = [
     <h1 id="now-title">What should I do at level <span data-level-text>1</span>?</h1>
     <p class="verified">{guide.tagline} Last verified {formatDate(guide.lastVerified)} against the <a href={classPath(guide, 'sources')}>sources</a>.</p>
     <PrefsControls guide={guide} />
+    <LevelTrail guide={guide} />
+    <div class="toolbar js-only">
+      <button type="button" data-copy-link data-copy-base={classPath(guide)}>Copy link to this level</button>
+      <span class="small muted hint-keys">Press <kbd>[</kbd> and <kbd>]</kbd> to step a level.</span>
+      <span class="small muted" data-copy-status role="status"></span>
+    </div>
     <noscript>
       <p class="callout">Pick your level below to open its page. Without JavaScript every page shows all specs, factions and starting races.</p>
     </noscript>

@@ -11,28 +11,42 @@ const specCount = classes.reduce((n, c) => n + c.specs.length, 0);
     <p class="eyebrow">World of Warcraft: Forever · Normal PvE</p>
     <h1 id="hero-title">Level to 60 in the spec you want to play.</h1>
     <p class="lead">Pick a class and a spec. Every spec gets its own talent point for each level from 10 to 60, what to train, where to quest for your faction and race, which dungeon is worth it, and a level-60 page with builds, rotation and stats.</p>
-    <p class="small muted">{classes.length} classes, {specCount} specs, levels 1-60. Built for Forever; most of it also holds for WoW Classic.</p>
     <p class="continue js-only" data-continue hidden>
-      <a class="button button-accent" href="/">Continue: <span data-continue-text></span> &rarr;</a>
+      <a class="button button-accent button-lg" href="/"><span>Continue: <span data-continue-text></span></span> <span aria-hidden="true">&rarr;</span></a>
     </p>
+    <ul class="hero-facts" aria-label="What's covered">
+      <li><b>{classes.length}</b> classes</li>
+      <li><b>{specCount}</b> specs</li>
+      <li><b>60</b> levels, each with its own page</li>
+      <li>Most of it also holds for WoW Classic</li>
+    </ul>
   </section>
 
   {classes.map((c) => (
-    <section class="section class-pick" aria-labelledby={`pick-${c.id}`} data-class-card={c.id} data-class-name={c.name} data-class-specs={c.specs.map((s) => s.slug).join(' ')} data-class-default-spec={c.defaultSpec}>
-      <h2 id={`pick-${c.id}`}><a href={classPath(c)}>{c.name}</a></h2>
+    <section class="class-pick" data-class={c.id} aria-labelledby={`pick-${c.id}`} data-class-card={c.id} data-class-name={c.name} data-class-specs={c.specs.map((s) => s.slug).join(' ')} data-class-default-spec={c.defaultSpec}>
+      <div class="class-pick-head">
+        <h2 id={`pick-${c.id}`}><a href={classPath(c)}>{c.name}</a></h2>
+        <a class="button" href={classPath(c)}>Open the {c.name} guide &rarr;</a>
+      </div>
       <p>{c.pitch} <span class="muted small">Races: {c.races.map((r) => r.name).join(', ')}.</span></p>
       <ul class="spec-cards">
         {c.specs.map((s) => (
           <li class={`spec-card role-${s.role}`} data-spec-card={s.slug} data-spec-name={s.name}>
             <p class="spec-card-head"><a href={`${classPath(c)}?spec=${s.slug}`}><b>{s.name}</b></a> <span class={`tag role-${s.role}`}>{ROLE_LABEL[s.role]}{s.alsoRoles?.length ? ` · ${s.alsoRoles.map((r) => ROLE_LABEL[r]).join(', ')}` : ''}</span></p>
             <p class="small">{s.pitch}</p>
-            <p class="small"><a href={`${classPath(c)}?spec=${s.slug}`}>Start leveling</a> · <a href={specPath(c, s)}>Talents 10-60</a> · <a href={specPath(c, s, true)}>Level 60</a></p>
+            <p class="small spec-card-foot"><a href={`${classPath(c)}?spec=${s.slug}`}>Start leveling</a> · <a href={specPath(c, s)}>Talents 10-60</a> · <a href={specPath(c, s, true)}>Level 60</a></p>
           </li>
         ))}
       </ul>
-      <p class="small"><a href={classPath(c, 'specs')}>Compare {c.name} specs</a> · <a href={classPath(c, 'route')}>{c.name} route</a> · <a href={classPath(c, 'quests')}>{c.questsLabel}</a></p>
+      <p class="small class-pick-more"><a href={classPath(c, 'specs')}>Compare {c.name} specs</a> · <a href={classPath(c, 'route')}>{c.name} route</a> · <a href={classPath(c, 'quests')}>{c.questsLabel}</a></p>
     </section>
   ))}
+
+  <a class="status-strip" href="/status/">
+    <span class="status-dot" data-status-dot aria-hidden="true"></span>
+    <span><b>Are the servers up?</b> <span class="muted">Live status for every Forever ruleset and region, with alerts the moment they come back.</span></span>
+    <span class="status-strip-go" aria-hidden="true">&rarr;</span>
+  </a>
 
   <section class="section" aria-labelledby="how-title">
     <h2 id="how-title">How it works</h2>

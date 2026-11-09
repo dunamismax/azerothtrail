@@ -38,7 +38,9 @@ Pages per class: `/<class>/` (my level), `/<class>/level/N/`, `/<class>/route/`,
   `exactOptionalPropertyTypes`), exact dependency pins and a committed
   `package-lock.json`.
 - One small client script (`src/scripts/app.ts`) plus `public/boot.js`, which
-  applies saved preferences (including `<html data-spec>`) before first paint.
+  applies saved preferences (including `<html data-spec>` and the theme,
+  `<html data-theme>`) before first paint. The header's theme button cycles
+  Auto, Light and Dark; Auto follows the device.
   `/spec-filter.css` is generated from the class registry and hides the other
   specs' blocks. No inline scripts or styles, so the site runs under a strict
   `script-src 'self'; style-src 'self'` CSP.
@@ -73,7 +75,7 @@ node scripts/smoke.ts https://azerothtrail.com <commit>   # check the live site
 - a section cites a source or note id that doesn't exist.
 
 `scripts/smoke.ts` checks every page and level page, every internal link and
-`#anchor`, assets, bracket links, talent rows, level-60 builds, a block per spec
+`#anchor`, assets, the sitemap, bracket links, talent rows, level-60 builds, a block per spec
 on every level page, the spec stylesheet, the absence of inline code and, for a
 URL, HTTPS headers, the 404 page and `/version.txt`.
 
@@ -161,7 +163,10 @@ Mostly a content task:
    Spec slugs can't be `route`, `quests`, `sources`, `specs`, `level` or
    `endgame`.
 3. Add it to `classes` in `src/data/registry.ts`. All pages, the 60 level
-   pages and the spec stylesheet are generated for it.
+   pages, the sitemap and the spec stylesheet are generated for it. To give it
+   its class colour, add `--<class>` to the dark and both light token blocks in
+   `src/styles/global.css` and a `[data-class="<class>"]` rule next to the
+   others; without one it uses the gold accent.
 4. Write each spec's source order into `scripts/verify-content.ts`, then run
    `npm test`.
 

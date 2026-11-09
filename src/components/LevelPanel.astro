@@ -106,16 +106,17 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
       <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a></p>
     </div>
 
-    <div class="card">
+    <div class="card card-talent">
       <p class="card-label">Talent point</p>
       {talentCards.map(({ spec, first, point, next, catchUp }) => (
-        <div class="spec-block" data-spec={spec.slug}>
+        <div class={`spec-block role-${spec.role}`} data-spec={spec.slug}>
           <p class="spec-name"><span class={`tag role-${spec.role}`}>{spec.name} · {ROLE_LABEL[spec.role]}</span></p>
           {level < FIRST_TALENT_LEVEL ? (
             <p>Talents start at {FIRST_TALENT_LEVEL}. Your first point goes into <b>{first?.talent.name}</b> ({treeName(guide, first?.talent.tree ?? '')}).</p>
           ) : point ? (
             <>
               <p class="big">{point.talent.name} <span class="muted">{point.rank}/{point.talent.maxRank}</span></p>
+              <progress class="points" value={point.n} max={total} aria-label={`Talent points spent: ${point.n} of ${total}`}></progress>
               <p class="small muted">{treeName(guide, point.talent.tree)} · point {point.n} of {total} · split now {splitLabel(guide, point.totals)} ({treeNames})</p>
               <p class="small">{point.talent.summary}</p>
               {catchUp && <p class="small"><b>Also train:</b> {spellName(catchUp)}. The trainer already sells it.</p>}

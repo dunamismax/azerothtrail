@@ -86,13 +86,19 @@ for (const [p, text] of html) {
 assets.add('/spec-filter.css');
 // The service worker and its notification icons are referenced from scripts, not HTML.
 for (const a of ['/sw.js', '/manifest.json', '/icons/status-192.png', '/icons/badge-72.png']) assets.add(a);
+// The sitemap lists every page checked here, and robots.txt points at it.
+assets.add('/robots.txt');
+assets.add('/sitemap.xml');
+const sitemap = (await get('/sitemap.xml')).body.toString();
+for (const p of pages) if (p !== '/404.html' && !sitemap.includes(`<loc>https://azerothtrail.com${p}</loc>`)) fail(`sitemap.xml: missing ${p}`);
+if (!(await get('/robots.txt')).body.toString().includes('Sitemap: https://azerothtrail.com/sitemap.xml')) fail('robots.txt: no Sitemap line');
 const filter = (await get('/spec-filter.css')).body.toString();
 for (const g of classes) for (const s of g.specs) if (!filter.includes(`html[data-spec="${s.slug}"]`)) fail(`spec-filter.css: no rule for ${s.slug}`);
 for (const a of assets) {
   const r = await get(a);
   if (r.status !== 200) { fail(`asset ${a}: HTTP ${r.status}`); continue; }
   if (remote) {
-    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : a.endsWith('.json') ? 'json' : a.endsWith('.png') ? 'image/png' : 'text/plain';
+    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : a.endsWith('.json') ? 'json' : a.endsWith('.png') ? 'image/png' : a.endsWith('.xml') ? 'xml' : 'text/plain';
     if (!r.type.includes(want)) fail(`asset ${a}: content-type ${r.type}`);
   }
 }

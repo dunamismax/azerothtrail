@@ -37,6 +37,17 @@ const at40 = pointsAtLevel(points, 40)[0];
     </div>
   </div>
 
+  <nav class="toc" aria-label="On this page">
+    <p class="card-label">On this page</p>
+    <ul>
+      <li><a href="#build">Talent order</a></li>
+      {spec.variant && <li><a href="#variant">{spec.variant.title}</a></li>}
+      <li><a href="#talent-notes">Talent notes</a></li>
+      {spec.sections.map((s) => <li><a href={`#${s.id}`}>{s.title}</a></li>)}
+      <li><a href="#dual-spec">Second spec at 40</a></li>
+    </ul>
+  </nav>
+
   <PrefsControls guide={guide} spec={false} faction={false} />
   {spec.notes?.map((id) => <UpdateNote guide={guide} id={id} />)}
 
@@ -61,7 +72,7 @@ const at40 = pointsAtLevel(points, 40)[0];
       </div>
     )}
 
-    <h3>Talent notes</h3>
+    <h3 id="talent-notes">Talent notes</h3>
     <div class="table-wrap">
       <table>
         <thead><tr><th scope="col">Talent</th><th scope="col">Tree, row</th><th scope="col">What it does</th></tr></thead>

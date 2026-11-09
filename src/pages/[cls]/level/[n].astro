@@ -24,7 +24,7 @@ const path = levelHref(guide, level);
 >
   <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
   <h1>What should I do at level {level}?</h1>
-  <p class="small"><a href={classPath(guide)}>Use the level picker</a> to switch levels in place and remember your choice.</p>
+  <p class="small"><a href={`${classPath(guide)}?level=${level}`}>Use the level picker</a> to switch levels in place and remember your choice.<span class="js-only hint-keys"> Press <kbd>[</kbd> and <kbd>]</kbd> for the previous and next level.</span></p>
   <PrefsControls guide={guide} level={false} />
   <LevelPanel guide={guide} level={level} />
   <nav class="pager" aria-label="Neighbouring levels">
