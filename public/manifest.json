@@ -1,0 +1,16 @@
+{
+  "name": "Azeroth Trail",
+  "short_name": "Azeroth Trail",
+  "description": "WoW Forever leveling guides and live server status with alerts.",
+  "id": "/status/",
+  "start_url": "/status/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#12100c",
+  "theme_color": "#12100c",
+  "icons": [
+    { "src": "/icons/status-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/status-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

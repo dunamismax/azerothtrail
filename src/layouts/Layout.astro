@@ -13,9 +13,11 @@ interface Props {
   path: string;
   canonical?: string;
   pageLevel?: number;
+  /** Link the web app manifest (the status page, so it can be installed for push on iOS). */
+  manifest?: boolean;
 }
 
-const { title, description, guide, path, canonical, pageLevel } = Astro.props;
+const { title, description, guide, path, canonical, pageLevel, manifest } = Astro.props;
 const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
 const nav = guide
   ? [
@@ -39,6 +41,8 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
     <link rel="canonical" href={`${site}${canonical ?? path}`} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/spec-filter.css" />
+    {manifest && <link rel="manifest" href="/manifest.json" />}
+    {manifest && <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />}
     <meta name="theme-color" content="#12100c" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f5efe1" media="(prefers-color-scheme: light)" />
     <meta property="og:title" content={fullTitle} />
@@ -52,9 +56,10 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
     <header class="site-header">
       <div class="wrap header-top">
         <a class="brand" href="/"><span class="mark" aria-hidden="true">&#10022;</span> Azeroth Trail <small>WoW Forever leveling</small></a>
-        <nav class="class-switch" aria-label="Class guides">
+        <nav class="class-switch" aria-label="Class guides and server status">
           <ul>
             {classes.map((c) => <li><a href={classPath(c)} aria-current={c.id === guide?.id ? 'true' : undefined}>{c.name}</a></li>)}
+            <li class="status-link-item"><a class="status-link" href="/status/" aria-current={path === '/status/' ? 'page' : undefined}><span class="status-dot" data-status-dot aria-hidden="true"></span>Server status</a></li>
           </ul>
         </nav>
       </div>

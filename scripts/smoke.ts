@@ -44,7 +44,7 @@ async function get(path: string): Promise<Got> {
 const ids = (html: string) => new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
 const hrefs = (html: string) => [...html.matchAll(/\s(?:href|src)="([^"]+)"/g)].map((m) => m[1] ?? '');
 
-const pages: string[] = ['/', '/404.html'];
+const pages: string[] = ['/', '/404.html', '/status/'];
 for (const g of classes) {
   pages.push(`/${g.id}/`, `/${g.id}/route/`, `/${g.id}/quests/`, `/${g.id}/specs/`, `/${g.id}/sources/`);
   for (const s of g.specs) pages.push(specPath(g, s), specPath(g, s, true));
@@ -74,7 +74,7 @@ for (const [p, text] of html) {
     const path = pathPart === '' ? p : pathPart ?? '';
     if (queryPart !== undefined && !/^(spec=[a-z-]+|level=\d{1,2})(&(spec=[a-z-]+|level=\d{1,2}))*$/.test(queryPart.replace(/&amp;/g, '&'))) fail(`${p}: unexpected query in ${h}`);
     if (!path.startsWith('/')) { fail(`${p}: relative link ${h}`); continue; }
-    if (/\.(css|js|svg|txt)$/.test(path)) { assets.add(path); continue; }
+    if (/\.(css|js|svg|txt|json|png)$/.test(path)) { assets.add(path); continue; }
     const r = await get(path);
     if (r.status !== 200) { fail(`${p}: broken link ${h} (${r.status})`); continue; }
     if (hash) {
@@ -84,13 +84,15 @@ for (const [p, text] of html) {
   }
 }
 assets.add('/spec-filter.css');
+// The service worker and its notification icons are referenced from scripts, not HTML.
+for (const a of ['/sw.js', '/manifest.json', '/icons/status-192.png', '/icons/badge-72.png']) assets.add(a);
 const filter = (await get('/spec-filter.css')).body.toString();
 for (const g of classes) for (const s of g.specs) if (!filter.includes(`html[data-spec="${s.slug}"]`)) fail(`spec-filter.css: no rule for ${s.slug}`);
 for (const a of assets) {
   const r = await get(a);
   if (r.status !== 200) { fail(`asset ${a}: HTTP ${r.status}`); continue; }
   if (remote) {
-    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : 'text/plain';
+    const want = a.endsWith('.css') ? 'text/css' : a.endsWith('.js') ? 'javascript' : a.endsWith('.svg') ? 'image/svg+xml' : a.endsWith('.json') ? 'json' : a.endsWith('.png') ? 'image/png' : 'text/plain';
     if (!r.type.includes(want)) fail(`asset ${a}: content-type ${r.type}`);
   }
 }
@@ -143,6 +145,16 @@ if (remote) {
   const rev = (await get('/version.txt')).body.toString().trim();
   if (expectedCommit && rev !== expectedCommit) fail(`version.txt ${rev} != ${expectedCommit}`);
   console.log(`Live revision: ${rev}`);
+  // The status tracker behind /api/*.
+  try {
+    const res = await fetch(`${base}/api/status`);
+    const snap = (await res.json()) as { version?: number; regions?: { key: string; state: string }[] };
+    if (res.status !== 200 || snap.version !== 1 || snap.regions?.length !== 4) fail(`/api/status: HTTP ${res.status}`);
+    else console.log(`Status tracker: ${snap.regions.map((r) => `${r.key} ${r.state}`).join(', ')}`);
+    if (!res.headers.get('cache-control')?.includes('no-store')) fail('/api/status: cacheable');
+  } catch (err) {
+    fail(`/api/status: ${(err as Error).message}`);
+  }
 } else {
   const rev = (await get('/version.txt')).body.toString().trim();
   if (!/^[0-9a-f]{40}$|^unknown$/.test(rev)) fail(`version.txt: ${rev}`);

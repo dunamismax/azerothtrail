@@ -1,0 +1,133 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { REGION_KEYS, REGION_NAMES } from '../../server/types.ts';
+
+const official = 'https://worldofwarcraft.blizzard.com/en-us/forever/us/server-status';
+const rulesetChoices = [
+  { slug: 'normal', name: 'Normal' },
+  { slug: 'pvp', name: 'PvP' },
+  { slug: 'roleplay', name: 'Roleplay' },
+  { slug: 'roleplay-pvp', name: 'Roleplay PvP' },
+];
+---
+<Layout path="/status/" manifest title="Server status" description="Live World of Warcraft: Forever server status for every ruleset and region, from Blizzard's official status page, with browser alerts the moment the servers come back online.">
+  <header class="page-head">
+    <p class="eyebrow">World of Warcraft: Forever · Live</p>
+    <h1>Are the servers up?</h1>
+    <p class="lead">Live status of every Forever ruleset, read from Blizzard's official status page every 20 to 45 seconds. Turn on alerts and your browser tells you the moment the servers come back, even with this tab closed.</p>
+  </header>
+
+  <div class="no-js-only callout">
+    <p>The live tracker needs JavaScript. Until then, check <a href={official}>Blizzard's official server status page</a>.</p>
+  </div>
+
+  <div class="status-app js-only" data-status-app>
+    <div class="status-banner" data-banner hidden role="status"></div>
+
+    <div class="region-tabs" role="group" aria-label="Region">
+      {REGION_KEYS.map((key) => (
+        <button type="button" class="region-tab" data-region-tab={key} aria-pressed={key === 'us' ? 'true' : 'false'}>
+          <span class="status-dot" data-region-dot={key} aria-hidden="true"></span>{REGION_NAMES[key]}
+        </button>
+      ))}
+    </div>
+
+    <div class="status-layout">
+      <section class="status-hero" data-hero data-state="unknown" aria-labelledby="status-headline" aria-live="polite">
+        <p class="status-kicker"><span class="live-dot" data-live aria-hidden="true"></span><span data-region-name>{REGION_NAMES.us}</span></p>
+        <h2 id="status-headline" data-headline>Checking Blizzard…</h2>
+        <p class="status-subline" data-subline>Connecting to the tracker.</p>
+        <ul class="ruleset-grid" data-rulesets aria-label="Rulesets"></ul>
+        <p class="status-meta small muted" data-meta></p>
+      </section>
+
+      <section class="card alerts" aria-labelledby="alerts-title" data-alerts>
+        <h2 id="alerts-title" class="alerts-title">Alerts</h2>
+        <p class="alerts-state" data-alert-state>Checking what this browser supports…</p>
+        <div class="alerts-actions">
+          <button type="button" class="button-accent" data-alert-on hidden>Notify me when servers are back</button>
+          <button type="button" data-alert-test hidden>Send a test alert</button>
+          <button type="button" data-alert-off hidden>Turn off alerts</button>
+        </div>
+        <p class="small muted" data-alert-help hidden></p>
+
+        <details class="alerts-options" data-alert-options>
+          <summary>Alert settings</summary>
+          <fieldset>
+            <legend>Regions</legend>
+            <div class="choices">
+              {REGION_KEYS.map((key) => (
+                <label class="choice"><input type="checkbox" name="alert-region" value={key} checked={key === 'us'} /><span>{REGION_NAMES[key]}</span></label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Rulesets</legend>
+            <div class="choices">
+              <label class="choice"><input type="checkbox" name="alert-ruleset-all" checked /><span>Any ruleset</span></label>
+              {rulesetChoices.map((r) => (
+                <label class="choice"><input type="checkbox" name="alert-ruleset" value={r.slug} /><span>{r.name}</span></label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Alert me when</legend>
+            <ul class="toggle-list">
+              <li><label><input type="checkbox" name="alert-up" checked /> Servers come back online</label></li>
+              <li><label><input type="checkbox" name="alert-down" /> Servers go down</label></li>
+              <li><label><input type="checkbox" name="alert-blue" /> Blizzard posts about servers or maintenance</label></li>
+              <li><label><input type="checkbox" name="alert-sound" checked /> Play a chime in this tab when servers come back</label></li>
+            </ul>
+          </fieldset>
+          <p class="small muted" data-alert-saved aria-live="polite"></p>
+        </details>
+      </section>
+    </div>
+
+    <div class="grid grid-2 status-sections">
+      <section class="card" aria-labelledby="blue-title">
+        <h2 id="blue-title" class="card-title">Blizzard notices</h2>
+        <p class="small muted">Staff posts in the WoW: Forever forums. Posts about servers, maintenance or logins are marked.</p>
+        <ol class="feed" data-blue><li class="muted small">Loading…</li></ol>
+      </section>
+
+      <section class="card" aria-labelledby="reports-title">
+        <h2 id="reports-title" class="card-title">Player reports</h2>
+        <p class="report-count" data-report-count>…</p>
+        <p class="small muted">New threads in the Forever forums about servers being down, logins or disconnects. Unofficial, but players often post before the status page changes.</p>
+        <ol class="feed" data-reports></ol>
+      </section>
+    </div>
+
+    <section class="section" aria-labelledby="regions-title">
+      <h2 id="regions-title">All regions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Region</th><th scope="col">Status</th><th scope="col">Rulesets</th><th scope="col" class="num">Checked</th></tr></thead>
+          <tbody data-region-table></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="history-title">
+      <h2 id="history-title">History</h2>
+      <p class="small muted" data-history-note></p>
+      <ol class="history" data-history></ol>
+    </section>
+  </div>
+
+  <section class="section" aria-labelledby="how-title">
+    <h2 id="how-title">How this works</h2>
+    <ul>
+      <li>Azeroth Trail's server asks <a href={official}>Blizzard's official server status page</a> for every Forever ruleset in all four regions: every 20 seconds while anything is down, every 45 seconds while everything is up. A change counts once two checks in a row agree, so a single odd reading never sets off an alert.</li>
+      <li>Blizzard's page can lag the game by a few minutes, and a ruleset can show online while logins are still queued or closed. The Blizzard notices and player reports here help fill that gap.</li>
+      <li>Alerts use your browser's own push service (Web Push). They arrive with this tab closed as long as the browser is running. Nothing identifies you: the server keeps only the browser's push address and your alert settings, and deletes them when you turn alerts off or the browser drops them.</li>
+      <li>On iPhone and iPad, alerts work once this page is on your Home Screen: tap Share, then Add to Home Screen, open it from there and turn alerts on.</li>
+      <li>Unofficial and not affiliated with Blizzard Entertainment.</li>
+    </ul>
+  </section>
+
+  <script>
+    import '../scripts/status.ts';
+  </script>
+</Layout>

@@ -2,8 +2,9 @@
 # Atomic, reversible cutover of a prepared static release. Run as root under
 # the shared lock:
 #   /usr/local/sbin/with-deploy-lock CANDIDATE/deploy/cutover.sh CANDIDATE
-# Writes only /srv/www/azerothtrail.com, /etc/caddy/sites/azerothtrail.com.caddy
-# and a root-only backup in /root/azerothtrail-backup-*; reloads Caddy.
+# Writes only /srv/www/azerothtrail.com, /etc/caddy/sites/azerothtrail.com.caddy,
+# /etc/systemd/system/azerothtrail-status.service and a root-only backup in
+# /root/azerothtrail-backup-*; restarts the status tracker and reloads Caddy.
 set -Eeuo pipefail
 # shellcheck source=deploy/common.sh
 source "$(dirname "$0")/common.sh"
@@ -24,6 +25,7 @@ cp -a "$(dirname "$0")"/*.sh "$backup/tools/"
 # Record the state to restore: the previous release pointer and site file, or their absence.
 if [[ -L $SRV/current ]]; then readlink "$SRV/current" > "$backup/previous-current"; fi
 if [[ -f $SITE ]]; then cp -a "$SITE" "$backup/site.caddy"; fi
+if [[ -f $UNIT ]]; then cp -a "$UNIT" "$backup/status.service"; fi
 preserved > "$backup/preserved-before"
 touch "$backup/ready"
 trap 'status=$?; if ((status != 0)); then echo "Cutover failed; restoring prior state" >&2; "$backup/tools/rollback.sh" "$backup"; fi' EXIT
@@ -41,14 +43,18 @@ else
   mv -T "$release.tmp" "$release"
 fi
 [[ $(cat "$release/dist/version.txt") == "$commit" ]] || die 'release version.txt does not match the commit'
+[[ -f $release/server/main.ts ]] || die 'release has no status tracker (server/main.ts)'
 
 # Install and validate the site config before anything goes live.
 install -m 0644 -o root -g root "$backup/staged/config/azerothtrail.com.caddy" "$SITE"
 validate_caddy
 
-# Switch atomically, then reload Caddy (it obtains the certificate on first use).
+# Switch atomically, restart the tracker on the new release, then reload Caddy
+# (it obtains the certificate on first use).
 ln -sfn "$release" "$SRV/current.next"
 mv -Tf "$SRV/current.next" "$SRV/current"
+start_status_service "$backup/staged/config/azerothtrail-status.service"
+wait_status_service || die 'status tracker did not start (journalctl -u azerothtrail-status)'
 systemctl reload caddy
 
 # Verify through Caddy with the real hostname and certificate.
@@ -58,6 +64,8 @@ local_get /druid/ >/dev/null || die '/druid/ failed'
 local_get /druid/route/ >/dev/null || die '/druid/route/ failed'
 local_get /paladin/ >/dev/null || die '/paladin/ failed'
 local_get /paladin/holy/endgame/ >/dev/null || die '/paladin/holy/endgame/ failed'
+local_get /status/ >/dev/null || die '/status/ failed'
+local_get /api/status/health >/dev/null || die '/api/status/health failed through Caddy'
 
 preserved > "$backup/preserved-after"
 cmp -s "$backup/preserved-before" "$backup/preserved-after" || die 'another site or shared Caddy file changed during cutover'

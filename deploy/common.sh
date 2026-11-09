@@ -4,6 +4,9 @@
 set -Eeuo pipefail
 SRV=/srv/www/azerothtrail.com
 SITE=/etc/caddy/sites/azerothtrail.com.caddy
+# Server-status tracker (Node, loopback :4315), run from $SRV/current/server.
+UNIT=/etc/systemd/system/azerothtrail-status.service
+SERVICE=azerothtrail-status.service
 CADDY=/usr/local/lib/caddy/caddy
 HOST=azerothtrail.com
 BACKUP_PREFIX=/root/azerothtrail-backup-
@@ -22,12 +25,14 @@ require_lock() {
 snapshot() {
   if [[ -L $SRV/current ]]; then echo "current -> $(readlink -f "$SRV/current")"; else echo 'current absent'; fi
   if [[ -f $SITE ]]; then sha256sum "$SITE"; else echo "absent $SITE"; fi
+  if [[ -f $UNIT ]]; then sha256sum "$UNIT"; else echo "absent $UNIT"; fi
 }
 
 # Things this deploy must never change: other sites and the shared Caddy setup.
 preserved() {
   sha256sum /etc/caddy/Caddyfile "$CADDY"
   find /etc/caddy/sites -maxdepth 1 -type f ! -name azerothtrail.com.caddy -print0 | sort -z | xargs -0 -r sha256sum
+  find /etc/systemd/system -maxdepth 1 -type f -name '*.service' ! -name "$SERVICE" -print0 | sort -z | xargs -0 -r sha256sum
   find /srv/www -mindepth 2 -maxdepth 2 -name current ! -path "$SRV/current" -printf '%p -> %l\n' | sort
 }
 
@@ -40,6 +45,24 @@ local_get() {
   for attempt in {1..45}; do
     if curl -fsS --max-time 10 --resolve "$HOST:443:127.0.0.1" "https://$HOST$path"; then return 0; fi
     sleep 2
+  done
+  return 1
+}
+
+# Install (or update) the tracker's unit and restart it on the live release.
+start_status_service() {
+  install -m 0644 -o root -g root "$1" "$UNIT"
+  systemctl daemon-reload
+  systemctl enable --quiet "$SERVICE"
+  systemctl restart "$SERVICE"
+}
+
+# The tracker answers on loopback (it may take a moment to bind).
+wait_status_service() {
+  local attempt
+  for attempt in {1..30}; do
+    if curl -fsS --max-time 3 http://127.0.0.1:4315/api/status/health >/dev/null; then return 0; fi
+    sleep 1
   done
   return 1
 }

@@ -22,3 +22,6 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Local status-service state (VAPID keys, subscriptions)
+.status-data/

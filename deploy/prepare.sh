@@ -23,8 +23,8 @@ astro-runtime npm run check
 astro-runtime npm run build
 astro-runtime node scripts/smoke.ts dist "$commit"
 mkdir -p bundle/web bundle/config
-cp -a dist bundle/web/
-cp caddy/azerothtrail.com.caddy bundle/config/
+cp -a dist server bundle/web/
+cp caddy/azerothtrail.com.caddy deploy/azerothtrail-status.service bundle/config/
 printf '%s\n' "$commit" > bundle/COMMIT
 (cd bundle && find . -type f -print0 | sort -z | xargs -0 sha256sum) > bundle.sha256
 snapshot > expected-active

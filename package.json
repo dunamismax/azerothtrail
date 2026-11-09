@@ -13,8 +13,10 @@
     "preview": "astro preview --host 127.0.0.1 --port 4322",
     "verify": "node scripts/verify-content.ts",
     "smoke": "node scripts/smoke.ts",
-    "check": "astro check && tsc --noEmit && node scripts/verify-content.ts",
-    "test": "node scripts/verify-content.ts && astro build && node scripts/smoke.ts dist"
+    "status": "node server/main.ts",
+    "test:status": "node scripts/test-status.ts",
+    "check": "astro check && tsc --noEmit && node scripts/verify-content.ts && node scripts/test-status.ts",
+    "test": "node scripts/verify-content.ts && node scripts/test-status.ts && astro build && node scripts/smoke.ts dist"
   },
   "dependencies": {
     "astro": "7.4.2"

@@ -1,0 +1,41 @@
+# Azeroth Trail server-status tracker: installed as
+# /etc/systemd/system/azerothtrail-status.service by deploy/cutover.sh.
+# Runs the live release's server/main.ts (Node type stripping, no build step)
+# on loopback; Caddy proxies https://azerothtrail.com/api/* to it.
+# State (ruleset history, push subscriptions, VAPID keys) lives in
+# /var/lib/azerothtrail-status and survives deploys and rollbacks.
+[Unit]
+Description=Azeroth Trail WoW Forever server-status tracker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=azerothtrail-status
+StateDirectoryMode=0700
+WorkingDirectory=/srv/www/azerothtrail.com/current
+Environment=NODE_ENV=production HOST=127.0.0.1 PORT=4315 STATUS_SITE_URL=https://azerothtrail.com
+ExecStart=/opt/astro-runtime/bin/node /srv/www/azerothtrail.com/current/server/main.ts
+Restart=always
+RestartSec=5
+TimeoutStopSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+MemoryHigh=128M
+MemoryMax=256M
+TasksMax=64
+
+[Install]
+WantedBy=multi-user.target

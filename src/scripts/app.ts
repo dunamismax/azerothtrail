@@ -320,3 +320,30 @@ applyFilters();
 applySpec();
 applyLevel();
 applyContinue();
+
+// Header status dot: one quiet read of the status service on guide pages
+// (the status page keeps it live itself). Missing service: the dot stays hollow.
+async function headerStatus(): Promise<void> {
+  const dots = document.querySelectorAll<HTMLElement>('[data-status-dot]');
+  if (dots.length === 0 || document.querySelector('[data-status-app]')) return;
+  try {
+    const res = await fetch('/api/status', { cache: 'no-store' });
+    if (!res.ok) return;
+    const snap = (await res.json()) as { regions?: { key: string; state: string; name: string }[] };
+    let region = 'us';
+    try {
+      const saved = JSON.parse(localStorage.getItem('azerothtrail:v1:status') ?? 'null') as { region?: string } | null;
+      if (saved?.region && /^(us|eu|kr|tw)$/.test(saved.region)) region = saved.region;
+    } catch { /* default region */ }
+    const r = snap.regions?.find((x) => x.key === region);
+    if (!r || !/^(online|offline|partial|unknown)$/.test(r.state)) return;
+    const label = { online: 'up', offline: 'down', partial: 'partly up', unknown: 'unknown' }[r.state];
+    for (const dot of dots) {
+      dot.dataset.state = r.state;
+      dot.closest('a')?.setAttribute('title', `WoW Forever servers (${r.name}): ${label}`);
+    }
+  } catch {
+    /* offline or no status service */
+  }
+}
+void headerStatus();

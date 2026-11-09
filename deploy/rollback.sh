@@ -20,6 +20,15 @@ else
   rm -f "$SRV/current" "$SRV/current.next"
 fi
 
+# The tracker: the previous unit on the restored release, or none at all.
+if [[ -f $backup/status.service ]]; then
+  start_status_service "$backup/status.service"
+else
+  systemctl disable --now --quiet "$SERVICE" 2>/dev/null || true
+  rm -f "$UNIT"
+  systemctl daemon-reload
+fi
+
 if [[ -f $backup/site.caddy ]]; then
   install -m 0644 -o root -g root "$backup/site.caddy" "$SITE"
 else

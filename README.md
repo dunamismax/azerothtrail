@@ -22,6 +22,11 @@ remembered in the browser (localStorage only). Every page is static HTML that
 reads fine with JavaScript off, in which case it shows every spec; the script
 only filters and remembers.
 
+`/status/` is a live WoW: Forever server-status tracker: every ruleset in all
+four regions, read from Blizzard's official status page, with browser alerts
+(Web Push) the moment servers come back online. See
+[Server status tracker](#server-status-tracker).
+
 Pages per class: `/<class>/` (my level), `/<class>/level/N/`, `/<class>/route/`,
 `/<class>/quests/`, `/<class>/specs/` (compare specs, races, professions),
 `/<class>/<spec>/` (10-60), `/<class>/<spec>/endgame/` (level 60) and
@@ -44,11 +49,13 @@ Pages per class: `/<class>/` (my level), `/<class>/level/N/`, `/<class>/route/`,
 
 ```sh
 npm ci                 # install exactly what package-lock.json pins
-npm run dev            # dev server at http://127.0.0.1:4321
+npm run status         # status tracker on 127.0.0.1:4315 (state in .status-data/)
+npm run dev            # dev server at http://127.0.0.1:4321 (proxies /api to the tracker)
 npm run check          # astro check + tsc + content verification
 npm run build          # static site in dist/
 npm run preview        # serve dist/ at http://127.0.0.1:4322
-npm test               # content verification, build, smoke test of dist/
+npm test               # content verification, status tests, build, smoke test of dist/
+npm run test:status    # status tracker tests only (no network)
 node scripts/smoke.ts https://azerothtrail.com <commit>   # check the live site
 ```
 
@@ -90,9 +97,54 @@ src/data/classes/druid/           same shape: balance.ts, feral.ts, restoration.
 src/lib/guide.ts                  level lookups, build expansion, trainer lists, validation
 src/components/                   LevelPanel, BracketCard, TalentTable, BuildSummary, ...
 src/pages/                        /, /spec-filter.css, /[cls]/... (see above)
+src/pages/status.astro            /status/ page; src/scripts/status.ts drives it
+public/sw.js                      service worker: shows push alerts, opens /status/
+server/                           status tracker (Node, no dependencies, runs as .ts)
+  main.ts                         entry point and configuration (environment)
+  service.ts                      polling schedule, state on disk, push fan-out
+  blizzard.ts                     Blizzard's status GraphQL (persisted query, auto-rediscovered)
+  forums.ts                       blue posts and player reports from the Forever forums
+  tracker.ts                      ruleset state, confirmed transitions, history
+  webpush.ts                      Web Push: RFC 8291 encryption and RFC 8292 VAPID
+  http.ts                         /api/status, /api/status/stream (SSE), /api/push/*
+scripts/test-status.ts            tracker tests (RFC 8291 test vector, fake Blizzard and push services)
 caddy/azerothtrail.com.caddy      the site's Caddy fragment
-deploy/                           prepare, cutover and rollback scripts
+deploy/                           prepare, cutover and rollback scripts, tracker systemd unit
 ```
+
+## Server status tracker
+
+The only part of the site that runs on the server. `server/main.ts` polls
+`https://worldofwarcraft.blizzard.com/en-us/graphql` (the endpoint behind
+Blizzard's [Forever server-status page](https://worldofwarcraft.blizzard.com/en-us/forever/us/server-status))
+for the `forever-us`, `-eu`, `-kr` and `-tw` rulesets: every 20 s while any
+ruleset is down, every 45 s while all are up, and 8 s after a changed reading.
+A change counts only once two readings in a row agree, and is dated from the
+first. Blizzard only accepts persisted queries, so when a site build changes
+the query hash the tracker reads the new one out of the page's
+`realm-status.*.js`.
+
+Supporting sources, every 3 minutes: Blizzard staff posts in the Forever
+forum categories (the forum's Blizzard tracker) and new player threads about
+downtime in the last hour.
+
+Pages get snapshots over Server-Sent Events (`/api/status/stream`, polling as a
+fallback). Alerts use Web Push with no third-party service: the tracker signs
+with its own VAPID key and encrypts per RFC 8291 (checked against the RFC's
+test vector). Subscriptions are accepted only for known browser push services
+(FCM, Mozilla, Apple, Windows), and dropped when the push service says they're
+gone. Without background push (some browsers, Brave by default), the page
+falls back to notifications while the tab is open; on iOS, alerts need the
+page added to the Home Screen.
+
+Environment (all optional): `HOST`/`PORT` (127.0.0.1:4315),
+`STATUS_STATE_DIR` (systemd's `STATE_DIRECTORY`, else `.status-data`),
+`STATUS_SITE_URL`, `STATUS_ALLOWED_ORIGINS` (origins allowed to POST),
+`STATUS_USER_AGENT`.
+
+State lives in `STATUS_STATE_DIR`: `state.json` (ruleset states and history),
+`subscriptions.json` (push endpoints and alert settings, nothing else) and
+`vapid.json` (the signing key; deleting it invalidates every subscription).
 
 ## Adding another class
 
@@ -131,7 +183,7 @@ If a new race id appears, nothing else needs changing: filtering uses the
 The site follows the host's static Astro pattern (as xrayservice.net does):
 an unprivileged build of a pushed commit, then one locked root transaction that
 stages an immutable release, installs the Caddy fragment, validates, switches a
-symlink and reloads Caddy. Caddy obtains the certificate for `azerothtrail.com`
+symlink, restarts the status tracker on the new release and reloads Caddy. Caddy obtains the certificate for `azerothtrail.com`
 and `www.azerothtrail.com` itself (DNS points straight at the host).
 
 On the server:
@@ -143,6 +195,8 @@ On the server:
 | `/srv/www/azerothtrail.com/releases/<commit>/dist` | immutable releases, root-owned |
 | `/srv/www/azerothtrail.com/current` | symlink to the live release |
 | `/etc/caddy/sites/azerothtrail.com.caddy` | site config, imported by the main Caddyfile |
+| `/etc/systemd/system/azerothtrail-status.service` | status tracker (`DynamicUser`, loopback :4315), runs `current/server/main.ts` |
+| `/var/lib/azerothtrail-status` | tracker state, push subscriptions and VAPID key (kept across deploys) |
 | `/root/azerothtrail-backup-<stamp>-<commit>` | per-deploy rollback state and tools |
 | `/var/log/caddy/azerothtrail-access.log` | access log |
 
@@ -168,9 +222,10 @@ On the server:
    ```
 
    It rechecks that nothing changed since prepare, saves a backup, stages the
-   release, validates the full Caddy config before the switch, reloads Caddy,
-   checks `/version.txt` and key routes over HTTPS through the real hostname,
-   and confirms no other site's files changed. Any failure restores the
+   release, validates the full Caddy config before the switch, restarts the
+   status tracker and waits for it, reloads Caddy, checks `/version.txt`, key
+   routes and `/api/status/health` over HTTPS through the real hostname, and
+   confirms no other site's or service's files changed. Any failure restores the
    previous state automatically. It prints the rollback command.
 4. From anywhere: `node scripts/smoke.ts https://azerothtrail.com COMMIT`.
 
@@ -182,10 +237,14 @@ Run the command the cutover printed:
 /usr/local/sbin/with-deploy-lock /root/azerothtrail-backup-STAMP-COMMIT/tools/rollback.sh /root/azerothtrail-backup-STAMP-COMMIT
 ```
 
-It puts back the release pointer and site file from before that deploy and
-reloads Caddy. Rolling back the very first deploy removes the site. Releases
+It puts back the release pointer, site file and tracker unit from before that
+deploy, restarts the tracker on that release (or removes it, if that deploy
+added it) and reloads Caddy. Rolling back the very first deploy removes the site. Releases
 are never deleted, so `ls /srv/www/azerothtrail.com/releases` shows what's
 available, and `ls -d /root/azerothtrail-backup-*` lists the backups (newest last).
 To go back several deploys, use the backup of the oldest deploy you want to undo.
 
-No credentials or keys live in this repository; Caddy manages TLS on the host.
+No credentials or keys live in this repository; Caddy manages TLS on the host,
+and the tracker generates its VAPID key on first start.
+
+Tracker logs: `journalctl -u azerothtrail-status -f`.
