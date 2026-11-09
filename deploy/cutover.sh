@@ -57,6 +57,7 @@ live=$(local_get /version.txt) || die 'site did not answer over HTTPS'
 local_get /druid/ >/dev/null || die '/druid/ failed'
 local_get /druid/route/ >/dev/null || die '/druid/route/ failed'
 local_get /paladin/ >/dev/null || die '/paladin/ failed'
+local_get /paladin/holy/endgame/ >/dev/null || die '/paladin/holy/endgame/ failed'
 
 preserved > "$backup/preserved-after"
 cmp -s "$backup/preserved-before" "$backup/preserved-after" || die 'another site or shared Caddy file changed during cutover'

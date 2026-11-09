@@ -1,11 +1,12 @@
 // Progressive enhancement for every page. The HTML is complete without it:
-// this script only filters by faction/race, follows the chosen level and
-// remembers preferences in this browser (localStorage).
+// this script only filters by spec, faction and race, follows the chosen level
+// and remembers preferences in this browser (localStorage).
 
 type Faction = 'alliance' | 'horde';
 
 interface Prefs {
   level: number;
+  spec: string | null;
   faction: Faction | null;
   race: string | null;
   showAll: boolean;
@@ -15,18 +16,22 @@ interface Prefs {
 const root = document.documentElement;
 const cls = root.dataset.class ?? '';
 const KEY = `azerothtrail:v1:${cls}`;
+const LAST_KEY = 'azerothtrail:v1:last';
+const SPECS = (root.dataset.specs ?? '').split(' ').filter(Boolean);
+const DEFAULT_SPEC = root.dataset.defaultSpec ?? null;
 
 function clampLevel(n: number): number {
   return Number.isFinite(n) ? Math.min(60, Math.max(1, Math.round(n))) : 1;
 }
 
-function load(): Prefs {
-  const prefs: Prefs = { level: 1, faction: null, race: null, showAll: false, checks: {} };
+function readPrefs(key: string, specs: readonly string[]): Prefs {
+  const prefs: Prefs = { level: 1, spec: null, faction: null, race: null, showAll: false, checks: {} };
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key);
     if (raw) {
       const p = JSON.parse(raw) as Partial<Prefs>;
       if (typeof p.level === 'number') prefs.level = clampLevel(p.level);
+      if (typeof p.spec === 'string' && specs.includes(p.spec)) prefs.spec = p.spec;
       if (p.faction === 'alliance' || p.faction === 'horde') prefs.faction = p.faction;
       if (typeof p.race === 'string') prefs.race = p.race;
       prefs.showAll = p.showAll === true;
@@ -38,6 +43,10 @@ function load(): Prefs {
   return prefs;
 }
 
+function load(): Prefs {
+  return readPrefs(KEY, SPECS);
+}
+
 function save(p: Prefs): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(p));
@@ -47,12 +56,55 @@ function save(p: Prefs): void {
 }
 
 const prefs = load();
+if (cls) {
+  try {
+    localStorage.setItem(LAST_KEY, cls);
+  } catch {
+    // Storage blocked.
+  }
+}
 
-// A shared link like /druid/?level=37 sets the level once.
-const fromQuery = new URLSearchParams(location.search).get('level');
+// A shared link like /druid/?level=37&spec=balance sets the level and spec once.
+const query = new URLSearchParams(location.search);
+const fromQuery = query.get('level');
 if (fromQuery !== null && /^\d{1,2}$/.test(fromQuery)) {
   prefs.level = clampLevel(Number(fromQuery));
   save(prefs);
+}
+const specQuery = query.get('spec');
+if (specQuery !== null && SPECS.includes(specQuery)) {
+  prefs.spec = specQuery;
+  save(prefs);
+}
+const currentSpec = (): string | null => prefs.spec ?? DEFAULT_SPEC;
+
+/** Show only the chosen spec's blocks. The generated spec-filter.css does the hiding. */
+function applySpec(): void {
+  const spec = currentSpec();
+  if (spec) root.dataset.spec = spec;
+  else delete root.dataset.spec;
+  for (const input of document.querySelectorAll<HTMLInputElement>('input[name="spec"]')) input.checked = input.value === spec;
+  for (const a of document.querySelectorAll<HTMLElement>('[data-spec-link]')) a.classList.toggle('is-mine', a.dataset.specLink === spec);
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-set-spec]')) {
+    const mine = btn.dataset.setSpec === spec;
+    btn.setAttribute('aria-pressed', String(mine));
+    const name = document.querySelector<HTMLElement>(`[data-spec-id="${CSS.escape(btn.dataset.setSpec ?? '')}"]`)?.dataset.specName ?? '';
+    btn.textContent = mine ? `${name} is your spec on the level pages` : `Use ${name} on the level pages`;
+  }
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-my-spec-href]')) {
+    if (spec) a.href = (a.dataset.mySpecHref ?? '').replace('{spec}', spec);
+  }
+  for (const el of document.querySelectorAll<HTMLElement>('[data-my-spec-name]')) {
+    const name = document.querySelector<HTMLElement>(`[data-spec-id="${CSS.escape(spec ?? '')}"]`)?.dataset.specName;
+    if (name) el.textContent = name;
+  }
+}
+
+function setSpec(spec: string): void {
+  if (!SPECS.includes(spec)) return;
+  prefs.spec = spec;
+  save(prefs);
+  applySpec();
 }
 
 // On a per-level page, that page's level is the one to follow.
@@ -192,6 +244,12 @@ function initControls(): void {
       applyFilters();
     });
   }
+  for (const input of document.querySelectorAll<HTMLInputElement>('input[name="spec"]')) {
+    input.addEventListener('change', () => setSpec(input.value));
+  }
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-set-spec]')) {
+    btn.addEventListener('click', () => setSpec(btn.dataset.setSpec ?? ''));
+  }
   for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-toggle-show-all]')) {
     btn.addEventListener('click', () => {
       prefs.showAll = !prefs.showAll;
@@ -232,7 +290,33 @@ function initControls(): void {
 // If no faction is saved yet but a race is, derive it.
 if (!prefs.faction && prefs.race) prefs.faction = raceFaction(prefs.race);
 
+/** Home page: offer to pick up where the visitor left off. */
+function applyContinue(): void {
+  const box = document.querySelector<HTMLElement>('[data-continue]');
+  if (!box) return;
+  let last: string | null = null;
+  try {
+    last = localStorage.getItem(LAST_KEY);
+  } catch {
+    return;
+  }
+  const card = last ? document.querySelector<HTMLElement>(`[data-class-card="${CSS.escape(last)}"]`) : null;
+  if (!last || !card) return;
+  const specs = (card.dataset.classSpecs ?? '').split(' ').filter(Boolean);
+  const p = readPrefs(`azerothtrail:v1:${last}`, specs);
+  const spec = p.spec ?? card.dataset.classDefaultSpec ?? '';
+  const specName = card.querySelector<HTMLElement>(`[data-spec-card="${CSS.escape(spec)}"]`)?.dataset.specName ?? '';
+  const link = box.querySelector<HTMLAnchorElement>('a');
+  const text = box.querySelector<HTMLElement>('[data-continue-text]');
+  if (!link || !text) return;
+  link.href = `/${last}/`;
+  text.textContent = `${card.dataset.className ?? last}${specName ? ` · ${specName}` : ''} · level ${p.level}`;
+  box.hidden = false;
+}
+
 initControls();
 syncControls();
 applyFilters();
+applySpec();
 applyLevel();
+applyContinue();

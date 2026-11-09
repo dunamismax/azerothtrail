@@ -1,10 +1,11 @@
 ---
 import type { ClassGuide } from '../data/types.ts';
+import { ROLE_LABEL } from '../data/types.ts';
 import Layout from '../layouts/Layout.astro';
 import LevelGrid from './LevelGrid.astro';
 import LevelPanel from './LevelPanel.astro';
 import PrefsControls from './PrefsControls.astro';
-import { LEVELS, classPath, formatDate } from '../lib/guide.ts';
+import { LEVELS, classPath, formatDate, specPath } from '../lib/guide.ts';
 
 interface Props {
   guide: ClassGuide;
@@ -13,10 +14,9 @@ interface Props {
 
 const { guide, path } = Astro.props;
 const sections = [
-  { href: classPath(guide, 'route'), title: 'Leveling route', text: 'Every bracket from 1 to 60, both factions, race branches and optional dungeons.' },
+  { href: classPath(guide, 'specs'), title: 'Compare the specs', text: `${guide.specs.map((s) => s.name).join(', ')}: roles, leveling speed, dual spec pairings, races and professions.` },
+  { href: classPath(guide, 'route'), title: 'Leveling route', text: 'Every bracket from 1 to 60, both factions, race branches, advice for each spec and optional dungeons.' },
   { href: classPath(guide, 'quests'), title: guide.questsLabel, text: guide.questsLead },
-  { href: classPath(guide, guide.leveling.slug), title: guide.leveling.name, text: guide.leveling.blurb },
-  { href: classPath(guide, guide.endgame.slug), title: guide.endgame.name, text: guide.endgame.blurb },
   { href: classPath(guide, 'sources'), title: 'Sources', text: 'Every reference, with dated update notes where sources disagree.' },
 ];
 ---
@@ -24,8 +24,8 @@ const sections = [
   guide={guide}
   path={path}
   canonical={classPath(guide)}
-  title={path === '/' ? 'Azeroth Trail' : `${guide.name} leveling guide`}
-  description={`${guide.tagline} What to do at every level, 1-60: where to quest, what to train, the next talent point and the dungeon worth trying. ${guide.ruleset}.`}
+  title={`${guide.name} leveling guide`}
+  description={`${guide.tagline} What to do at every level, 1-60, as ${guide.specs.map((s) => s.name).join(', ')}: where to quest, what to train, the next talent point and the dungeon worth trying.`}
 >
   <section id="now" aria-labelledby="now-title">
     <p class="eyebrow">World of Warcraft: Forever · {guide.name} · {guide.ruleset}</p>
@@ -33,7 +33,7 @@ const sections = [
     <p class="verified">{guide.tagline} Last verified {formatDate(guide.lastVerified)} against the <a href={classPath(guide, 'sources')}>sources</a>.</p>
     <PrefsControls guide={guide} />
     <noscript>
-      <p class="callout">Pick your level below to open its page. Every page also lists both factions and every starting race.</p>
+      <p class="callout">Pick your level below to open its page. Without JavaScript every page shows all specs, factions and starting races.</p>
     </noscript>
     <div aria-live="polite">
       {LEVELS.map((n) => <LevelPanel guide={guide} level={n} switcher visible={n === 1} />)}
@@ -46,8 +46,22 @@ const sections = [
     <LevelGrid guide={guide} />
   </section>
 
+  <section class="section" aria-labelledby="specs-title">
+    <h2 id="specs-title">Spec guides</h2>
+    <p class="small muted">Each spec has its own 10-60 talent order and a level-60 page.</p>
+    <ul class="spec-cards">
+      {guide.specs.map((s) => (
+        <li class={`spec-card role-${s.role}`}>
+          <p class="spec-card-head"><a href={specPath(guide, s)}><b>{s.name}</b></a> <span class={`tag role-${s.role}`}>{ROLE_LABEL[s.role]}{s.alsoRoles?.length ? ` · ${s.alsoRoles.map((r) => ROLE_LABEL[r]).join(', ')}` : ''}</span></p>
+          <p class="small">{s.pitch}</p>
+          <p class="small"><a href={specPath(guide, s)}>Leveling 10-60</a> · <a href={specPath(guide, s, true)}>Level 60</a></p>
+        </li>
+      ))}
+    </ul>
+  </section>
+
   <section class="section" aria-labelledby="sections-title">
-    <h2 id="sections-title">The full guide</h2>
+    <h2 id="sections-title">The rest of the guide</h2>
     <ul class="nav-cards">
       {sections.map((s) => <li><a href={s.href}><b>{s.title}</b><span>{s.text}</span></a></li>)}
     </ul>

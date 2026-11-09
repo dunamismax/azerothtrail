@@ -2,12 +2,13 @@
 import '../styles/global.css';
 import type { ClassGuide } from '../data/types.ts';
 import { classes } from '../data/registry.ts';
-import { classPath, formatDate } from '../lib/guide.ts';
+import { classPath, formatDate, specPath } from '../lib/guide.ts';
 
 interface Props {
   title: string;
   description: string;
-  guide: ClassGuide;
+  /** The class this page belongs to. Omit on pages for every class (home, 404). */
+  guide?: ClassGuide;
   /** Path of this page, for aria-current and the canonical URL. */
   path: string;
   canonical?: string;
@@ -16,18 +17,20 @@ interface Props {
 
 const { title, description, guide, path, canonical, pageLevel } = Astro.props;
 const site = Astro.site?.toString().replace(/\/$/, '') ?? '';
-const nav = [
-  { href: classPath(guide), label: 'My level' },
-  { href: classPath(guide, 'route'), label: 'Route' },
-  { href: classPath(guide, 'quests'), label: guide.questsNav },
-  { href: classPath(guide, guide.leveling.slug), label: guide.leveling.nav },
-  { href: classPath(guide, guide.endgame.slug), label: guide.endgame.nav },
-  { href: classPath(guide, 'sources'), label: 'Sources' },
-];
+const nav = guide
+  ? [
+      { href: classPath(guide), label: 'My level', exact: true },
+      { href: classPath(guide, 'route'), label: 'Route', exact: false },
+      { href: classPath(guide, 'quests'), label: guide.questsNav, exact: false },
+      { href: classPath(guide, 'specs'), label: 'Specs', exact: false },
+      { href: classPath(guide, 'sources'), label: 'Sources', exact: false },
+    ]
+  : [];
 const fullTitle = title === 'Azeroth Trail' ? title : `${title} · Azeroth Trail`;
+const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
 ---
 <!doctype html>
-<html lang="en" data-class={guide.id}>
+<html lang="en" data-class={guide?.id} data-specs={guide?.specs.map((s) => s.slug).join(' ')} data-default-spec={guide?.defaultSpec}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,6 +38,7 @@ const fullTitle = title === 'Azeroth Trail' ? title : `${title} · Azeroth Trail
     <meta name="description" content={description} />
     <link rel="canonical" href={`${site}${canonical ?? path}`} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/spec-filter.css" />
     <meta name="theme-color" content="#12100c" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f5efe1" media="(prefers-color-scheme: light)" />
     <meta property="og:title" content={fullTitle} />
@@ -43,26 +47,35 @@ const fullTitle = title === 'Azeroth Trail' ? title : `${title} · Azeroth Trail
     <meta property="og:url" content={`${site}${canonical ?? path}`} />
     <script is:inline src="/boot.js"></script>
   </head>
-  <body data-class={guide.id} data-page-level={pageLevel}>
+  <body data-class={guide?.id} data-page-level={pageLevel}>
     <a class="skip" href="#main">Skip to content</a>
     <header class="site-header">
-      <div class="wrap">
-        <a class="brand" href="/"><span class="mark" aria-hidden="true">&#10022;</span> Azeroth Trail <small>{guide.name} · {guide.ruleset}</small></a>
-        {classes.length > 1 && (
-          <nav class="class-switch" aria-label="Class guides">
-            <ul>
-              {classes.map((c) => <li><a href={classPath(c)} aria-current={c.id === guide.id ? 'true' : undefined}>{c.name}</a></li>)}
-            </ul>
-          </nav>
-        )}
-        <nav class="site-nav" aria-label="Guide sections">
+      <div class="wrap header-top">
+        <a class="brand" href="/"><span class="mark" aria-hidden="true">&#10022;</span> Azeroth Trail <small>WoW Forever leveling</small></a>
+        <nav class="class-switch" aria-label="Class guides">
           <ul>
-            {nav.map((item) => (
-              <li><a href={item.href} aria-current={path === item.href || (item.href !== classPath(guide) && path.startsWith(item.href)) ? 'page' : undefined}>{item.label}</a></li>
-            ))}
+            {classes.map((c) => <li><a href={classPath(c)} aria-current={c.id === guide?.id ? 'true' : undefined}>{c.name}</a></li>)}
           </ul>
         </nav>
       </div>
+      {guide && (
+        <div class="wrap header-nav">
+          <nav class="site-nav" aria-label={`${guide.name} guide`}>
+            <ul>
+              {nav.map((item) => (
+                <li><a href={item.href} aria-current={(item.exact ? path === item.href : path.startsWith(item.href)) ? 'page' : undefined}>{item.label}</a></li>
+              ))}
+            </ul>
+          </nav>
+          <nav class="spec-nav" aria-label={`${guide.name} specs`}>
+            <ul>
+              {guide.specs.map((s) => (
+                <li><a href={specPath(guide, s)} data-spec-link={s.slug} aria-current={path.startsWith(specPath(guide, s)) ? 'page' : undefined}>{s.name}</a></li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      )}
     </header>
     <main id="main" tabindex="-1">
       <div class="wrap">
@@ -71,13 +84,16 @@ const fullTitle = title === 'Azeroth Trail' ? title : `${title} · Azeroth Trail
     </main>
     <footer class="site-footer">
       <div class="wrap">
-        <p>Azeroth Trail: a personal World of Warcraft: Forever leveling guide. {guide.name} guide last verified {formatDate(guide.lastVerified)}.</p>
+        <p>Azeroth Trail: a World of Warcraft: Forever leveling guide for every spec. {guide ? `${guide.name} guide last verified ${formatDate(guide.lastVerified)}.` : `Last verified ${formatDate(lastVerified)}.`} Written for Forever; most of it also holds for WoW Classic, except Forever’s new talents, spells, zones and dungeons.</p>
         <p>Unofficial fan guide, not affiliated with Blizzard Entertainment. Preferences are stored only in this browser.</p>
       </div>
     </footer>
-    <div hidden>
-      {guide.races.map((r) => <span data-race-id={r.id} data-race-name={r.name} data-faction={r.faction}></span>)}
-    </div>
+    {guide && (
+      <div hidden>
+        {guide.races.map((r) => <span data-race-id={r.id} data-race-name={r.name} data-faction={r.faction}></span>)}
+        {guide.specs.map((s) => <span data-spec-id={s.slug} data-spec-name={s.name}></span>)}
+      </div>
+    )}
     <script>
       import '../scripts/app.ts';
     </script>

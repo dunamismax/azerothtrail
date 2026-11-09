@@ -4,10 +4,10 @@ import { paladin } from './classes/paladin/index.ts';
 
 // Add a class: create src/data/classes/<id>/ with the same files as druid/,
 // export a ClassGuide, and list it here. Pages are generated from this list.
-export const classes: readonly ClassGuide[] = [druid, paladin];
+export const classes: readonly ClassGuide[] = [paladin, druid];
 
-/** The class the home page opens on. */
-export const defaultClass: ClassGuide = druid;
+/** The class listed first and used for pages that need one (404). */
+export const defaultClass: ClassGuide = paladin;
 
 export function getClass(id: string): ClassGuide {
   const found = classes.find((c) => c.id === id);

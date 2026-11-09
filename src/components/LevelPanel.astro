@@ -1,24 +1,27 @@
 ---
-import type { ClassGuide, TrainSpell } from '../data/types.ts';
-import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import type { ClassGuide, SpecGuide, TrainSpell } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL, ROLE_LABEL } from '../data/types.ts';
 import {
   FIRST_TALENT_LEVEL,
   MAX_LEVEL,
   bracketFor,
   bracketHref,
+  catchUpRank,
   classPath,
   dungeonsForLevel,
   expandBuild,
   formsAt,
+  levelSpan,
   nextForm,
-  nextTraining,
+  nextTrainingFor,
   pointsAtLevel,
   rangeLabel,
+  specPath,
   splitLabel,
-  runs,
-  levelSpan,
   trainingAt,
+  trainingFor,
   treeName,
+  type SpecTraining,
 } from '../lib/guide.ts';
 
 interface Props {
@@ -31,26 +34,46 @@ interface Props {
 
 const { guide, level, switcher = false, visible = true } = Astro.props;
 const bracket = bracketFor(guide, level);
-const leveling = expandBuild(guide, guide.leveling.build);
-const endgame = expandBuild(guide, guide.endgame.build);
-const point = pointsAtLevel(leveling, level)[0];
-const nextPoint = pointsAtLevel(leveling, level + 1)[0];
-const endgamePoints = pointsAtLevel(endgame, level);
-const endgameRuns = runs(endgamePoints);
 const trainNow = trainingAt(guide, level);
-const trainNext = nextTraining(guide, level);
 const questsNow = formsAt(guide, level);
 const questNext = nextForm(guide, level);
 const dungeons = dungeonsForLevel(guide, level);
 const milestone = guide.milestones.find((m) => m.level === level);
 const nextMilestone = guide.milestones.find((m) => m.level > level);
 const branches = bracket.raceBranches;
-const core = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'core');
-const extra = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'situational');
-const deferred = (spells: TrainSpell[]) => spells.filter((s) => s.priority === 'defer');
 const spellName = (s: TrainSpell) => `${s.name}${s.rank ? ` ${s.rank}` : ''}`;
 const statusTag = { 'in-range': ['tag-ok', 'In range'], below: ['tag-warn', 'Below range'], above: ['tag', 'Above range'], unknown: ['tag', 'Range not published'] } as const;
 const headingId = `panel-${level}-title`;
+const total = MAX_LEVEL - FIRST_TALENT_LEVEL + 1;
+const treeNames = guide.trees.map((t) => t.name).join(' / ');
+
+// One talent card per spec.
+const talentCards = guide.specs.map((spec) => {
+  const points = expandBuild(guide, spec.build);
+  return {
+    spec,
+    first: pointsAtLevel(points, FIRST_TALENT_LEVEL)[0],
+    point: pointsAtLevel(points, level)[0],
+    next: pointsAtLevel(points, level + 1)[0],
+    catchUp: catchUpRank(guide, spec, level),
+  };
+});
+
+// Trainer lists, grouped so specs that train the same things share one block.
+type TrainBlock = { specs: SpecGuide[]; now: SpecTraining | null; next: { level: number; training: SpecTraining } | undefined };
+const trainBlocks: TrainBlock[] = [];
+for (const spec of guide.specs) {
+  const now = trainNow ? trainingFor(guide, spec, trainNow) : null;
+  const next = nextTrainingFor(guide, spec, level);
+  const key = JSON.stringify([now, next]);
+  const same = trainBlocks.find((b) => JSON.stringify([b.now, b.next]) === key);
+  if (same) same.specs.push(spec);
+  else trainBlocks.push({ specs: [spec], now, next });
+}
+const specIds = (specs: SpecGuide[]) => specs.map((s) => s.slug).join(' ');
+const specNames = (specs: SpecGuide[]) => specs.map((s) => s.name).join(', ');
+const allSpecs = (specs: SpecGuide[]) => specs.length === guide.specs.length;
+const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optional ranks only';
 ---
 <section class="panel" data-level-panel={switcher ? String(level) : undefined} hidden={switcher && !visible ? true : undefined} aria-labelledby={headingId}>
   <div class="panel-head">
@@ -84,53 +107,51 @@ const headingId = `panel-${level}-title`;
     </div>
 
     <div class="card">
+      <p class="card-label">Talent point</p>
+      {talentCards.map(({ spec, first, point, next, catchUp }) => (
+        <div class="spec-block" data-spec={spec.slug}>
+          <p class="spec-name"><span class={`tag role-${spec.role}`}>{spec.name} · {ROLE_LABEL[spec.role]}</span></p>
+          {level < FIRST_TALENT_LEVEL ? (
+            <p>Talents start at {FIRST_TALENT_LEVEL}. Your first point goes into <b>{first?.talent.name}</b> ({treeName(guide, first?.talent.tree ?? '')}).</p>
+          ) : point ? (
+            <>
+              <p class="big">{point.talent.name} <span class="muted">{point.rank}/{point.talent.maxRank}</span></p>
+              <p class="small muted">{treeName(guide, point.talent.tree)} · point {point.n} of {total} · split now {splitLabel(guide, point.totals)} ({treeNames})</p>
+              <p class="small">{point.talent.summary}</p>
+              {catchUp && <p class="small"><b>Also train:</b> {spellName(catchUp)}. The trainer already sells it.</p>}
+              {next && <p class="small">Next at {next.level}: <b>{next.talent.name}</b> {next.rank}/{next.talent.maxRank}.</p>}
+            </>
+          ) : null}
+          <p class="small"><a href={`${specPath(guide, spec)}#lvl-${Math.max(level, FIRST_TALENT_LEVEL)}`}>Full {spec.name} order</a>{level >= 55 && <> · <a href={specPath(guide, spec, true)}>{spec.name} at 60</a></>}</p>
+        </div>
+      ))}
+      {level >= 40 && <p class="small muted">Second spec: follow another spec’s build up to your level. <a href={classPath(guide, 'specs')}>Compare specs</a>.</p>}
+    </div>
+
+    <div class="card">
       <p class="card-label">Trainer and class quests</p>
       {questsNow.map((f) => (
         <p class="big"><a href={`${classPath(guide, 'quests')}#${f.id}`}>{f.name}</a> {f.how === 'class quest' ? <span class="tag tag-accent">Class quest now</span> : <span class="tag tag-accent">At the trainer</span>}</p>
       ))}
-      {trainNow ? (
-        <>
-          <h3>Train at {level}</h3>
-          <ul class="spells">
-            {core(trainNow.spells).map((s) => <li><b>{spellName(s)}</b>{s.talent && <span class="tag">Talent</span>}{s.note && <span class="why">{s.note}</span>}</li>)}
-            {extra(trainNow.spells).map((s) => <li>{spellName(s)} <span class="why">if you use it{s.note ? `. ${s.note}` : ''}</span></li>)}
-          </ul>
-          {deferred(trainNow.spells).length > 0 && <p class="small muted">{guide.deferLabel}: {deferred(trainNow.spells).map(spellName).join(', ')}.</p>}
-        </>
-      ) : (
-        <p>No new training at {level}.{trainNext && <> Next trainer visit at <b>{trainNext.level}</b>: {core(trainNext.spells).map(spellName).join(', ') || 'optional ranks only'}.</>}</p>
-      )}
-      {trainNow && trainNext && <p class="small muted">Next visit at {trainNext.level}: {core(trainNext.spells).map(spellName).join(', ') || 'optional ranks only'}.</p>}
-      {questNext && <p class="small">Next class unlock: <a href={`${classPath(guide, 'quests')}#${questNext.id}`}>{questNext.name}</a> at {questNext.level} ({questNext.how}).</p>}
-    </div>
-
-    <div class="card">
-      <p class="card-label">Talent point</p>
-      {level < FIRST_TALENT_LEVEL ? (
-        <p>Talents start at {FIRST_TALENT_LEVEL}. Your first point goes into <b>{pointsAtLevel(leveling, FIRST_TALENT_LEVEL)[0]?.talent.name}</b>.</p>
-      ) : point ? (
-        <>
-          <p class="big">{point.talent.name} <span class="muted">{point.rank}/{point.talent.maxRank}</span></p>
-          <p class="small muted">{treeName(guide, point.talent.tree)} · point {point.n} of {MAX_LEVEL - FIRST_TALENT_LEVEL + 1} · split now {splitLabel(guide, point.totals)} ({guide.trees.map((t) => t.name).join(" / ")})</p>
-          <p class="small">{point.talent.summary}</p>
-          {nextPoint && <p class="small">Next at {nextPoint.level}: <b>{nextPoint.talent.name}</b> {nextPoint.rank}/{nextPoint.talent.maxRank}.</p>}
-          <p class="small"><a href={`${classPath(guide, guide.leveling.slug)}#lvl-${level}`}>Full {guide.leveling.nav} order</a></p>
-        </>
-      ) : null}
-      {endgamePoints.length > 0 && (
-        <div class="branch">
-          <h4>{guide.endgame.nav} spec at {level}</h4>
-          {endgamePoints.length > 1 ? (
+      {trainBlocks.map((b) => (
+        <div class="spec-block" data-spec={specIds(b.specs)}>
+          {!allSpecs(b.specs) && <p class="spec-name spec-group-name"><span class="tag">{specNames(b.specs)}</span></p>}
+          {b.now && (b.now.core.length + b.now.situational.length + b.now.defer.length) > 0 ? (
             <>
-              <p class="small">Open your second spec and spend all {endgamePoints.length} points:</p>
-              <ol class="small">{endgameRuns.map((r) => <li>{r.from.talent.name} {r.to.rank}/{r.to.talent.maxRank}</li>)}</ol>
+              <h3>Train at {level}</h3>
+              <ul class="spells">
+                {b.now.core.map((s) => <li><b>{spellName(s)}</b>{s.talent && <span class="tag">Talent</span>}{s.note && <span class="why">{s.note}</span>}</li>)}
+                {b.now.situational.map((s) => <li>{spellName(s)} <span class="why">if you use it{s.note ? `. ${s.note}` : ''}</span></li>)}
+              </ul>
+              {b.now.defer.length > 0 && <p class="small muted">Can wait if gold is tight: {b.now.defer.map(spellName).join(', ')}.</p>}
+              {b.next && <p class="small muted">Next visit at {b.next.level}: {nextList(b.next.training)}.</p>}
             </>
           ) : (
-            <p class="small"><b>{endgamePoints[0]?.talent.name}</b> {endgamePoints[0]?.rank}/{endgamePoints[0]?.talent.maxRank} ({treeName(guide, endgamePoints[0]?.talent.tree ?? '')}), split {splitLabel(guide, endgamePoints[0]?.totals ?? {})}.</p>
+            <p>No new training at {level}.{b.next && <> Next trainer visit at <b>{b.next.level}</b>: {nextList(b.next.training)}.</>}</p>
           )}
-          <p class="small"><a href={`${classPath(guide, guide.endgame.slug)}#lvl-${level}`}>{guide.endgame.nav} build</a></p>
         </div>
-      )}
+      ))}
+      {questNext && <p class="small">Next class unlock: <a href={`${classPath(guide, 'quests')}#${questNext.id}`}>{questNext.name}</a> at {questNext.level} ({questNext.how}).</p>}
     </div>
 
     <div class="card">
@@ -157,5 +178,11 @@ const headingId = `panel-${level}-title`;
   <div class="callout">
     <p class="card-label">Plan for {levelSpan(bracket.min, bracket.max)}</p>
     <ul>{bracket.plan.map((p) => <li>{p}</li>)}</ul>
+    {guide.specs.map((spec) => (
+      <div class="spec-block" data-spec={spec.slug}>
+        <p class="spec-plan-label"><span class={`tag role-${spec.role}`}>As {spec.name}</span></p>
+        <ul>{(bracket.specPlan[spec.slug] ?? []).map((p) => <li>{p}</li>)}</ul>
+      </div>
+    ))}
   </div>
 </section>

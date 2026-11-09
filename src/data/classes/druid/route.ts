@@ -29,10 +29,21 @@ export const brackets: Bracket[] = [
     plan: [
       'Open with Wrath. Use Moonfire when the mob will live long enough, or when you need an instant tag.',
       'Heal between pulls rather than mid-fight, and favor one mob at a time.',
-      'Train Rejuvenation at 4, Thorns at 6 and Entangling Roots at 8.',
+      'Train Rejuvenation at 4, Thorns at 6 and Entangling Roots at 8. Keep Mark of the Wild and Thorns on yourself.',
     ],
+    specPlan: {
+      balance: [
+        'Every Druid plays as a caster until 10. Water is your best friend: drink after every few mobs.',
+      ],
+      feral: [
+        'Every Druid plays as a caster until 10. Bear Form at 10 is where Feral starts to feel fast.',
+      ],
+      restoration: [
+        'Every Druid plays as a caster until 10. Rejuvenate yourself before each pull so you rarely stop to heal.',
+      ],
+    },
     dungeons: [],
-    sources: ['01', '05', '08', '13'],
+    sources: ['01', '05', '08', '13', '24', '28'],
   },
   {
     id: 'lvl-10-15', min: 10, max: 15, title: 'Bear Form and a first tank run',
@@ -65,16 +76,29 @@ export const brackets: Bracket[] = [
       ] },
     ],
     plan: [
-      'Do the Bear quest immediately. Train Maul and Growl, then Enrage at 12.',
+      'Do the Bear quest at 10. Train Maul and Growl, then Enrage at 12.',
       'Train Revive and Regrowth at 12, then Bash and Cure Poison at 14.',
-      'Spend talent points 10-14 on Ferocity and start Feral Instinct at 15.',
     ],
+    specPlan: {
+      balance: [
+        'Talent points 10-14 go into Improved Wrath, then Nature’s Focus from 15 so damage doesn’t push your casts back.',
+        'Around 10, Moonfire then auto-attacking in Bear Form can kill as fast as Wrath. It changes as your spells rank up.',
+      ],
+      feral: [
+        'Talent points 10-14 go into Ferocity for cheaper attacks; Feral Instinct starts at 15.',
+        'Bear is your main form until Cat at 20: Maul, Swipe from 16, and heal between pulls.',
+      ],
+      restoration: [
+        'Talent points 10-14 go into Improved Wrath, then Nature’s Focus from 15.',
+        'Moonfire then Bear Form auto-attacks is fine at 10-15. Wrath takes over as your gear gains Spell Power.',
+      ],
+    },
     dungeons: [
       { dungeon: 'hall-of-thanes', note: 'Easier Alliance access. Level 16 is a comfortable first attempt.' },
       { dungeon: 'ruins-of-lordaeron', note: 'Easier Horde access. Level 16 is a comfortable first attempt.' },
     ],
     notes: ['skyborne-exit', 'lordaeron-quest'],
-    sources: ['04', '07', '08', '13', '22'],
+    sources: ['04', '05', '07', '08', '13', '22', '24', '28'],
   },
   {
     id: 'lvl-16-19', min: 16, max: 19, title: 'Swipe, Faerie Fire and Aquatic Form',
@@ -92,17 +116,30 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Train Swipe at 16 and Faerie Fire at 18.',
-      'Once comfortable, try Bear on two ordinary mobs.',
+      'Swipe at 16 and Faerie Fire at 18.',
       'Start Aquatic Form at 16 and finish the travel-heavy steps when your route passes them.',
     ],
+    specPlan: {
+      balance: [
+        'Nature’s Focus finishes at 19. Reflection at 20-22 lets mana regeneration continue while you cast.',
+        'Pull one mob at a time. Entangling Roots holds a second one if you get unlucky.',
+      ],
+      feral: [
+        'Feral Swiftness at 18-19 for Cat speed and Dodge, ready for Cat Form at 20.',
+        'Once comfortable, try Bear on two ordinary mobs.',
+      ],
+      restoration: [
+        'Nature’s Focus finishes at 19, then Reflection at 20-22 for mana.',
+        'You can already heal a Deadmines or Wailing Caverns run with Rejuvenation, Regrowth and Healing Touch.',
+      ],
+    },
     dungeons: [
       { dungeon: 'deadmines', note: 'Optional toward the upper end. Easier Alliance access.' },
       { dungeon: 'wailing-caverns', note: 'Optional toward the upper end. Easier Horde access.' },
       { dungeon: 'hall-of-thanes', note: 'Still in range to 18.' },
       { dungeon: 'ruins-of-lordaeron', note: 'Still in range to 20.' },
     ],
-    sources: ['04', '05', '08'],
+    sources: ['04', '05', '08', '24', '28'],
   },
   {
     id: 'lvl-20-24', min: 20, max: 24, title: 'Cat Form',
@@ -120,17 +157,30 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Stop for Cat Form at 20. Prowl past extras and use Cat on single mobs.',
-      'Take Feral Charge at 20 for a Bear interrupt. Omen of Clarity and Rebirth also arrive at 20.',
+      'Do the Cat Form quest at 20. Omen of Clarity and Rebirth also arrive at 20.',
       'Train Rake, Ferocious Bite and Remove Curse at 24.',
     ],
+    specPlan: {
+      balance: [
+        'Nature’s Reach at 23-24: more range to tag mobs first in crowded zones, and spell hit.',
+        'Cat Form is still worth the quest for Prowl, to sneak past packs you don’t need.',
+      ],
+      feral: [
+        'Cat Form at 20: Prowl past extras and use Cat on single mobs, Bear on packs.',
+        'Feral Charge at 20, then Savage Fury and Sharpened Claws at 21-24 for more damage in both forms.',
+      ],
+      restoration: [
+        'Nature’s Reach at 23-24 for range and hit.',
+        'Cat Form is worth the quest for Prowl. You won’t fight in it.',
+      ],
+    },
     dungeons: [
       { dungeon: 'excavation-site', note: 'Optional from 24 if you are near the Wetlands.' },
     ],
-    sources: ['04', '05', '08', '17'],
+    sources: ['04', '05', '08', '17', '24', '28'],
   },
   {
-    id: 'lvl-25-29', min: 25, max: 29, title: 'Lacerate',
+    id: 'lvl-25-29', min: 25, max: 29, title: 'Duskwood or the Wetlands',
     alliance: {
       primary: 'Duskwood from Darkshire, or Wetlands from Menethil Harbor.',
       hubs: ['Darkshire', 'Menethil Harbor'],
@@ -145,19 +195,30 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Take Lacerate at 25 for sturdy targets.',
-      'Use Rake and Rip when the target has time for them to tick.',
-      'Optional: one healing run in your caster gear for early practice.',
       'Train Dash at 26.',
     ],
+    specPlan: {
+      balance: [
+        'Nature’s Majesty at 25-26 for crit, then Moonglow and Nature’s Splendor at 27-30 for cheaper, longer DoTs.',
+        'Keep Moonfire on everything you fight and Wrath as your filler.',
+      ],
+      feral: [
+        'Take Lacerate at 25 for sturdy targets, then Blood Frenzy at 26-27.',
+        'Use Rake and Rip when the target has time for them to tick.',
+      ],
+      restoration: [
+        'Nature’s Majesty at 25-26, then Moonglow and Nature’s Splendor.',
+        'Optional: heal the Excavation Site or Blackfathom Deeps. Healers find groups fast.',
+      ],
+    },
     dungeons: [
       { dungeon: 'excavation-site', note: 'In range to 29.' },
       { dungeon: 'city-of-dalaran', note: 'Optional detour from 28 with an entry quest.' },
     ],
-    sources: ['05', '07', '08'],
+    sources: ['05', '07', '08', '24', '28'],
   },
   {
-    id: 'lvl-30-35', min: 30, max: 35, title: 'Travel Form and Leader of the Pack',
+    id: 'lvl-30-35', min: 30, max: 35, title: 'Travel Form',
     alliance: {
       primary: 'Northern Stranglethorn from the Rebel Camp, or Arathi from Refuge Pointe.',
       hubs: ['Rebel Camp', 'Refuge Pointe'],
@@ -172,15 +233,28 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Train Travel Form and take Leader of the Pack at 30.',
-      'Train Ravage at 32 and open from Prowl with it.',
-      'Lacerate rank 2 at 34.',
+      'Train Travel Form at 30: your mount until riding.',
+      'Ravage and Poised arrive at 32.',
     ],
+    specPlan: {
+      balance: [
+        'Improved Moonfire at 31-32 and Insect Swarm at 33. Keep both DoTs up and fill with Wrath.',
+        'Multi-target pulls get safer now: DoT everything, then Wrath one at a time.',
+      ],
+      feral: [
+        'Leader of the Pack at 30, Natural Instinct at 31-32.',
+        'Open from Prowl with Ravage from 32. Lacerate rank 2 at 34.',
+      ],
+      restoration: [
+        'Genesis at 31-32, Insect Swarm at 33, then Naturalist from 34 and Bloom at 36.',
+        'Tranquility at 30 is strong in dungeons, on a long cooldown.',
+      ],
+    },
     dungeons: [
       { dungeon: 'city-of-dalaran', note: 'Finish it here (28-33), or use a nearby Classic dungeon.' },
     ],
     notes: ['ravage-poised'],
-    sources: ['05', '07', '08', '17'],
+    sources: ['05', '07', '08', '17', '24', '28'],
   },
   {
     id: 'lvl-36-40', min: 36, max: 40, title: 'Riverglades, Dire Bear and dual spec',
@@ -205,16 +279,29 @@ export const brackets: Bracket[] = [
     raceBranches: [],
     plan: [
       'Train Frenzied Regeneration at 36.',
-      'At 40, visit a trainer for Dire Bear Form, Innervate and dual spec.',
-      'Take Primal Bite at 40 and set up the Restoration spec.',
+      'At 40, visit a trainer for Dire Bear Form, Innervate, Hurricane and dual spec.',
     ],
+    specPlan: {
+      balance: [
+        'Genesis at 34-39 with Nature’s Grace at 38. Naturalist starts at 40.',
+        'Hurricane at 40 is your first real area spell: use it on 3 or more mobs, with Barkskin from 44 so pushback doesn’t stop it.',
+      ],
+      feral: [
+        'Rend and Tear at 35-39, Primal Bite at 40.',
+        'Dire Bear Form at 40 is a big tanking upgrade. Put Restoration or Balance in the second slot.',
+      ],
+      restoration: [
+        'Naturalist finishes at 39, then Gift of Nature at 40 and Swiftmend at 41.',
+        'Innervate at 40: use it on cooldown when you heal, and drink between packs.',
+      ],
+    },
     zoneNotes: ['Riverglades: 36-44 (Wowhead).', 'Shen’dralas: 38-43, player-recorded, and a shorter midlevel detour.'],
     dungeons: [
       { dungeon: 'drowned-city', note: 'Fits a Stranglethorn detour.' },
       { dungeon: 'kroldok-stronghold', note: 'From 40, in Riverglades.' },
     ],
     notes: ['zone-ranges'],
-    sources: ['02', '07', '09', '10'],
+    sources: ['02', '05', '07', '09', '10', '24', '28'],
   },
   {
     id: 'lvl-41-45', min: 41, max: 45, title: 'Finish Riverglades, sail to Tanaris',
@@ -234,12 +321,25 @@ export const brackets: Bracket[] = [
     plan: [
       'Train Barkskin at 44.',
       'Gather a group before the Blood Master’s Ring arena chain (65.6, 21.4). It has a small entry fee.',
-      'Restoration: practice in a dungeon now, not at 60.',
     ],
+    specPlan: {
+      balance: [
+        'Eclipse at 45-47 makes Starfire part of the rotation: one Wrath, then two Starfires.',
+        'Before Eclipse, mostly ignore Starfire.',
+      ],
+      feral: [
+        'Shifting Power at 41: use it under 50 Energy when your mana is comfortable.',
+        'Heart of the Wild at 42-46.',
+      ],
+      restoration: [
+        'Swiftmend at 41: Rejuvenation then Swiftmend on someone taking sudden damage. It is too efficient to save for emergencies.',
+        'Gift of Nature finishes at 45; Nature’s Swiftness at 46.',
+      ],
+    },
     dungeons: [
       { dungeon: 'kroldok-stronghold', note: 'Tank it as Dire Bear, or make it your first Deep Resto run.' },
     ],
-    sources: ['07', '09'],
+    sources: ['05', '07', '09', '24', '28'],
   },
   {
     id: 'lvl-46-49', min: 46, max: 49, title: 'Tanaris and Feralas',
@@ -257,14 +357,27 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Keep spending Feral points into Heart of the Wild and Naturalist.',
-      'Heal a dungeon or two on your Restoration spec.',
+      'Start keeping gear for your level-60 role instead of vendoring it.',
     ],
+    specPlan: {
+      balance: [
+        'Moonfury from 48 for more Arcane and Nature damage.',
+        'Watch for Hit on gear: missed spells cost Balance a lot.',
+      ],
+      feral: [
+        'Naturalist at 47-51.',
+        'Build a Bear set with Armor, Stamina and Agility if you tank, separate from your Cat gear.',
+      ],
+      restoration: [
+        'Nature’s Swiftness at 46, then Living Spirit at 47-49.',
+        'Heal Zul’Farrak with its Gadgetzan quests: a good, long practice run.',
+      ],
+    },
     dungeons: [
       { dungeon: 'zulfarrak', note: 'Quest-stacked, and a good healing practice session.' },
       { dungeon: 'alcaz-prison', note: 'From 48, if your group is headed to Dustwallow Marsh.' },
     ],
-    sources: ['07', '08'],
+    sources: ['05', '07', '08', '24', '28'],
   },
   {
     id: 'lvl-50-54', min: 50, max: 54, title: 'Un’Goro, then Felwood or the Plaguelands',
@@ -282,14 +395,28 @@ export const brackets: Bracket[] = [
     },
     raceBranches: [],
     plan: [
-      'Primal Bite, Lacerate and Wild Growth all get new ranks at 50.',
-      'Start comparing healing pieces instead of vendoring them.',
+      'Gift of the Wild at 50.',
+      'Start comparing gear for your 60 role.',
     ],
+    specPlan: {
+      balance: [
+        'Moonkin Form at 53: armor, double Omen of Clarity procs and a crit aura for your party. Live in it from now on.',
+        'Starfire rank 5 at 50 is worth buying now that Eclipse makes you cast it.',
+      ],
+      feral: [
+        'Primal Bite and Lacerate get new ranks at 50. Genesis from 52 also boosts your bleeds.',
+        'Heart of the Wild and Naturalist are done; the rest are passive damage points.',
+      ],
+      restoration: [
+        'Improved Rejuvenation at 50-52, then Improved Regrowth from 53.',
+        'Keep healing pieces with Healing Power, Intellect and Spirit instead of vendoring them.',
+      ],
+    },
     dungeons: [
       { dungeon: 'blackrock-depths', note: 'Fits if you are already in the eastern zones and have quests ready.' },
       { dungeon: 'alcaz-prison', note: 'In range to 53.' },
     ],
-    sources: ['08', '17'],
+    sources: ['05', '08', '17', '24', '28'],
   },
   {
     id: 'lvl-55-57', min: 55, max: 57, title: 'Winterspring, the Plaguelands and Hyjal',
@@ -308,15 +435,27 @@ export const brackets: Bracket[] = [
     raceBranches: [],
     plan: [
       'Mount Hyjal is a 55-60 zone. Darkwhisper Gorge on the way in is a level 60 area, so travel carefully.',
-      'Keep your healing set together and heal when a group forms near your route.',
     ],
+    specPlan: {
+      balance: [
+        'Improved Starfire at 54-58 shortens Starfire further.',
+        'Keep Innervate for a healer in groups; take it yourself only when you are short.',
+      ],
+      feral: [
+        'Genesis finishes at 56.',
+        'Tank a Blackmaw Hold or Stratholme run to test your Bear set before 60.',
+      ],
+      restoration: [
+        'Improved Regrowth finishes at 57. Heal Blackmaw Hold in Azshara when a group forms on your route.',
+      ],
+    },
     zoneNotes: ['Mount Hyjal: 55-60 (live Group Finder).'],
     dungeons: [
       { dungeon: 'blackmaw-hold', note: 'Heal a run in Azshara.' },
       { dungeon: 'blackrock-depths', note: 'Or another Classic high-level dungeon near your route.' },
     ],
     notes: ['zone-ranges'],
-    sources: ['07', '10'],
+    sources: ['05', '07', '10', '24', '28'],
   },
   {
     id: 'lvl-58-60', min: 58, max: 60, title: 'The finish',
@@ -335,12 +474,24 @@ export const brackets: Bracket[] = [
     raceBranches: [],
     plan: [
       'Start your faction’s Onyxia chain if you plan to raid.',
-      'Primal Bite and Wild Growth reach rank 3 at 60.',
     ],
+    specPlan: {
+      balance: [
+        'Vengeance at 59-60 finishes the build at 38 / 0 / 13. Respec into the 41 / 0 / 10 Eclipse build for groups and raids.',
+      ],
+      feral: [
+        'Nature’s Reach and Nature’s Majesty at 57-60 finish the build at 9 / 32 / 10. Respec into Hybrid, Bear or Cat at 60 depending on your role.',
+        'Primal Bite reaches rank 3 at 60.',
+      ],
+      restoration: [
+        'Wild Growth at 58: buy rank 2 straight away, then rank 3 at 60. Genesis at 59-60 finishes the build at 18 / 0 / 33.',
+        'At 60, respec into the default build: same split, but Heart of the Wild instead of Nature’s Focus and one Moonglow point moved to Genesis.',
+      ],
+    },
     dungeons: [
       { dungeon: 'shapers-terrace', note: 'The last new five-player leveling option.' },
       { dungeon: 'blackmaw-hold', note: 'In range to 60.' },
     ],
-    sources: ['07', '14'],
+    sources: ['05', '07', '14', '24', '28'],
   },
 ];

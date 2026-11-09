@@ -1,0 +1,34 @@
+---
+import type { ClassGuide } from '../data/types.ts';
+import { finalSplit, splitLabel, treeName, type TalentPoint } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  /** Expanded points of the build; only the final ranks are shown. */
+  points: TalentPoint[];
+  label: string;
+}
+
+const { guide, points, label } = Astro.props;
+const ranks = new Map<string, { name: string; tree: string; row: number; rank: number; max: number }>();
+for (const p of points) ranks.set(p.talent.id, { name: p.talent.name, tree: p.talent.tree, row: p.talent.row, rank: p.rank, max: p.talent.maxRank });
+const split = finalSplit(guide, points);
+const trees = guide.trees.map((t) => ({
+  id: t.id,
+  name: treeName(guide, t.id),
+  total: split[t.id] ?? 0,
+  talents: [...ranks.values()].filter((r) => r.tree === t.id).sort((a, b) => a.row - b.row),
+}));
+---
+<div class="build-summary" role="group" aria-label={`${label}: ${splitLabel(guide, split)}`}>
+  {trees.map((t) => (
+    <div class="tree-col">
+      <p class="tree-head"><b>{t.name}</b> <span class="tree-total">{t.total}</span></p>
+      {t.talents.length === 0 ? <p class="small muted">No points</p> : (
+        <ul>
+          {t.talents.map((r) => <li><span class="row-no" aria-label={`Row ${r.row}`}>{r.row}</span> {r.name} <span class={`rank${r.rank === r.max ? ' max' : ''}`}>{r.rank}/{r.max}</span></li>)}
+        </ul>
+      )}
+    </div>
+  ))}
+</div>

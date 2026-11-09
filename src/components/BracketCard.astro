@@ -1,6 +1,6 @@
 ---
 import type { Bracket, ClassGuide } from '../data/types.ts';
-import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL, ROLE_LABEL } from '../data/types.ts';
 import { dungeonById, levelSpan, rangeLabel } from '../lib/guide.ts';
 import SourceRefs from './SourceRefs.astro';
 import UpdateNote from './UpdateNote.astro';
@@ -51,6 +51,14 @@ const headingId = `${b.id}-title`;
 
   <p class="card-label">What to do</p>
   <ul>{b.plan.map((p) => <li>{p}</li>)}</ul>
+  <div class="spec-plans">
+    {guide.specs.map((spec) => (
+      <div class="spec-block branch" data-spec={spec.slug}>
+        <h4><span class={`tag role-${spec.role}`}>As {spec.name}</span> <span class="muted small">{ROLE_LABEL[spec.role]}</span></h4>
+        <ul>{(b.specPlan[spec.slug] ?? []).map((p) => <li>{p}</li>)}</ul>
+      </div>
+    ))}
+  </div>
 
   {b.zoneNotes && (
     <p class="small muted">{b.zoneNotes.join(' ')}</p>

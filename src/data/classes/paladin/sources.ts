@@ -55,7 +55,7 @@ export const sources: Source[] = [
     id: '09', checked: '2026-11-08', sourceUpdated: '2026-11-04',
     title: 'Retribution Paladin leveling guide', publisher: 'Icy Veins',
     url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-leveling',
-    covers: 'Retribution leveling build (18/0/33), Seal of Command against Seal of Righteousness, the Repentance and Judgement macro, Consecration timing.',
+    covers: 'Retribution leveling build, point by point from its level slider (18/0/33), Seal of Command against Seal of Righteousness, the Repentance and Judgement macro, Consecration timing, mana habits, Hit and Expertise, professions.',
   },
   {
     id: '10', checked: '2026-11-08', sourceUpdated: '2026-11-08',
@@ -146,6 +146,48 @@ export const sources: Source[] = [
     title: 'Class deep dive: Paladin (forum discussion)', publisher: 'Blizzard forums',
     url: 'https://us.forums.blizzard.com/en/wow/t/2383403',
     covers: 'Player reports only: Hammer of the Righteous appeared on the level-40 trainer in a beta build and was later missing.',
+  },
+  {
+    id: '25', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Holy Paladin leveling guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/holy-paladin-leveling',
+    covers: 'Holy leveling build, point by point from its level slider (34/5/12): Retribution first, Holy Shock at 42 and Light’s Vigil at 52. Damage and healing priorities, Intellect and Spell Power while leveling, Mining and Blacksmithing.',
+  },
+  {
+    id: '26', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Retribution Paladin spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-melee-dps-pve-spec-builds-talents',
+    covers: 'Level-60 Unsealed Wrath (12/8/31) and Shockadin (21/0/30) builds and their optional swaps.',
+  },
+  {
+    id: '27', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Holy Paladin spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/holy-paladin-healer-pve-spec-builds-talents',
+    covers: 'Level-60 Light’s Vigil healing build (31/8/12) and where its flexible points go.',
+  },
+  {
+    id: '28', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Holy Paladin rotation, cooldowns and abilities', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/holy-paladin-healer-pve-rotation-cooldowns-abilities',
+    covers: 'Oath of Light on the tank, Seal of Light or Wisdom, Light’s Vigil into Holy Shock, Flash of Light as the main heal, Infusion of Light into Holy Light, healing per mana for each spell, damage when nobody needs healing.',
+  },
+  {
+    id: '29', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Holy Paladin stat priority', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/holy-paladin-healer-pve-stat-priority',
+    covers: 'Healing Power, Intellect, Spirit, MP5, Critical Strike; the five-second rule.',
+  },
+  {
+    id: '30', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Retribution Paladin rotation, cooldowns and abilities', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-melee-dps-pve-rotation-cooldowns-abilities',
+    covers: 'Unsealed Wrath Seal swapping by weapon speed, Seal of the Crusader first, Hammer of Wrath under 20%, Consecration, Judgement and Holy Strike on cooldown, mana habits, utility.',
+  },
+  {
+    id: '31', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Retribution Paladin stat priority', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-melee-dps-pve-stat-priority',
+    covers: 'Unsealed Wrath: weapon damage, hit to 8%, Expertise to 6.5%, Strength, Spell Power. Shockadin: weapon DPS, hit, Spell Power, crit, Expertise. Slow weapons for Seal of Command.',
   },
 ];
 
@@ -247,5 +289,24 @@ export const notes: UpdateNote[] = [
     title: 'Zone ranges for the new zones',
     body: 'Riverglades is 36-44 per Wowhead (Blizzard says mid-30s to mid-40s). Mount Hyjal shows 55-60 in the live Group Finder. Shen’dralas is 38-43 from player-recorded quests. Darkwhisper Gorge, on the way to Hyjal, is a level 60 area.',
     sources: ['22', '23', '01'],
+  },
+  {
+    id: 'every-spec-levels', kind: 'update', date: '2026-11-08',
+    title: 'Every spec now has its own 10-60 build',
+    body: 'Pick Holy, Protection or Retribution and the level pages show that spec’s talent point, trainer priorities and bracket advice. Holy and Retribution follow Icy Veins’ level sliders point for point; Protection keeps Mobalytics’ order. The old Retribution second-spec build (31 points at 40) is gone: at 40, copy the first 31 points of the Retribution leveling build instead, which is the same order.',
+    previously: 'Protection was the only leveling spec, with Retribution as a second spec from 40.',
+    sources: ['09', '25', '10'],
+  },
+  {
+    id: 'holy-shock-level', kind: 'uncertain', date: '2026-11-08',
+    title: 'Holy Shock at 41 or 42?',
+    body: 'Icy Veins’ Holy leveling milestones list Holy Shock at 41, but its own level slider spends that point at 42, after Holy Conduit at 40-41. This guide follows the slider. If you would rather have Holy Shock a level earlier, take it at 41 and finish Holy Conduit at 42.',
+    sources: ['25'],
+  },
+  {
+    id: 'pursuit-level', kind: 'uncertain', date: '2026-11-08',
+    title: 'Pursuit of Justice at 20 or 22?',
+    body: 'Icy Veins’ Retribution milestones say Pursuit of Justice is talented at 22, but its level slider puts the two points at 20 and 21, before Seal of Command at 22. This guide follows the slider.',
+    sources: ['09'],
   },
 ];

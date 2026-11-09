@@ -1,5 +1,7 @@
 import type { ClassGuide } from '../../types.ts';
 import { dungeons } from './dungeons.ts';
+import { holy } from './holy.ts';
+import { overview } from './overview.ts';
 import { protection } from './protection.ts';
 import { quests } from './quests.ts';
 import { retribution } from './retribution.ts';
@@ -12,7 +14,8 @@ export const paladin: ClassGuide = {
   id: 'paladin',
   name: 'Paladin',
   ruleset: 'Normal PvE',
-  tagline: 'Protection from 10 to 60. Tank whenever you like.',
+  tagline: 'Holy, Protection or Retribution, each with its own build from 10 to 60.',
+  pitch: 'A plate-wearing hybrid that heals itself: tank, heal or hit hard, and survive almost anything on the way to 60.',
   lastVerified: '2026-11-08',
   races: [
     { id: 'human', name: 'Human', faction: 'alliance', startZone: 'Northshire Valley, Elwynn Forest' },
@@ -21,8 +24,9 @@ export const paladin: ClassGuide = {
   ],
   trees,
   talents,
-  leveling: protection,
-  endgame: retribution,
+  specs: [holy, protection, retribution],
+  defaultSpec: 'protection',
+  overview,
   brackets,
   dungeons,
   training,
@@ -33,17 +37,15 @@ export const paladin: ClassGuide = {
     { level: 10, text: 'Righteous Fury, Seal of Fury (taunt), Lay on Hands. Talents start.' },
     { level: 12, text: 'Redemption class quest.' },
     { level: 16, text: 'Retribution Aura.' },
-    { level: 20, text: 'Consecration, Blessing of Kings, Exorcism, Flash of Light. Shield Specialization. Tome of Valor and Verigan’s Fist.' },
-    { level: 22, text: 'Templar’s Bulwark (talent). Cloak of the Divine Storm.' },
-    { level: 25, text: 'Swift Judgement (talent): a second taunt.' },
-    { level: 30, text: 'Holy Shield (talent). Divine Intervention, Seal of Light.' },
+    { level: 20, text: 'Consecration, Blessing of Kings, Exorcism, Flash of Light. Tome of Valor and Verigan’s Fist.' },
+    { level: 22, text: 'Cloak of the Divine Storm (Alliance).' },
+    { level: 30, text: 'Divine Intervention, Seal of Light.' },
     { level: 34, text: 'Divine Shield.' },
-    { level: 36, text: 'Iron Creed (talent).' },
-    { level: 40, text: 'Shieldsworn (talent), Summon Warhorse, plate, dual spec.' },
+    { level: 40, text: 'Summon Warhorse, plate and dual spec.' },
     { level: 42, text: 'Cleanse.' },
     { level: 44, text: 'Hammer of Wrath.' },
-    { level: 50, text: 'Holy Wrath, and new ranks of Consecration, Seal of Fury and Holy Shield.' },
-    { level: 52, text: 'Greater Blessings begin. Pursuit of Justice complete.' },
+    { level: 50, text: 'Holy Wrath, and new ranks of Consecration and Lay on Hands.' },
+    { level: 52, text: 'Greater Blessings begin.' },
     { level: 60, text: 'Greater Blessing of Kings, Charger quest. Raids from December 9.' },
   ],
   sources,
@@ -51,6 +53,5 @@ export const paladin: ClassGuide = {
   questsLabel: 'Class quests',
   questsNav: 'Class quests',
   questsLead: 'Redemption at 12, a shield and Verigan’s Fist at 20, a cloak at 22, the free Warhorse at 40 and the Charger at 60.',
-  deferLabel: 'Skip while Protection if gold is tight',
-  sourcesLead: 'Built from Blizzard’s Paladin deep dive and launch notes, the live spell list and talent calculators, and the current Icy Veins and Mobalytics Protection guides. Where they disagree, a dated note says which one this guide follows. Classic guides were used only for zone geography and the Classic steps of class quests.',
+  sourcesLead: 'Built from Blizzard’s Paladin deep dive and launch notes, the live spell list and talent calculators, and the current Icy Veins guides for all three specs and Mobalytics’ Protection guide. Where they disagree, a dated note says which one this guide follows. Classic guides were used only for zone geography and the Classic steps of class quests.',
 };

@@ -1,12 +1,17 @@
 import type {
   Bracket,
+  BuildStep,
   BuildVariant,
   ClassGuide,
   Dungeon,
+  EndgameBuild,
   FormGuide,
   Source,
+  SpecGuide,
   Talent,
   TalentBuild,
+  TrainPriority,
+  TrainSpell,
   TrainingLevel,
   UpdateNote,
 } from '../data/types.ts';
@@ -17,6 +22,36 @@ export const FIRST_TALENT_LEVEL = 10;
 export const POINTS_PER_ROW = 5;
 
 export const LEVELS: readonly number[] = Array.from({ length: MAX_LEVEL }, (_, i) => i + 1);
+
+/** Page slugs a spec slug may not take, since /<class>/<page>/ already exists. */
+export const RESERVED_SLUGS: readonly string[] = ['route', 'quests', 'sources', 'specs', 'level', 'endgame'];
+
+export function specBySlug(guide: ClassGuide, slug: string): SpecGuide {
+  const s = guide.specs.find((x) => x.slug === slug);
+  if (!s) throw new Error(`${guide.id}: unknown spec ${slug}`);
+  return s;
+}
+
+export function defaultSpec(guide: ClassGuide): SpecGuide {
+  return specBySlug(guide, guide.defaultSpec);
+}
+
+export function specPath(guide: ClassGuide, spec: SpecGuide, endgame = false): string {
+  return `/${guide.id}/${spec.slug}/${endgame ? 'endgame/' : ''}`;
+}
+
+/** Order an endgame build's ranks so every point respects row gates and prerequisites. */
+export function endgameSteps(guide: ClassGuide, build: EndgameBuild): BuildStep[] {
+  const entries = Object.entries(build.ranks).map(([id, n]) => ({ t: talentById(guide, id), n }));
+  const treeOrder = (id: string) => guide.trees.findIndex((x) => x.id === id);
+  entries.sort((a, b) => treeOrder(a.t.tree) - treeOrder(b.t.tree) || a.t.row - b.t.row || (a.t.requires ? 1 : 0) - (b.t.requires ? 1 : 0));
+  return entries.map((e) => [e.t.id, e.n] as const);
+}
+
+/** An endgame build as a talent build whose 51 points are all spent at 60. */
+export function endgameAsBuild(guide: ClassGuide, build: EndgameBuild): TalentBuild {
+  return { id: build.id, name: build.name, role: build.use, startLevel: MAX_LEVEL, steps: endgameSteps(guide, build), expected: build.expected, summary: build.body, sources: build.sources };
+}
 
 export function bracketFor(guide: ClassGuide, level: number): Bracket {
   const b = guide.brackets.find((x) => level >= x.min && level <= x.max);
@@ -55,7 +90,19 @@ export function levelForPoint(build: TalentBuild, n: number): number {
  * Expand a build into one entry per talent point, checking ranks, row gates
  * and prerequisites as it goes. Throws on any rule the game would refuse.
  */
+const expandCache = new WeakMap<TalentBuild, Map<BuildVariant | undefined, TalentPoint[]>>();
+
 export function expandBuild(guide: ClassGuide, build: TalentBuild, variant?: BuildVariant): TalentPoint[] {
+  const cached = expandCache.get(build)?.get(variant);
+  if (cached) return cached;
+  const out = expandBuildUncached(guide, build, variant);
+  const byVariant = expandCache.get(build) ?? new Map<BuildVariant | undefined, TalentPoint[]>();
+  byVariant.set(variant, out);
+  expandCache.set(build, byVariant);
+  return out;
+}
+
+function expandBuildUncached(guide: ClassGuide, build: TalentBuild, variant?: BuildVariant): TalentPoint[] {
   const ranks: Record<string, number> = {};
   const totals: Record<string, number> = Object.fromEntries(guide.trees.map((t) => [t.id, 0]));
   const out: TalentPoint[] = [];
@@ -126,6 +173,60 @@ export function trainingAt(guide: ClassGuide, level: number): TrainingLevel | un
 
 export function nextTraining(guide: ClassGuide, level: number): TrainingLevel | undefined {
   return guide.training.find((t) => t.level > level);
+}
+
+/** Priority of a trainer spell for a spec, or null when the spec can't use it (a talent it doesn't have yet). */
+export function spellPriority(guide: ClassGuide, spec: SpecGuide, spell: TrainSpell, level: number): TrainPriority | null {
+  if (spell.talent) {
+    const talent = guide.talents.find((t) => t.name === spell.name);
+    if (!talent) return null;
+    const has = expandBuild(guide, spec.build).some((p) => p.talent.id === talent.id && p.level <= level);
+    if (!has) return null;
+  }
+  return spell.specs?.[spec.slug] ?? spell.priority;
+}
+
+export interface SpecTraining {
+  core: TrainSpell[];
+  situational: TrainSpell[];
+  defer: TrainSpell[];
+}
+
+export function trainingFor(guide: ClassGuide, spec: SpecGuide, t: TrainingLevel): SpecTraining {
+  const out: SpecTraining = { core: [], situational: [], defer: [] };
+  for (const s of t.spells) {
+    const p = spellPriority(guide, spec, s, t.level);
+    if (p) out[p].push(s);
+  }
+  return out;
+}
+
+/** The next trainer visit with something new for this spec. */
+export function nextTrainingFor(guide: ClassGuide, spec: SpecGuide, level: number): { level: number; training: SpecTraining } | undefined {
+  for (const t of guide.training) {
+    if (t.level <= level) continue;
+    const training = trainingFor(guide, spec, t);
+    if (training.core.length + training.situational.length > 0) return { level: t.level, training };
+  }
+  return undefined;
+}
+
+/**
+ * When a spec first takes a talent that the trainer already sold higher ranks
+ * of, the best of those ranks to buy now (e.g. Holy Shock rank 2 when Holy
+ * Shock is taken at 42).
+ */
+export function catchUpRank(guide: ClassGuide, spec: SpecGuide, level: number): TrainSpell | undefined {
+  const point = expandBuild(guide, spec.build).find((p) => p.level === level && p.rank === 1);
+  if (!point) return undefined;
+  let best: TrainSpell | undefined;
+  for (const t of guide.training) {
+    if (t.level >= level) break;
+    for (const s of t.spells) {
+      if (s.talent && s.name === point.talent.name && (s.rank ?? 1) > 1 && (s.rank ?? 1) > (best?.rank ?? 1)) best = s;
+    }
+  }
+  return best;
 }
 
 export function formsAt(guide: ClassGuide, level: number): FormGuide[] {
@@ -218,13 +319,26 @@ export function validateGuide(guide: ClassGuide): string[] {
     check(matches.length === 1, `level ${level} maps to ${matches.length} brackets`);
   }
 
+  // Specs: unique, non-reserved slugs and a valid default.
+  const slugs = guide.specs.map((s) => s.slug);
+  check(new Set(slugs).size === slugs.length, 'duplicate spec slugs');
+  for (const s of slugs) check(!RESERVED_SLUGS.includes(s), `spec slug ${s} is reserved`);
+  check(slugs.includes(guide.defaultSpec), `default spec ${guide.defaultSpec} is not a spec`);
+
   // Builds: rows, ranks, prerequisites and final splits.
-  const builds: [TalentBuild, BuildVariant | undefined][] = [
-    [guide.leveling.build, undefined],
-    [guide.endgame.build, undefined],
-  ];
-  if (guide.leveling.variant) builds.push([guide.leveling.build, guide.leveling.variant]);
-  if (guide.endgame.variant) builds.push([guide.endgame.build, guide.endgame.variant]);
+  const builds: [TalentBuild, BuildVariant | undefined][] = [];
+  for (const spec of guide.specs) {
+    check(spec.build.startLevel === FIRST_TALENT_LEVEL, `${spec.slug} leveling build must start at ${FIRST_TALENT_LEVEL}`);
+    builds.push([spec.build, undefined]);
+    if (spec.variant) builds.push([spec.build, spec.variant]);
+    for (const e of spec.endgameBuilds ?? []) {
+      try {
+        builds.push([endgameAsBuild(guide, e), undefined]);
+      } catch (err) {
+        problems.push(`${guide.id}: ${(err as Error).message}`);
+      }
+    }
+  }
   for (const [build, variant] of builds) {
     try {
       const pts = expandBuild(guide, build, variant);
@@ -240,6 +354,19 @@ export function validateGuide(guide: ClassGuide): string[] {
       for (const t of guide.trees) check((split[t.id] ?? 0) === (want[t.id] ?? 0), `${build.id}${variant ? ' variant' : ''} ends ${t.id}=${split[t.id]}, expected ${want[t.id]}`);
     } catch (e) {
       problems.push(`${guide.id}: ${(e as Error).message}`);
+    }
+  }
+
+  // Every bracket has advice for every spec.
+  for (const b of guide.brackets) {
+    for (const s of slugs) check((b.specPlan[s]?.length ?? 0) > 0, `${b.id} has no plan for ${s}`);
+    for (const k of Object.keys(b.specPlan)) check(slugs.includes(k), `${b.id} plans for unknown spec ${k}`);
+  }
+  // Trainer overrides name real specs, and talent spells name real talents.
+  for (const t of guide.training) {
+    for (const s of t.spells) {
+      for (const k of Object.keys(s.specs ?? {})) check(slugs.includes(k), `training ${t.level} ${s.name} overrides unknown spec ${k}`);
+      if (s.talent) check(guide.talents.some((x) => x.name === s.name), `training ${t.level} ${s.name} is marked talent but no talent has that name`);
     }
   }
 
@@ -262,13 +389,22 @@ export function validateGuide(guide: ClassGuide): string[] {
     const steps = f.quest ? [...f.quest.start, ...f.quest.steps, ...f.quest.travel] : [];
     steps.forEach((s) => (s.for ?? '').split(' ').filter(Boolean).forEach((id) => check(filterIds.has(id), `${f.id} step for unknown race/faction ${id}`)));
   }
-  for (const spec of [guide.leveling, guide.endgame]) {
+  for (const spec of guide.specs) {
     refSources(spec.build.sources, spec.build.id);
     refNotes(spec.notes, spec.slug);
-    spec.sections.forEach((s) => { refSources(s.sources, `${spec.slug}#${s.id}`); refNotes(s.notes, `${spec.slug}#${s.id}`); });
-    if (spec.checklist) refSources(spec.checklist.sources, `${spec.slug} checklist`);
+    refNotes(spec.endgameNotes, `${spec.slug} endgame`);
+    const all = [...spec.sections, ...spec.endgame.sections];
+    all.forEach((s) => { refSources(s.sources, `${spec.slug}#${s.id}`); refNotes(s.notes, `${spec.slug}#${s.id}`); });
+    const ids = spec.sections.map((s) => s.id);
+    check(new Set(ids).size === ids.length, `${spec.slug} has duplicate section ids`);
+    const eids = spec.endgame.sections.map((s) => s.id);
+    check(new Set(eids).size === eids.length, `${spec.slug} endgame has duplicate section ids`);
+    if (spec.endgame.checklist) refSources(spec.endgame.checklist.sources, `${spec.slug} checklist`);
     if (spec.variant) refSources(spec.variant.sources, `${spec.slug} variant`);
+    for (const e of spec.endgameBuilds ?? []) refSources(e.sources, `${spec.slug} ${e.id}`);
+    check(spec.dualSpec.length > 0, `${spec.slug} has no dual spec advice`);
   }
+  for (const s of guide.overview) { refSources(s.sources, `overview#${s.id}`); refNotes(s.notes, `overview#${s.id}`); }
   for (const n of guide.notes) refSources(n.sources, `note ${n.id}`);
   for (const s of guide.sources) check(s.url.startsWith('https://'), `source ${s.id} is not https`);
   check(new Set(guide.sources.map((s) => s.id)).size === guide.sources.length, 'duplicate source ids');

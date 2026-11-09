@@ -41,7 +41,7 @@ export const quests: FormGuide[] = [
     name: 'Tome of Valor',
     level: 20,
     how: 'class quest',
-    summary: 'An Alliance chain that ends with a shield. For a Protection Paladin that is the reward that matters at 20.',
+    summary: 'An Alliance chain that ends with a shield: the reward that matters at 20 for Protection, and for a Holy Paladin who carries one.',
     useFor: ['A shield upgrade right as Consecration arrives', 'An excuse to finish Westfall’s coast'],
     keyAbilities: ['Bastion of Stormwind (shield, Classic reward)'],
     quest: {
@@ -67,8 +67,8 @@ export const quests: FormGuide[] = [
     name: 'Verigan’s Fist',
     level: 20,
     how: 'class quest',
-    summary: 'A long chain through four dungeons for one of the best two-handers of its level. Optional for a Protection leveler, worth it if you’ll quest as Retribution.',
-    useFor: ['Your Retribution second spec from 40', 'Solo questing with a two-hander before then, if you prefer'],
+    summary: 'A long chain through four dungeons for one of the best two-handers of its level. The big one for Retribution; optional for Holy and Protection unless you quest as Retribution on a second spec.',
+    useFor: ['Retribution leveling from 20 to the high 30s', 'A Retribution second spec from 40'],
     keyAbilities: ['Verigan’s Fist (two-handed mace, Alliance)', 'Wolfsbane (Horde)'],
     quest: {
       name: 'The Test of Righteousness',

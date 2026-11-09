@@ -1,0 +1,27 @@
+---
+import type { ClassGuide, SpecGuide } from '../data/types.ts';
+import { ROLE_LABEL } from '../data/types.ts';
+import { formatDate, specPath } from '../lib/guide.ts';
+
+interface Props {
+  guide: ClassGuide;
+  spec: SpecGuide;
+  endgame: boolean;
+  title: string;
+  lead: string;
+}
+
+const { guide, spec, endgame, title, lead } = Astro.props;
+const roles = [spec.role, ...(spec.alsoRoles ?? [])].map((r) => ROLE_LABEL[r]).join(' · ');
+---
+<header class="page-head">
+  <p class="eyebrow">{guide.name} · {spec.name} · {roles}</p>
+  <h1>{title}</h1>
+  <nav class="tabs" aria-label={`${spec.name} guide parts`}>
+    <a href={specPath(guide, spec)} aria-current={!endgame ? 'page' : undefined}>Leveling 10-60</a>
+    <a href={specPath(guide, spec, true)} aria-current={endgame ? 'page' : undefined}>Level 60</a>
+  </nav>
+  <p class="lead">{lead}</p>
+  <p class="verified">Last verified {formatDate(guide.lastVerified)}. Other specs: {guide.specs.filter((s) => s.slug !== spec.slug).map((s, i, all) => <><a href={specPath(guide, s, endgame)}>{s.name}</a>{i < all.length - 1 ? ', ' : ''}</>)}.</p>
+  <p class="js-only"><button type="button" class="button-accent" data-set-spec={spec.slug} aria-pressed="false">Use {spec.name} on the level pages</button></p>
+</header>

@@ -1,0 +1,63 @@
+---
+import type { GetStaticPaths } from 'astro';
+import GuideSectionView from '../../components/GuideSectionView.astro';
+import { classes } from '../../data/registry.ts';
+import type { ClassGuide } from '../../data/types.ts';
+import { ROLE_LABEL } from '../../data/types.ts';
+import Layout from '../../layouts/Layout.astro';
+import { classPath, expandBuild, finalSplit, formatDate, specPath, splitLabel } from '../../lib/guide.ts';
+
+export const getStaticPaths = (() => classes.map((guide) => ({ params: { cls: guide.id }, props: { guide } }))) satisfies GetStaticPaths;
+
+const { guide } = Astro.props as { guide: ClassGuide };
+const roles = (s: ClassGuide['specs'][number]) => [s.role, ...(s.alsoRoles ?? [])].map((r) => ROLE_LABEL[r]).join(', ');
+---
+<Layout guide={guide} path={classPath(guide, 'specs')} title={`${guide.name} specs`} description={`Which ${guide.name} spec to level in World of Warcraft: Forever: ${guide.specs.map((s) => s.name).join(', ')} compared, with dual spec pairings, races and professions.`}>
+  <header class="page-head">
+    <p class="eyebrow">{guide.name} · {guide.ruleset}</p>
+    <h1>Which {guide.name} spec?</h1>
+    <p class="lead">{guide.pitch} Every spec can level from 10 to 60 with its own talent order, and dual spec at 40 lets you keep a second one.</p>
+    <p class="verified">Last verified {formatDate(guide.lastVerified)}.</p>
+  </header>
+
+  <div class="table-wrap">
+    <table>
+      <caption class="sr-only">{guide.name} specs compared</caption>
+      <thead><tr><th scope="col">Spec</th><th scope="col">Role</th><th scope="col">Solo questing</th><th scope="col">Dungeons</th><th scope="col">Mana</th><th scope="col">At 60</th></tr></thead>
+      <tbody>
+        {guide.specs.map((s) => (
+          <tr><th scope="row"><a href={specPath(guide, s)}>{s.name}</a></th><td>{roles(s)}</td><td>{s.compare.solo}</td><td>{s.compare.groups}</td><td>{s.compare.mana}</td><td>{s.compare.endgame}</td></tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <ul class="spec-cards spec-cards-full">
+    {guide.specs.map((s) => (
+      <li class={`spec-card role-${s.role}`} id={s.slug}>
+        <h2 class="spec-card-head"><a href={specPath(guide, s)}>{s.name}</a> <span class={`tag role-${s.role}`}>{roles(s)}</span></h2>
+        <p>{s.pitch}</p>
+        <div class="grid grid-2">
+          <div>
+            <p class="card-label">Strengths</p>
+            <ul class="small">{s.strengths.map((x) => <li>{x}</li>)}</ul>
+          </div>
+          <div>
+            <p class="card-label">Weaknesses</p>
+            <ul class="small">{s.weaknesses.map((x) => <li>{x}</li>)}</ul>
+          </div>
+        </div>
+        <p class="card-label">Second spec at 40</p>
+        <p class="small">{s.dualSpec[0]}</p>
+        <p class="small muted">Leveling build ends {splitLabel(guide, finalSplit(guide, expandBuild(guide, s.build)))} ({guide.trees.map((t) => t.name).join(' / ')}).</p>
+        <p class="spec-card-links">
+          <a class="button" href={specPath(guide, s)}>Leveling 10-60</a>
+          <a class="button" href={specPath(guide, s, true)}>Level 60</a>
+          <a class="button button-accent" href={`${classPath(guide)}?spec=${s.slug}`}>Level as {s.name}</a>
+        </p>
+      </li>
+    ))}
+  </ul>
+
+  {guide.overview.map((s) => <GuideSectionView guide={guide} section={s} />)}
+</Layout>

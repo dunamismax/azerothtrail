@@ -1,17 +1,21 @@
 ---
 import type { ClassGuide } from '../data/types.ts';
-import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import { FACTIONS, FACTION_LABEL, ROLE_LABEL } from '../data/types.ts';
 import { LEVELS } from '../lib/guide.ts';
 
 interface Props {
   guide: ClassGuide;
   /** Show the level selector (off on per-level pages, where the URL sets the level). */
   level?: boolean;
+  /** Show the spec choice (off on spec pages, which are about one spec). */
+  spec?: boolean;
+  /** Show faction and race (off where nothing on the page depends on them). */
+  faction?: boolean;
 }
 
-const { guide, level = true } = Astro.props;
+const { guide, level = true, spec = true, faction = true } = Astro.props;
 ---
-<div class="prefs js-only" role="group" aria-label="Your character">
+<div class:list={['prefs', 'js-only', { 'prefs-wide': spec && faction }]} role="group" aria-label="Your character">
   {level && (
     <div>
       <label class="label" for="pref-level">Level</label>
@@ -24,20 +28,34 @@ const { guide, level = true } = Astro.props;
       </div>
     </div>
   )}
-  <fieldset>
-    <legend>Faction</legend>
-    <div class="choices">
-      {FACTIONS.map((f) => (
-        <label class="choice"><input type="radio" name="faction" value={f} /><span>{FACTION_LABEL[f]}</span></label>
-      ))}
-    </div>
-  </fieldset>
-  <fieldset>
-    <legend>Starting race</legend>
-    <div class="choices">
-      {guide.races.map((r) => (
-        <label class="choice"><input type="radio" name="race" value={r.id} data-faction={r.faction} /><span>{r.name}</span></label>
-      ))}
-    </div>
-  </fieldset>
+  {spec && (
+    <fieldset>
+      <legend>Spec</legend>
+      <div class="choices">
+        {guide.specs.map((s) => (
+          <label class="choice"><input type="radio" name="spec" value={s.slug} /><span>{s.name} <small>{ROLE_LABEL[s.role]}</small></span></label>
+        ))}
+      </div>
+    </fieldset>
+  )}
+  {faction && (
+    <>
+      <fieldset>
+        <legend>Faction</legend>
+        <div class="choices">
+          {FACTIONS.map((f) => (
+            <label class="choice"><input type="radio" name="faction" value={f} /><span>{FACTION_LABEL[f]}</span></label>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Starting race</legend>
+        <div class="choices">
+          {guide.races.map((r) => (
+            <label class="choice"><input type="radio" name="race" value={r.id} data-faction={r.faction} /><span>{r.name}</span></label>
+          ))}
+        </div>
+      </fieldset>
+    </>
+  )}
 </div>

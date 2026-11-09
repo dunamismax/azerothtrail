@@ -26,7 +26,7 @@ const forLabel = (step: QuestStep): string | null => {
     <p class="verified">Last verified {formatDate(guide.lastVerified)}.</p>
   </header>
 
-  <PrefsControls guide={guide} level={false} />
+  <PrefsControls guide={guide} level={false} spec={false} />
   <div class="toolbar js-only">
     <span class="small muted" data-filter-summary></span>
     <button type="button" data-toggle-show-all aria-pressed="false" hidden>Show every faction and race</button>

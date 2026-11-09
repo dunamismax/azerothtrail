@@ -1,13 +1,23 @@
 import type { SpecGuide } from '../../types.ts';
-import { protectionLeveling } from './talents.ts';
+import { deepHolyTank, deepProtection, protectionLeveling } from './talents.ts';
 
 export const protection: SpecGuide = {
   slug: 'protection',
-  name: 'Protection talents, play and tanking',
-  nav: 'Protection',
-  blurb: 'Point-by-point talents, pulls of four, Seals and auras, mana, dungeon tanking, gear, and tanking at 60.',
+  name: 'Protection',
+  role: 'tank',
+  pitch: 'The safest way to level and a tank for every dungeon on the way. Pull small packs, stand in Consecration and let blocks pay for your mana.',
   lead: 'Level as Protection from 10 to 60 with a one-hander and a shield. Pull small packs, stand in Consecration and let your blocks pay for your mana. You become a complete tank at 30 and the spec comes together at 40 with Shieldsworn.',
+  strengths: ['Extremely durable, with self-healing other tanks lack', 'Strong area damage and threat from 20', 'Easy dungeon invites whenever you want one', 'Arrives at 60 already a tank, with nothing to respec'],
+  weaknesses: ['Mana-hungry until Shield Specialization at 20-21', 'Slower than Retribution on single mobs until Reckoning at 31-35', 'Short-range pulling, and tank gear is harder to find'],
+  compare: { solo: 'Steady; best on packs of four', groups: 'Tanks every dungeon', mana: 'Tight until 21, then blocks refund it', endgame: 'Main tank or off-tank' },
   build: protectionLeveling,
+  endgameBuilds: [deepProtection, deepHolyTank],
+  dualSpec: [
+    'Retribution is the usual second spec: it kills lone quest mobs faster. Copy the first 31 points of the Retribution build at 40 and add one per level.',
+    'Holy instead if you would rather heal groups as well as tank them.',
+    'Keep a two-hander and your Retribution pieces in their own bag, and make a second action bar layout.',
+    'Two-Handed Weapon Specialization cuts threat by up to 20% with a two-hander, so swap back to Protection before you tank.',
+  ],
   variant: {
     title: 'If mana is still your bottleneck at 41',
     body: 'Icy Veins weighs Benediction against Deflection. Benediction makes Consecration, Holy Strike and Judgement up to 10% cheaper, which helps if you still drink a lot; Deflection’s Parry is worth more once you mostly tank. Swap the five Deflection points at 41-45 for Benediction if you want the mana.',
@@ -15,22 +25,8 @@ export const protection: SpecGuide = {
     expected: { holy: 0, protection: 39, retribution: 12 },
     sources: ['04', '05'],
   },
-  notes: ['two-builds', 'improved-seal-of-fury', 'removed-blessings'],
+  notes: ['two-builds', 'improved-seal-of-fury', 'removed-blessings', 'dungeon-xp'],
   sections: [
-    {
-      id: 'why-protection',
-      title: 'Why level as Protection',
-      table: {
-        head: ['', 'What to expect'],
-        rows: [
-          ['Strengths', 'Extremely durable, strong AoE damage and threat, self-healing other tanks lack, powerful defensive cooldowns, and an easy dungeon invite whenever you want one.'],
-          ['Weaknesses', 'Mana-hungry until Shield Specialization (21). Slower than Retribution on a single mob until Reckoning (31-35). Short-range pulling. Gear is harder to find.'],
-          ['The honest trade', 'Retribution is the faster solo leveler. Protection is safer, better on packs, and you arrive at 60 already knowing how to tank. Use a Retribution second spec from 40 if you want both.'],
-        ],
-      },
-      notes: ['dungeon-xp'],
-      sources: ['04', '10'],
-    },
     {
       id: 'setup',
       title: 'Before every pull',
@@ -191,19 +187,6 @@ export const protection: SpecGuide = {
       sources: ['10', '12', '13', '04'],
     },
     {
-      id: 'races',
-      title: 'Human, Dwarf or Undead',
-      table: {
-        head: ['Race', 'Racials that matter', 'For a Protection Paladin'],
-        rows: [
-          ['Human', 'Ruthless: +1% melee and spell crit with a sword. Will to Survive breaks a stun. The Human Spirit: +10% Spirit.', 'Great if you’ll also play Retribution or Holy. Use swords to keep Ruthless active.'],
-          ['Dwarf', 'Stoneform removes bleeds, poisons and diseases and now cuts physical damage taken by 10%. Big Game Hunter: +5% damage to Beasts. Artisan’s Precision: +1% hit.', 'Mobalytics’ pick for Protection overall: a free defensive cooldown.'],
-          ['Undead (Horde)', 'Cannibalize now restores mana as well as health. Touch of the Grave drains health on attacks. Will of the Forsaken.', 'The only Horde Paladin, and a good one.'],
-        ],
-      },
-      sources: ['10', '11'],
-    },
-    {
       id: 'gold-tight',
       title: 'What to train when gold is tight',
       paragraphs: [
@@ -214,75 +197,65 @@ export const protection: SpecGuide = {
       notes: ['training-cost', 'mount-and-dual-spec', 'hammer-of-the-righteous'],
       sources: ['15', '03', '10'],
     },
-    {
-      id: 'save-time',
-      title: 'Save time between pulls',
-      bullets: [
-        'Always eat: cooked food gives bonus experience in Forever. Grab campfire buffs in towns, and a Leatherworker’s Camp Tent gives rested experience once an hour.',
-        'Start the Cozy Sleeping Bag chain at 14. Three minutes of sleep gives +3% XP, and it stacks with food and campfires.',
-        'Keep every Waylaid Supplies crate you find. The first turn-in gives 50 Merchant Favor coins.',
-        'Professions: Mining and Blacksmithing while leveling. Swap Mining for Engineering when you tank seriously at 60, for bombs. Cooking and First Aid always (First Aid now makes health potions).',
-        'Rotate weapon types on easy mobs to keep every weapon skill at your level. Low skill means misses and lost threat.',
-        'Ask any Druid you meet for Thorns: it stacks with Retribution Aura.',
-        'Do every Paladin class quest, and finish a zone’s dungeon quests before you go in.',
-        'Log out at an inn.',
-      ],
-      sources: ['10', '04'],
-    },
-    {
-      id: 'tanking-60',
-      title: 'Your level-60 tank build',
-      paragraphs: [
-        'The leveling build already ends on Mobalytics’ dungeon and raid build (0 / 39 / 12), so there is nothing to respec at 60.',
-        'Icy Veins’ Deep Protection build (0 / 35 / 16) is the main alternative: two fewer Toughness points and no Guardian’s Favor, traded for Benediction, Sacred Arbiter and Sanctified Judgement in Retribution. Its flexible points are in Anticipation, depending on how close you are to the Defense goal.',
-        'Icy Veins also lists a Deep Holy tank (23 / 28 / 0) built around Holy Shock and Holy Conduit. It deals much more damage but drops Shieldsworn and spell blocking, so only consider it when you are very well geared.',
-      ],
-      sources: ['05', '10'],
-    },
-    {
-      id: 'stats-60',
-      title: 'Stats at 60',
-      table: {
-        head: ['Stat', 'Why'],
-        rows: [
-          ['Stamina', '10 health per point. Your first stat.'],
-          ['Defense to 440', 'Each point adds Block, Parry, Dodge and miss chance. At 440, bosses can’t land critical strikes on you. Past it, Defense matters much less.'],
-          ['Spell Power', 'Almost every Protection spell scales with it, and more damage is more threat.'],
-          ['Intellect', 'A bigger pool for Consecration on long fights.'],
-          ['Strength', '1 Attack Power and 1 Block Value per 20 Strength.'],
-          ['Block, Parry, Dodge', 'Avoidance against crushing blows from higher-level bosses. Parry and Dodge only work against attacks from the front.'],
-        ],
-      },
-      sources: ['07'],
-    },
-    {
-      id: 'raids',
-      title: 'Raid tanking and preparation',
-      bullets: [
-        'Raids open December 9: Barrow Deeps (10 players), Hyjal Summit (20) and Onyxia’s Lair (40).',
-        'Onyxia needs the Drakefire Amulet in your bags. Alliance: start “Dragonkin Menace” from Helendis Riverhorn in the Burning Steppes. Horde: “Blood and Thunder” from Warlord Goretooth in Kargath. Both run through Blackrock Spire.',
-        'Off-tanking: swap from Seal of Fury to the Seal your raid leader assigns (Light or Wisdom), because Judgement is off the global cooldown and taunts with Fury.',
-        'Pulling trash: Pursuit of Justice keeps you ahead of the raid. Seal of Fury and Holy Shield up as you run in, Consecration where the pack will end up, Holy Strike, then Judgement a different mob and auto-attack a third so every mob takes direct threat.',
-        'Use Templar’s Bulwark when a pull turns dangerous, and say so early when your taunt is on cooldown.',
-        'Holy Wrath and Hammer of Wrath add damage, but only cast them when you aren’t the one being hit.',
-      ],
-      sources: ['17', '06', '10'],
-    },
   ],
-  checklist: {
-    id: 'first-week',
-    title: 'Your first week at 60',
-    lead: 'Tank most groups and build toward 440 Defense. Keep your Retribution set for solo farming.',
-    items: [
-      { id: 'list-tank', title: 'List as a tank', body: 'Blackmaw Hold, Shaper’s Terrace, Blackrock Depths, Stratholme or Scholomance. Stratholme’s Undead suit you best.' },
-      { id: 'defense', title: 'Check your Defense', body: 'Count it on the character sheet. Move Anticipation points or gear toward 440 before raiding.' },
-      { id: 'tank-set', title: 'Build the tank set', body: 'Stamina and Defense plate, a fast one-hander with Spell Power, and the best shield you can get. Keep a damage set separate.' },
-      { id: 'professions', title: 'Professions', body: 'Blacksmithing for plate, and consider Engineering for bombs.' },
-      { id: 'greater-kings', title: 'Train Greater Blessing of Kings', body: 'And the rank-4 Holy Shield, rank-5 Consecration and rank-8 Holy Strike.' },
-      { id: 'onyxia', title: 'Start the Onyxia chain', body: 'If you want to raid on December 9. Keep the Drakefire Amulet in your bags.' },
-      { id: 'charger', title: 'Plan the Charger', body: 'Bank gold, Runecloth and Arcanite, and group up for Stratholme, Dire Maul and Scholomance.' },
-      { id: 'consumables', title: 'Stock up', body: 'Water, mana potions and health potions. Bind mouseover Blessing of Protection and Cleanse.' },
+  endgame: {
+    lead: 'At 60 you are already a complete tank. Gear toward 440 Defense, learn the raid pulls and keep a damage set for solo farming.',
+    sections: [
+      {
+        id: 'tanking-60',
+        title: 'Which level-60 build',
+        paragraphs: [
+          'The leveling build already ends on Mobalytics’ dungeon and raid build (0 / 39 / 12), so there is nothing to respec at 60.',
+          'Icy Veins’ Deep Protection (0 / 35 / 16) is the main alternative: two fewer Toughness points and no Guardian’s Favor, traded for Benediction, Sanctified Judgement and Sacred Arbiter. Its Deep Holy tank (23 / 28 / 0) deals much more damage but drops Shieldsworn and spell blocking. Both are listed point by point below.',
+        ],
+        sources: ['05', '10'],
+      },
+      {
+        id: 'stats-60',
+        title: 'Stats at 60',
+        table: {
+          head: ['Stat', 'Why'],
+          rows: [
+            ['Stamina', '10 health per point. Your first stat.'],
+            ['Defense to 440', 'Each point adds Block, Parry, Dodge and miss chance. At 440, bosses can’t land critical strikes on you. Past it, Defense matters much less.'],
+            ['Spell Power', 'Almost every Protection spell scales with it, and more damage is more threat.'],
+            ['Intellect', 'A bigger pool for Consecration on long fights.'],
+            ['Strength', '1 Attack Power and 1 Block Value per 20 Strength.'],
+            ['Block, Parry, Dodge', 'Avoidance against crushing blows from higher-level bosses. Parry and Dodge only work against attacks from the front.'],
+          ],
+        },
+        sources: ['07'],
+      },
+      {
+        id: 'raids',
+        title: 'Raid tanking and preparation',
+        bullets: [
+          'Raids open December 9: Barrow Deeps (10 players), Hyjal Summit (20) and Onyxia’s Lair (40).',
+          'Onyxia needs the Drakefire Amulet in your bags. Alliance: start “Dragonkin Menace” from Helendis Riverhorn in the Burning Steppes. Horde: “Blood and Thunder” from Warlord Goretooth in Kargath. Both run through Blackrock Spire.',
+          'Off-tanking: swap from Seal of Fury to the Seal your raid leader assigns (Light or Wisdom), because Judgement is off the global cooldown and taunts with Fury.',
+          'Pulling trash: Pursuit of Justice keeps you ahead of the raid. Seal of Fury and Holy Shield up as you run in, Consecration where the pack will end up, Holy Strike, then Judgement a different mob and auto-attack a third so every mob takes direct threat.',
+          'Use Templar’s Bulwark when a pull turns dangerous, and say so early when your taunt is on cooldown.',
+          'Holy Wrath and Hammer of Wrath add damage, but only cast them when you aren’t the one being hit.',
+        ],
+        sources: ['17', '06', '10'],
+      },
     ],
-    sources: ['07', '16', '17', '10', '20'],
+    checklist: {
+      id: 'first-week',
+      title: 'Your first week at 60',
+      lead: 'Tank most groups and build toward 440 Defense. Keep your Retribution set for solo farming.',
+      items: [
+        { id: 'list-tank', title: 'List as a tank', body: 'Blackmaw Hold, Shaper’s Terrace, Blackrock Depths, Stratholme or Scholomance. Stratholme’s Undead suit you best.' },
+        { id: 'defense', title: 'Check your Defense', body: 'Count it on the character sheet. Move Anticipation points or gear toward 440 before raiding.' },
+        { id: 'tank-set', title: 'Build the tank set', body: 'Stamina and Defense plate, a fast one-hander with Spell Power, and the best shield you can get. Keep a damage set separate.' },
+        { id: 'professions', title: 'Professions', body: 'Blacksmithing for plate, and consider Engineering for bombs.' },
+        { id: 'greater-kings', title: 'Train Greater Blessing of Kings', body: 'And the rank-4 Holy Shield, rank-5 Consecration and rank-8 Holy Strike.' },
+        { id: 'onyxia', title: 'Start the Onyxia chain', body: 'If you want to raid on December 9. Keep the Drakefire Amulet in your bags.' },
+        { id: 'charger', title: 'Plan the Charger', body: 'Bank gold, Runecloth and Arcanite, and group up for Stratholme, Dire Maul and Scholomance.' },
+        { id: 'consumables', title: 'Stock up', body: 'Water, mana potions and health potions. Bind mouseover Blessing of Protection and Cleanse.' },
+      ],
+      sources: ['07', '16', '17', '10', '20'],
+    },
   },
 };
+

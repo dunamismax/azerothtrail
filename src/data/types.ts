@@ -94,7 +94,10 @@ export interface Bracket {
   alliance: FactionRoute;
   horde: FactionRoute;
   raceBranches: RaceBranch[];
+  /** Advice for every spec: training, class quests, travel. */
   plan: string[];
+  /** Extra advice per spec slug: how that spec plays this bracket. Every spec needs an entry. */
+  specPlan: Record<string, string[]>;
   dungeons: DungeonPick[];
   zoneNotes?: string[];
   notes?: string[];
@@ -106,8 +109,14 @@ export type TrainPriority = 'core' | 'situational' | 'defer';
 export interface TrainSpell {
   name: string;
   rank?: number;
+  /** Priority for every spec unless `specs` overrides it. */
   priority: TrainPriority;
-  /** Requires a talent point to use. */
+  /** Per-spec priority, keyed by spec slug. */
+  specs?: Partial<Record<string, TrainPriority>>;
+  /**
+   * Requires a talent of the same name. The spell is listed only for specs
+   * whose leveling build has that talent by the trainer level.
+   */
   talent?: boolean;
   note?: string;
 }
@@ -214,20 +223,62 @@ export interface BuildVariant {
   sources: string[];
 }
 
-export interface SpecGuide {
-  /** URL slug: /<class>/<slug>/ */
-  slug: string;
+/** A level-60 build: ranks per talent id, spent at 60 after a respec. */
+export interface EndgameBuild {
+  id: string;
   name: string;
-  /** Short label for navigation. */
-  nav: string;
-  /** One line for the "full guide" card on the class home page. */
-  blurb: string;
+  /** What the build is for, in a few words. */
+  use: string;
+  ranks: Record<string, number>;
+  expected: Record<string, number>;
+  body: string;
+  /** Talent swaps the source suggests, as short sentences. */
+  options?: string[];
+  sources: string[];
+}
+
+export type SpecRole = 'tank' | 'healer' | 'melee' | 'ranged';
+
+export const ROLE_LABEL: Record<SpecRole, string> = {
+  tank: 'Tank',
+  healer: 'Healer',
+  melee: 'Melee damage',
+  ranged: 'Ranged damage',
+};
+
+export interface SpecGuide {
+  /** URL slug: /<class>/<slug>/ and /<class>/<slug>/endgame/. Also the stored preference. */
+  slug: string;
+  /** Spec name, e.g. "Protection". */
+  name: string;
+  role: SpecRole;
+  /** Other roles the spec covers well, e.g. a Feral Druid tanks and deals damage. */
+  alsoRoles?: SpecRole[];
+  /** One line for spec cards: who should pick it. */
+  pitch: string;
+  /** Leveling-page lead paragraph. */
   lead: string;
+  strengths: string[];
+  weaknesses: string[];
+  /** How the spec compares on the things a leveler cares about. Short phrases. */
+  compare: { solo: string; groups: string; mana: string; endgame: string };
+  /** The 10-60 leveling build. */
   build: TalentBuild;
   variant?: BuildVariant;
+  /** Level-60 builds, best default first. Omit when the leveling build is the 60 build. */
+  endgameBuilds?: EndgameBuild[];
+  /** Advice for the second spec slot at 40. */
+  dualSpec: string[];
+  /** Leveling sections. */
   sections: GuideSection[];
-  checklist?: { id: string; title: string; lead: string; items: ChecklistItem[]; sources: string[] };
+  /** Level-60 page. */
+  endgame: {
+    lead: string;
+    sections: GuideSection[];
+    checklist?: { id: string; title: string; lead: string; items: ChecklistItem[]; sources: string[] };
+  };
   notes?: string[];
+  endgameNotes?: string[];
 }
 
 export interface ClassGuide {
@@ -241,9 +292,10 @@ export interface ClassGuide {
   races: Race[];
   trees: TalentTree[];
   talents: Talent[];
-  /** The leveling spec (shown on the level panel) and the second spec opened with dual spec at 40. */
-  leveling: SpecGuide;
-  endgame: SpecGuide;
+  /** Every spec, in the game's tree order. Each one has a full 10-60 leveling build. */
+  specs: SpecGuide[];
+  /** Slug of the spec shown before a visitor picks one. */
+  defaultSpec: string;
   brackets: Bracket[];
   dungeons: Dungeon[];
   training: TrainingLevel[];
@@ -256,6 +308,8 @@ export interface ClassGuide {
   /** Short nav label for the class-quest page. */
   questsNav: string;
   questsLead: string;
-  /** Shown before deferred trainer spells, e.g. "Skip while Feral if gold is tight". */
-  deferLabel: string;
+  /** One sentence for the class card on the home page. */
+  pitch: string;
+  /** Advice for every spec, shown on the spec chooser page: races, professions, time savers. */
+  overview: GuideSection[];
 }

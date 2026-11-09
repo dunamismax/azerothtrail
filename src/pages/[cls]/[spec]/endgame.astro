@@ -1,0 +1,76 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BuildSummary from '../../../components/BuildSummary.astro';
+import GuideSectionView from '../../../components/GuideSectionView.astro';
+import SourceRefs from '../../../components/SourceRefs.astro';
+import SpecHeader from '../../../components/SpecHeader.astro';
+import UpdateNote from '../../../components/UpdateNote.astro';
+import { classes } from '../../../data/registry.ts';
+import type { ClassGuide, SpecGuide } from '../../../data/types.ts';
+import Layout from '../../../layouts/Layout.astro';
+import { endgameAsBuild, expandBuild, finalSplit, specPath, splitLabel } from '../../../lib/guide.ts';
+
+export const getStaticPaths = (() =>
+  classes.flatMap((guide) => guide.specs.map((spec) => ({ params: { cls: guide.id, spec: spec.slug }, props: { guide, spec } })))) satisfies GetStaticPaths;
+
+const { guide, spec } = Astro.props as { guide: ClassGuide; spec: SpecGuide };
+const leveling = expandBuild(guide, spec.build);
+const levelingSplit = splitLabel(guide, finalSplit(guide, leveling));
+const builds = (spec.endgameBuilds ?? []).map((b) => {
+  const points = expandBuild(guide, endgameAsBuild(guide, b));
+  return { build: b, points, split: splitLabel(guide, finalSplit(guide, points)) };
+});
+const checklist = spec.endgame.checklist;
+---
+<Layout guide={guide} path={specPath(guide, spec, true)} title={`${spec.name} ${guide.name} at 60`} description={`${spec.name} ${guide.name} at level 60 in World of Warcraft: Forever: talent builds, rotation, stats and your first week.`}>
+  <SpecHeader guide={guide} spec={spec} endgame={true} title={`${spec.name} ${guide.name} at level 60`} lead={spec.endgame.lead} />
+  {spec.endgameNotes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+
+  <section class="section" id="builds" aria-labelledby="builds-title">
+    <h2 id="builds-title">Level-60 talent builds</h2>
+    <article class="build-card" id="leveling-end">
+      <h3>Where the leveling build ends <span class="tag">{levelingSplit}</span></h3>
+      <p class="small">{spec.endgameBuilds?.length ? 'Respec from this into one of the builds below for groups and raids.' : 'This is also your level-60 build: there is nothing to respec.'}</p>
+      <BuildSummary guide={guide} points={leveling} label="Leveling build at 60" />
+    </article>
+    {builds.map(({ build, points, split }, i) => (
+      <article class="build-card" id={build.id}>
+        <h3>{build.name} <span class="tag tag-accent">{split}</span>{i === 0 && <span class="tag tag-ok">Default</span>}</h3>
+        <p class="small muted">{build.use}</p>
+        <p>{build.body}</p>
+        <BuildSummary guide={guide} points={points} label={build.name} />
+        {build.options && (
+          <>
+            <p class="card-label">Swaps</p>
+            <ul class="small">{build.options.map((o) => <li>{o}</li>)}</ul>
+          </>
+        )}
+        <SourceRefs guide={guide} ids={build.sources} />
+      </article>
+    ))}
+    <p class="small muted">The small numbers are talent rows. When you respec, fill each tree from the top: row n needs 5 &times; (n &minus; 1) points in that tree.</p>
+  </section>
+
+  {spec.endgame.sections.map((s) => <GuideSectionView guide={guide} section={s} />)}
+
+  {checklist && (
+    <section class="section" id={checklist.id} aria-labelledby={`${checklist.id}-title`}>
+      <h2 id={`${checklist.id}-title`}>{checklist.title}</h2>
+      <p class="lead">{checklist.lead}</p>
+      <ul class="checklist">
+        {checklist.items.map((item) => (
+          <li>
+            <input type="checkbox" id={`check-${item.id}`} data-check-id={`${spec.slug}:${checklist.id}:${item.id}`} />
+            <label for={`check-${item.id}`}><b>{item.title}.</b> {item.body}</label>
+          </li>
+        ))}
+      </ul>
+      <p class="js-only small muted">Ticks are saved in this browser. <button type="button" data-reset-checks>Clear ticks</button></p>
+      <SourceRefs guide={guide} ids={checklist.sources} />
+    </section>
+  )}
+
+  <nav class="pager" aria-label="Previous">
+    <a class="button" href={specPath(guide, spec)}>&larr; {spec.name} leveling 10-60</a>
+  </nav>
+</Layout>

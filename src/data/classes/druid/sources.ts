@@ -28,10 +28,10 @@ export const sources: Source[] = [
     covers: 'Bear (Night Elf, Tauren, Skyborne), Aquatic and Cat Form walkthroughs with coordinates.',
   },
   {
-    id: '05', checked: '2026-11-07', sourceUpdated: '2026-11-04',
+    id: '05', checked: '2026-11-08', sourceUpdated: '2026-11-04',
     title: 'Feral Druid leveling guide', publisher: 'Icy Veins',
     url: 'https://www.icy-veins.com/wow-forever/feral-druid-leveling/',
-    covers: 'Bear and Cat priorities, Ravage opener, Shifting Power under 50 Energy, weapon DPS over weapon speed, leveling milestones.',
+    covers: 'Feral leveling build, point by point from its level slider (9/32/10). Bear and Cat priorities, Ravage opener, Shifting Power under 50 Energy, weapon DPS over weapon speed, leveling milestones.',
   },
   {
     id: '06', checked: '2026-11-07', sourceUpdated: '2026-11-05',
@@ -135,6 +135,66 @@ export const sources: Source[] = [
     url: 'https://gamer-guides.com/warcraft-forever/zephras-isle-to-stormwind-orgrimmar/',
     covers: 'Boat from the Valanaar dock to Dalaran, then the faction portal. Written during beta.',
   },
+  {
+    id: '23', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Druid talent calculator', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/druid-talent-calculator',
+    covers: 'Rows, max ranks and the prerequisites each talent shows (for example Wild Growth needs Living Spirit 3/3), used to check every build here.',
+  },
+  {
+    id: '24', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Balance Druid leveling guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/balance-druid-leveling',
+    covers: 'Balance leveling build, point by point from its level slider (38/0/13). Moonfire or Wrath openers, Insect Swarm, Eclipse, Hurricane at 40, Rejuvenation before a pull, Nature’s Grasp, tagging with Nature’s Reach, stats.',
+  },
+  {
+    id: '25', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Balance Druid spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/balance-druid-ranged-dps-pve-spec-builds-talents',
+    covers: 'Level-60 Eclipse and DoTs build (41/0/10) and its three swaps.',
+  },
+  {
+    id: '26', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Balance Druid rotation, cooldowns and abilities', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/balance-druid-ranged-dps-pve-rotation-cooldowns-abilities',
+    covers: 'Wrath then two Starfires with Eclipse, both DoTs up, Hurricane on 5+ targets, mana tips, raid utility.',
+  },
+  {
+    id: '27', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Balance Druid stat priority', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/balance-druid-ranged-dps-pve-stat-priority',
+    covers: 'Hit (to 17%), crit, Spell Power, Intellect; the five-second rule. Marked provisional until level-60 gear is known.',
+  },
+  {
+    id: '28', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Restoration Druid leveling guide', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/restoration-druid-leveling',
+    covers: 'Restoration leveling build, point by point from its level slider (18/0/33). Dungeon healing priorities, damage while questing, Spell Power while leveling.',
+  },
+  {
+    id: '29', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Feral Druid spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/feral-druid-melee-dps-and-tank-pve-spec-builds-talents',
+    covers: 'Level-60 Hybrid (8/33/10), Bear-only (9/32/10) and Cat-only (8/33/10) builds and their swaps.',
+  },
+  {
+    id: '30', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Restoration Druid spec, builds and talents', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/restoration-druid-healer-pve-spec-builds-talents',
+    covers: 'Level-60 default Restoration build (18/0/33). Nature’s Grace skipped for now because of bugs.',
+  },
+  {
+    id: '31', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Feral Druid rotation, cooldowns and abilities', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/feral-druid-melee-dps-and-tank-pve-rotation-cooldowns-abilities',
+    covers: 'Bear single-target and AoE priorities with Primal Bite, Lacerate, Swipe and Maul at 35+ Rage; Shifting Power mana; utility that leaves form.',
+  },
+  {
+    id: '32', checked: '2026-11-08', sourceUpdated: '2026-11-04',
+    title: 'Feral Druid stat priority', publisher: 'Icy Veins',
+    url: 'https://www.icy-veins.com/wow-forever/feral-druid-melee-dps-and-tank-pve-stat-priority',
+    covers: 'Threat and damage: weapon DPS, Expertise, hit to 8%, Agility, Strength. Mitigation: Armor, Defense to 440, Stamina, Agility, Dodge.',
+  },
 ];
 
 export const notes: UpdateNote[] = [
@@ -204,5 +264,38 @@ export const notes: UpdateNote[] = [
     title: 'What Predatory Discipline does',
     body: 'Predatory Discipline is a new row-4 Feral talent and the prerequisite for Shifting Power. Warcraft Tavern says it lets Ferocious Bite keep your unused Energy. Blizzard’s notes don’t describe it.',
     sources: ['03', '21'],
+  },
+  {
+    id: 'every-spec-levels', kind: 'update', date: '2026-11-08',
+    title: 'Every spec now has its own 10-60 build',
+    body: 'Pick Balance, Feral or Restoration and the level pages show that spec’s talent point, trainer priorities and bracket advice. All three follow Icy Veins’ level sliders point for point, and each spec page lists Icy Veins’ level-60 builds.',
+    previously: 'Feral was the only leveling spec, with Restoration as a second spec from 40.',
+    sources: ['05', '24', '28'],
+  },
+  {
+    id: 'feral-order', kind: 'correction', date: '2026-11-08',
+    title: 'Feral talent order now matches Icy Veins',
+    body: 'The earlier Feral order took Sharpened Claws before Savage Fury, Furor at 32-34 and no Natural Instinct, and ended 5 / 33 / 13. Icy Veins’ current slider takes Savage Fury at 21-22, Blood Frenzy and Predatory Discipline before Leader of the Pack, Natural Instinct at 31-32 and Shifting Power at 41, ending 9 / 32 / 10. This guide now follows it.',
+    previously: 'Ferocity, Feral Instinct, Feral Swiftness, Feral Charge, Sharpened Claws, Savage Fury, Lacerate, Predatory Strikes, then Furor and Rend and Tear (5 / 33 / 13).',
+    sources: ['05', '23'],
+  },
+  {
+    id: 'wild-growth-prereq', kind: 'correction', date: '2026-11-08',
+    title: 'Wild Growth needs Living Spirit',
+    body: 'The live Icy Veins calculator shows Wild Growth requiring Living Spirit 3/3, and Nature’s Swiftness requiring Naturalist 5/5. The earlier Restoration second-spec build took Wild Growth at 40 without Living Spirit, which the calculator doesn’t allow. Restoration now follows Icy Veins: Wild Growth at 58 while leveling, and the 18 / 0 / 33 build at 60.',
+    previously: 'Deep Restoration from 40 with Wild Growth at 40 (11 / 0 / 40).',
+    sources: ['23', '28', '30', '12'],
+  },
+  {
+    id: 'moonkin-level', kind: 'uncertain', date: '2026-11-08',
+    title: 'Moonkin Form at 40 or 53?',
+    body: 'Moonkin Form is a row-7 talent, so you can take it as early as 40 (30 points in Balance). Icy Veins’ milestones say “Moonkin Form possible” at 40, but its leveling slider spends the point at 53, after Naturalist, Eclipse and Moonfury. This guide follows the slider; taking Moonkin earlier and Moonfury later is a reasonable change.',
+    sources: ['24'],
+  },
+  {
+    id: 'legacy-talents', kind: 'uncertain', date: '2026-11-08',
+    title: 'Legacy talents are not in these builds',
+    body: 'Icy Veins notes the Legacy system unlocks around 25. The builds here count only the 51 normal talent points from 10 to 60.',
+    sources: ['24'],
   },
 ];

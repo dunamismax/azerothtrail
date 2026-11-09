@@ -6,7 +6,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { classes } from '../src/data/registry.ts';
-import { LEVELS, bracketFor, expandBuild } from '../src/lib/guide.ts';
+import { LEVELS, bracketFor, endgameAsBuild, expandBuild, specPath } from '../src/lib/guide.ts';
 
 const target = process.argv[2] ?? 'dist';
 const expectedCommit = process.argv[3];
@@ -46,7 +46,8 @@ const hrefs = (html: string) => [...html.matchAll(/\s(?:href|src)="([^"]+)"/g)].
 
 const pages: string[] = ['/', '/404.html'];
 for (const g of classes) {
-  pages.push(`/${g.id}/`, `/${g.id}/route/`, `/${g.id}/quests/`, `/${g.id}/${g.leveling.slug}/`, `/${g.id}/${g.endgame.slug}/`, `/${g.id}/sources/`);
+  pages.push(`/${g.id}/`, `/${g.id}/route/`, `/${g.id}/quests/`, `/${g.id}/specs/`, `/${g.id}/sources/`);
+  for (const s of g.specs) pages.push(specPath(g, s), specPath(g, s, true));
   for (const n of LEVELS) pages.push(`/${g.id}/level/${n}/`);
 }
 
@@ -68,8 +69,10 @@ const assets = new Set<string>();
 for (const [p, text] of html) {
   for (const h of hrefs(text)) {
     if (/^(https?:|mailto:)/.test(h) || h === '#') continue;
-    const [pathPart, hash] = h.split('#');
+    const [beforeHash, hash] = h.split('#');
+    const [pathPart, queryPart] = (beforeHash ?? '').split('?');
     const path = pathPart === '' ? p : pathPart ?? '';
+    if (queryPart !== undefined && !/^(spec=[a-z-]+|level=\d{1,2})(&(spec=[a-z-]+|level=\d{1,2}))*$/.test(queryPart.replace(/&amp;/g, '&'))) fail(`${p}: unexpected query in ${h}`);
     if (!path.startsWith('/')) { fail(`${p}: relative link ${h}`); continue; }
     if (/\.(css|js|svg|txt)$/.test(path)) { assets.add(path); continue; }
     const r = await get(path);
@@ -80,6 +83,9 @@ for (const [p, text] of html) {
     }
   }
 }
+assets.add('/spec-filter.css');
+const filter = (await get('/spec-filter.css')).body.toString();
+for (const g of classes) for (const s of g.specs) if (!filter.includes(`html[data-spec="${s.slug}"]`)) fail(`spec-filter.css: no rule for ${s.slug}`);
 for (const a of assets) {
   const r = await get(a);
   if (r.status !== 200) { fail(`asset ${a}: HTTP ${r.status}`); continue; }
@@ -104,11 +110,25 @@ for (const g of classes) {
     if (!page.includes(`href="/${g.id}/route/#${b.id}"`)) fail(`level ${n}: does not link bracket ${b.id}`);
     if (!page.includes(`data-page-level="${n}"`)) fail(`level ${n}: data-page-level`);
   }
-  // Talent tables have a row per level of each build.
-  for (const spec of [g.leveling, g.endgame]) {
-    const page = html.get(`/${g.id}/${spec.slug}/`) ?? '';
+  // Talent tables have a row per level of each build; level-60 pages list every build.
+  for (const spec of g.specs) {
+    const page = html.get(specPath(g, spec)) ?? '';
     const pageIds = ids(page);
     for (const p of expandBuild(g, spec.build)) if (!pageIds.has(`lvl-${p.level}`)) fail(`${spec.slug}: missing row lvl-${p.level}`);
+    const end = html.get(specPath(g, spec, true)) ?? '';
+    const endIds = ids(end);
+    for (const b of spec.endgameBuilds ?? []) {
+      if (!endIds.has(b.id)) fail(`${spec.slug} endgame: missing build #${b.id}`);
+      expandBuild(g, endgameAsBuild(g, b));
+    }
+  }
+  // Every level page carries a talent block and a plan for every spec.
+  for (const n of LEVELS) {
+    const page = html.get(`/${g.id}/level/${n}/`) ?? '';
+    for (const s of g.specs) {
+      const blocks = [...page.matchAll(new RegExp(`data-spec="${s.slug}"`, 'g'))].length;
+      if (blocks < 2) fail(`level ${n}: only ${blocks} blocks for ${s.slug}`);
+    }
   }
 }
 
