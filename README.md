@@ -176,10 +176,8 @@ Mostly a content task:
    Spec slugs can't be `route`, `quests`, `sources`, `specs`, `level` or
    `endgame`.
 3. Add it to `classes` in `src/data/registry.ts`. All pages, the 60 level
-   pages, the sitemap and the spec stylesheet are generated for it. To give it
-   its class colour, add `--<class>` to the dark and both light token blocks in
-   `src/styles/global.css` and a `[data-class="<class>"]` rule next to the
-   others; without one it uses the gold accent.
+   pages, the sitemap and the spec stylesheet are generated for it. Every class
+   uses the same gold accent; there are no per-class colours to add.
 4. Write each spec's source order into `scripts/verify-content.ts`, then run
    `npm test`.
 
