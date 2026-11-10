@@ -25,19 +25,7 @@ const specCount = classes.reduce((n, c) => n + c.specs.length, 0);
     </ul>
   </section>
 
-  <section class="where-home" aria-labelledby="where-title">
-    <h2 id="where-title">Where should I level at <span data-level-text>1</span>?</h2>
-    <p class="small muted">For any class. Your level and faction are remembered here and follow you from the class guides.</p>
-    <noscript><p class="callout">Open <a href="/zones/">Where to level</a> for every zone and dungeon by level.</p></noscript>
-    <div class="js-only">
-      <WorldControls />
-      <div class="where-finder" aria-live="polite">
-        {worldBrackets.map((b) => <WorldBracketPanel bracket={b} heading="h3" remote />)}
-      </div>
-      <p class="small"><a href="/zones/">Every zone and dungeon by level &rarr;</a></p>
-    </div>
-  </section>
-
+  <div class="class-picks">
   {classes.map((c) => (
     <section class="class-pick" data-class={c.id} aria-labelledby={`pick-${c.id}`} data-class-card={c.id} data-class-name={c.name} data-class-specs={c.specs.map((s) => s.slug).join(' ')} data-class-default-spec={c.defaultSpec}>
       <div class="class-pick-head">
@@ -57,6 +45,20 @@ const specCount = classes.reduce((n, c) => n + c.specs.length, 0);
       <p class="small class-pick-more"><a href={classPath(c, 'specs')}>Compare {c.name} specs</a> · <a href={classPath(c, 'route')}>{c.name} route</a> · <a href={classPath(c, 'quests')}>{c.questsLabel}</a></p>
     </section>
   ))}
+  </div>
+
+  <section class="where-home" aria-labelledby="where-title">
+    <h2 id="where-title">Where should I level at <span data-level-text>1</span>?</h2>
+    <p class="small muted">For any class. Your level and faction are remembered here and follow you from the class guides.</p>
+    <noscript><p class="callout">Open <a href="/zones/">Where to level</a> for every zone and dungeon by level.</p></noscript>
+    <div class="js-only">
+      <WorldControls />
+      <div class="where-finder" aria-live="polite">
+        {worldBrackets.map((b) => <WorldBracketPanel bracket={b} heading="h3" remote />)}
+      </div>
+      <p class="small"><a href="/zones/">Every zone and dungeon by level &rarr;</a></p>
+    </div>
+  </section>
 
   <a class="status-strip" href="/status/">
     <span class="status-dot" data-status-dot aria-hidden="true"></span>
