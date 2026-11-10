@@ -36,9 +36,10 @@ export const overview: GuideSection[] = [
       'Log out at an inn for rested experience. Buy enough bag space to avoid frequent vendor trips.',
       'Cooking buffs add 5% experience from kills. Leatherworkers can place a Camp Tent once an hour.',
       'Grab the Cozy Sleeping Bag at 14 for a stacking experience buff.',
-      'Gather quests before a dungeon: kill experience inside is low, and quests are where the experience is.',
+      'Gather quests before a dungeon. Dungeon kills give 50% more experience since November 9, but the quests are still where most of it is.',
       'Buff players near you with Mark of the Wild and Thorns, even outside a group.',
     ],
-    sources: ['05', '24'],
+    notes: ['dungeon-xp'],
+    sources: ['05', '24', '13'],
   },
 ];

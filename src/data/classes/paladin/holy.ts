@@ -20,7 +20,7 @@ export const holy: SpecGuide = {
     'Protection instead if you would like to tank some of the dungeons you would otherwise heal.',
     'Keep your healing set in its own bag and make a second action bar layout.',
   ],
-  notes: ['every-spec-levels', 'holy-shock-level', 'removed-blessings'],
+  notes: ['first-week-tuning', 'every-spec-levels', 'holy-shock-level', 'removed-blessings'],
   sections: [
     {
       id: 'how-holy-levels',

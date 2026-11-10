@@ -22,6 +22,14 @@ remembered in the browser (localStorage only). Every page is static HTML that
 reads fine with JavaScript off, in which case it shows every spec; the script
 only filters and remembers.
 
+`/zones/` ("Where to level") answers the question for any class: pick a level
+and faction and it shows the zone to go to, its quest hubs, zones that work as
+well when it's crowded, and every dungeon in range, then every zone and all 28
+dungeons by level. The home page carries the same finder. Its level and faction
+follow the class guide you used last. New dungeons use Blizzard's levels;
+Classic dungeons use the in-game Group Finder's, which the class level pages
+now show too.
+
 `/status/` is a live WoW: Forever server-status tracker: every ruleset in all
 four regions, read from Blizzard's official status page, with browser alerts
 (Web Push) the moment servers come back online. See
@@ -71,7 +79,11 @@ node scripts/smoke.ts https://azerothtrail.com <commit>   # check the live site
   independently in the verifier, or a level-60 build's split changes;
 - a bracket lacks advice for a spec, a trainer override names an unknown spec,
   or a talent spell names no talent;
-- a dungeon's range drifts from Blizzard's official one;
+- a dungeon's range drifts from Blizzard's official one, or a Classic dungeon's
+  from the Group Finder's;
+- the zone finder (`src/data/world/`) leaves a level without exactly one
+  bracket, names a zone where that faction has no hub or whose levels miss the
+  bracket, or picks a dungeon out of range;
 - a section cites a source or note id that doesn't exist.
 
 `scripts/smoke.ts` checks every page and level page, every internal link and
@@ -96,6 +108,7 @@ src/data/classes/paladin/
   dungeons.ts                     official ranges (new) and Classic dungeons
   sources.ts                      numbered sources and dated update notes
 src/data/classes/druid/           same shape: balance.ts, feral.ts, restoration.ts, forms.ts
+src/data/world/index.ts           class-free zone finder: zones, hubs, all 28 dungeons, brackets
 src/lib/guide.ts                  level lookups, build expansion, trainer lists, validation
 src/components/                   LevelPanel, BracketCard, TalentTable, BuildSummary, ...
 src/pages/                        /, /spec-filter.css, /[cls]/... (see above)

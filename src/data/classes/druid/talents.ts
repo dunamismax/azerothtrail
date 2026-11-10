@@ -28,7 +28,7 @@ export const talents: Talent[] = [
   { id: 'blood-frenzy', name: 'Blood Frenzy', tree: 'feral', row: 4, maxRank: 2, requires: 'sharpened-claws', summary: 'Merges Classic’s Primal Fury and Blood Frenzy: extra resource from critical strikes.' },
   { id: 'predatory-discipline', name: 'Predatory Discipline', tree: 'feral', row: 4, maxRank: 1, summary: 'Reported to let Ferocious Bite keep unused Energy. Required for Shifting Power.' },
   { id: 'leader-of-the-pack', name: 'Leader of the Pack', tree: 'feral', row: 5, maxRank: 1, summary: 'Party critical strike aura for spells and attacks. Doesn’t stack with Moonkin Aura.' },
-  { id: 'natural-instinct', name: 'Natural Instinct', tree: 'feral', row: 5, maxRank: 2, summary: 'New. +10% melee critical strike damage per rank, and spell healing increased by 12% of your Intellect.' },
+  { id: 'natural-instinct', name: 'Natural Instinct', tree: 'feral', row: 5, maxRank: 2, summary: 'New. +10% melee critical strike damage per rank, and spell healing increased by 12% of your Intellect. Applies to Lacerate and Pounce since the November 9 hotfix.' },
   { id: 'rend-and-tear', name: 'Rend and Tear', tree: 'feral', row: 6, maxRank: 5, requires: 'predatory-strikes', summary: '+3/6/9/12/15% melee damage against bleeding targets.' },
   { id: 'natural-reaction', name: 'Natural Reaction', tree: 'feral', row: 6, maxRank: 5, summary: 'More Dodge, and a chance for 5 Rage when you dodge. The tanking swap.' },
   { id: 'primal-bite', name: 'Primal Bite', tree: 'feral', row: 7, maxRank: 1, requires: 'leader-of-the-pack', summary: 'Bear attack for 20 Rage with very high threat. Trainer ranks at 50 and 60.' },

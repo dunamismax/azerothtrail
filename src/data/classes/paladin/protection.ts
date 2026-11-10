@@ -25,7 +25,7 @@ export const protection: SpecGuide = {
     expected: { holy: 0, protection: 39, retribution: 12 },
     sources: ['04', '05'],
   },
-  notes: ['two-builds', 'improved-seal-of-fury', 'removed-blessings', 'dungeon-xp'],
+  notes: ['first-week-tuning', 'dungeon-xp', 'two-builds', 'improved-seal-of-fury', 'removed-blessings'],
   sections: [
     {
       id: 'setup',

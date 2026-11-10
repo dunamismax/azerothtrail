@@ -124,10 +124,10 @@ export const sources: Source[] = [
     covers: 'Classic steps of The Tome of Divinity, The Test of Righteousness and the Charger chain. Forever sources confirm the quest names and levels, not every step.',
   },
   {
-    id: '21', checked: '2026-11-08',
-    title: 'WoW Forever hotfixes, November 6, 2026', publisher: 'Blizzard forums',
-    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-hotfixes-november-6-2026/2403040',
-    covers: 'Ruins of Lordaeron quest at 15 for Horde; Drowned City portal fix. No Paladin changes.',
+    id: '21', checked: '2026-11-10', sourceUpdated: '2026-11-09',
+    title: 'WoW Forever hotfixes, November 5-9, 2026', publisher: 'Blizzard forums',
+    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-hotfixes-november-9-2026/2403040',
+    covers: 'November 6: Ruins of Lordaeron quest at 15 for Horde, Drowned City portal fix. November 9: dungeon kill experience +50%, Consecration damage fix, Seals on the Cooldown Manager, Gloves of Holy Might fixed, Drowned City creatures no longer deal 30% too much damage, Deathless Marrow tuned down, Shaper’s Terrace loot fixed, no mounting inside Stratholme, lower player caps in crowded zones.',
   },
   {
     id: '22', checked: '2026-11-07', sourceUpdated: '2026-11-07',
@@ -189,6 +189,18 @@ export const sources: Source[] = [
     url: 'https://www.icy-veins.com/wow-forever/retribution-paladin-melee-dps-pve-stat-priority',
     covers: 'Unsealed Wrath: weapon damage, hit to 8%, Expertise to 6.5%, Strength, Spell Power. Shockadin: weapon DPS, hit, Spell Power, crit, Expertise. Slow weapons for Seal of Command.',
   },
+  {
+    id: '32', checked: '2026-11-10', sourceUpdated: '2026-11-06',
+    title: 'Class Tuning Incoming – November 10', publisher: 'Blizzard forums',
+    url: 'https://eu.forums.blizzard.com/en/wow/t/class-tuning-incoming-10-november/640100',
+    covers: 'The first class tuning pass: Hunter pets and Voidwalkers, Affliction Warlock, Enhancement Shaman. Nothing for Paladins. Blizzard plans further class changes on Tuesdays when needed.',
+  },
+  {
+    id: '33', checked: '2026-11-10', sourceUpdated: '2026-11-03',
+    title: 'WoW Forever dungeons by level', publisher: 'Forever Mastery',
+    url: 'https://forevermastery.com/en/dungeons',
+    covers: 'All 28 dungeons with their levels: Blizzard’s ranges for the nine new ones, the in-game Group Finder’s for the 19 Classic ones (client 1.60.1.70790).',
+  },
 ];
 
 export const notes: UpdateNote[] = [
@@ -227,8 +239,8 @@ export const notes: UpdateNote[] = [
   {
     id: 'consecration', kind: 'confirmed', date: '2026-11-08',
     title: 'Consecration is baseline and favors four targets',
-    body: 'Consecration is trained at 20 by every Paladin. It deals full damage only to the first 4 enemies that enter it and very little to the rest, so pulls of four are the sweet spot. It takes 8 seconds to deal all its damage.',
-    sources: ['02', '10', '09'],
+    body: 'Consecration is trained at 20 by every Paladin. It deals full damage only to the first 4 enemies that enter it and very little to the rest, so pulls of four are the sweet spot. It takes 8 seconds to deal all its damage. Since the November 9 hotfix it keeps dealing that full damage after an enemy inside it dies and despawns; before, it could drop to the reduced amount.',
+    sources: ['02', '10', '09', '21'],
   },
   {
     id: 'hammer-of-the-righteous', kind: 'uncertain', date: '2026-11-08',
@@ -243,10 +255,11 @@ export const notes: UpdateNote[] = [
     sources: ['02', '05'],
   },
   {
-    id: 'dungeon-xp', kind: 'update', date: '2026-11-08',
-    title: 'Dungeon experience was cut',
-    body: 'Mob kills inside dungeons give much less experience in Forever, and dungeon quest rewards were halved during the beta. Quest in the world and run a dungeon when you hold its quests, need gear, or want tanking practice.',
-    sources: ['10', '04'],
+    id: 'dungeon-xp', kind: 'update', date: '2026-11-09',
+    title: 'Dungeon kills give 50% more experience',
+    body: 'Forever launched with much lower experience for dungeon kills, and dungeon quest rewards were halved during the beta. The November 9 hotfix raised the experience from every enemy kill in a dungeon by 50%. Questing in the world is still the main road, but a run with its quests in your log is now worth the time on its own, not only for gear or tanking practice.',
+    previously: 'Dungeon kills give little experience: run a dungeon only when you hold its quests, need gear, or want tanking practice.',
+    sources: ['21', '10', '04'],
   },
   {
     id: 'mount-and-dual-spec', kind: 'update', date: '2026-11-08',
@@ -308,5 +321,11 @@ export const notes: UpdateNote[] = [
     title: 'Pursuit of Justice at 20 or 22?',
     body: 'Icy Veins’ Retribution milestones say Pursuit of Justice is talented at 22, but its level slider puts the two points at 20 and 21, before Seal of Command at 22. This guide follows the slider.',
     sources: ['09'],
+  },
+  {
+    id: 'first-week-tuning', kind: 'confirmed', date: '2026-11-10',
+    title: 'No Paladin balance changes after launch',
+    body: 'The launch-week hotfixes (November 5-9) only fixed Paladin bugs: Consecration’s damage, Seals on the Cooldown Manager and the Gloves of Holy Might. Blizzard’s first class tuning, planned for November 10, covers Hunter pets, Voidwalkers, Affliction Warlocks and Enhancement Shamans. None of the guides behind these builds has changed since November 4, so every talent order, priority and stat weight here still stands.',
+    sources: ['21', '32', '09', '25', '10'],
   },
 ];

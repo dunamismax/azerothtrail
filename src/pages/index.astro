@@ -1,6 +1,9 @@
 ---
 import { classes } from '../data/registry.ts';
 import { ROLE_LABEL } from '../data/types.ts';
+import WorldBracketPanel from '../components/WorldBracketPanel.astro';
+import WorldControls from '../components/WorldControls.astro';
+import { worldBrackets } from '../data/world/index.ts';
 import Layout from '../layouts/Layout.astro';
 import { classPath, specPath } from '../lib/guide.ts';
 
@@ -10,7 +13,7 @@ const specCount = classes.reduce((n, c) => n + c.specs.length, 0);
   <section class="hero" aria-labelledby="hero-title">
     <p class="eyebrow">World of Warcraft: Forever · Normal PvE</p>
     <h1 id="hero-title">Level to 60 in the spec you want to play.</h1>
-    <p class="lead">Pick a class and a spec. Every spec gets its own talent point for each level from 10 to 60, what to train, where to quest for your faction and race, which dungeon is worth it, and a level-60 page with builds, rotation and stats.</p>
+    <p class="lead">Tell it your level and it tells you where to go: the zone, the quest hub and the dungeon worth running, for Alliance or Horde. Pick a class and spec for its own talent point at every level from 10 to 60, what to train, and a level-60 page with builds, rotation and stats.</p>
     <p class="continue js-only" data-continue hidden>
       <a class="button button-accent button-lg" href="/"><span>Continue: <span data-continue-text></span></span> <span aria-hidden="true">&rarr;</span></a>
     </p>
@@ -20,6 +23,19 @@ const specCount = classes.reduce((n, c) => n + c.specs.length, 0);
       <li><b>60</b> levels, each with its own page</li>
       <li>Most of it also holds for WoW Classic</li>
     </ul>
+  </section>
+
+  <section class="where-home" aria-labelledby="where-title">
+    <h2 id="where-title">Where should I level at <span data-level-text>1</span>?</h2>
+    <p class="small muted">For any class. Your level and faction are remembered here and follow you from the class guides.</p>
+    <noscript><p class="callout">Open <a href="/zones/">Where to level</a> for every zone and dungeon by level.</p></noscript>
+    <div class="js-only">
+      <WorldControls />
+      <div class="where-finder" aria-live="polite">
+        {worldBrackets.map((b) => <WorldBracketPanel bracket={b} heading="h3" remote />)}
+      </div>
+      <p class="small"><a href="/zones/">Every zone and dungeon by level &rarr;</a></p>
+    </div>
   </section>
 
   {classes.map((c) => (

@@ -20,7 +20,7 @@ export const feral: SpecGuide = {
     'Balance instead if you want ranged damage for groups that already have a tank.',
     'Make a second action bar layout and keep your healing or caster gear in its own bag.',
   ],
-  notes: ['every-spec-levels', 'feral-order', 'lacerate-talent'],
+  notes: ['first-week-tuning', 'natural-instinct-fix', 'every-spec-levels', 'feral-order', 'lacerate-talent'],
   sections: [
     {
       id: 'cat-or-bear',
@@ -49,7 +49,7 @@ export const feral: SpecGuide = {
         'Shred from behind, Claw face to face.',
         'Use Ferocious Bite as a finishing hit or on bleed-immune targets. Skip the finisher if an auto-attack will do it.',
       ],
-      notes: ['ravage-poised', 'predatory-discipline'],
+      notes: ['ravage-poised', 'shadowmeld-opener', 'predatory-discipline'],
       sources: ['05'],
     },
     {

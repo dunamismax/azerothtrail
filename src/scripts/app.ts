@@ -15,7 +15,10 @@ interface Prefs {
 
 const root = document.documentElement;
 const cls = root.dataset.class ?? '';
-const KEY = `azerothtrail:v1:${cls}`;
+// Pages without a class (home, /zones/) keep a level and faction of their own,
+// which the class pages update as you use them.
+const WORLD_KEY = 'azerothtrail:v1:world';
+const KEY = cls ? `azerothtrail:v1:${cls}` : WORLD_KEY;
 const LAST_KEY = 'azerothtrail:v1:last';
 const SPECS = (root.dataset.specs ?? '').split(' ').filter(Boolean);
 const DEFAULT_SPEC = root.dataset.defaultSpec ?? null;
@@ -44,12 +47,31 @@ function readPrefs(key: string, specs: readonly string[]): Prefs {
 }
 
 function load(): Prefs {
+  if (!cls) {
+    // First visit to a class-free page: start from the class guide used last.
+    try {
+      const last = localStorage.getItem(LAST_KEY);
+      if (localStorage.getItem(WORLD_KEY) === null && last && /^[a-z-]{1,32}$/.test(last)) {
+        const p = readPrefs(`azerothtrail:v1:${last}`, []);
+        return { ...p, race: null, showAll: false, checks: {} };
+      }
+    } catch {
+      // Storage blocked: defaults.
+    }
+  }
   return readPrefs(KEY, SPECS);
 }
 
 function save(p: Prefs): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(p));
+    if (cls) {
+      // Keep the zone finder on the level and faction you play.
+      const world = readPrefs(WORLD_KEY, []);
+      world.level = p.level;
+      if (p.faction) world.faction = p.faction;
+      localStorage.setItem(WORLD_KEY, JSON.stringify(world));
+    }
   } catch {
     // Private mode or blocked storage: keep working for this page view.
   }
@@ -69,6 +91,12 @@ const query = new URLSearchParams(location.search);
 const fromQuery = query.get('level');
 if (fromQuery !== null && /^\d{1,2}$/.test(fromQuery)) {
   prefs.level = clampLevel(Number(fromQuery));
+  save(prefs);
+}
+const factionQuery = query.get('faction');
+if (factionQuery === 'alliance' || factionQuery === 'horde') {
+  prefs.faction = factionQuery;
+  if (prefs.race && raceFaction(prefs.race) !== factionQuery) prefs.race = null;
   save(prefs);
 }
 const specQuery = query.get('spec');
@@ -266,6 +294,14 @@ function initControls(): void {
       applyFilters();
     });
   }
+  // Zone finder: bracket links on the trail set the level in place.
+  for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-set-level]')) {
+    a.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      e.preventDefault();
+      setLevel(Number(a.dataset.setLevel));
+    });
+  }
   // On the home page, level links switch the panel in place instead of navigating.
   if (document.querySelector('[data-level-panel]')) {
     for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-level-link]')) {
@@ -346,6 +382,7 @@ function initCopyLink(): void {
       const params = new URLSearchParams({ level: String(followLevel()) });
       const spec = currentSpec();
       if (spec) params.set('spec', spec);
+      if (!cls && prefs.faction) params.set('faction', prefs.faction);
       const url = `${location.origin}${btn.dataset.copyBase ?? location.pathname}?${params.toString()}`;
       const say = (text: string): void => {
         if (status) status.textContent = text;

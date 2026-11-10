@@ -69,14 +69,14 @@ const headingId = `${b.id}-title`;
       <p class="card-label">Dungeons <span class="tag tag-optional">Optional</span></p>
       <div class="table-wrap">
         <table>
-          <thead><tr><th scope="col">Dungeon</th><th scope="col">Official range</th><th scope="col">Where</th><th scope="col">Why go</th></tr></thead>
+          <thead><tr><th scope="col">Dungeon</th><th scope="col">Levels</th><th scope="col">Where</th><th scope="col">Why go</th></tr></thead>
           <tbody>
             {b.dungeons.map((p) => {
               const d = dungeonById(guide, p.dungeon);
               return (
                 <tr>
                   <th scope="row">{d.name}{d.isNew && <> <span class="tag tag-accent">New</span></>}</th>
-                  <td class="nowrap">{d.official ? rangeLabel(d) : <span class="muted">Not published</span>}</td>
+                  <td class="nowrap">{rangeLabel(d)}{!d.official && <span class="muted small"> (Group Finder)</span>}</td>
                   <td>{d.zone}<span class="muted small">. {d.location}</span></td>
                   <td>{p.note}{d.access && <span class="small"> {d.access}</span>}</td>
                 </tr>
@@ -85,7 +85,7 @@ const headingId = `${b.id}-title`;
           </tbody>
         </table>
       </div>
-      <p class="small muted">Questing brackets are suggestions. Dungeon ranges are Blizzard’s official ones; Classic dungeons show none because Forever hasn’t published them. Check the in-game Group Finder.</p>
+      <p class="small muted">Questing brackets are suggestions. New dungeons show Blizzard’s official levels; Classic dungeons show the in-game Group Finder’s. <a href="/zones/">Every zone and dungeon by level</a>.</p>
     </>
   )}
 

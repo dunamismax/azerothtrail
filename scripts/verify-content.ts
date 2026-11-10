@@ -3,8 +3,10 @@
 // 2. Every spec's leveling build against the order its source publishes,
 //    written out here independently of the build data so a typo in either fails.
 // 3. Level-60 build splits and official dungeon ranges.
+// 4. The class-free zone finder: zones, hubs, brackets and every dungeon's levels.
 import { classes, getClass } from '../src/data/registry.ts';
 import type { ClassGuide } from '../src/data/types.ts';
+import { validateWorld, worldBrackets, worldDungeons } from '../src/data/world/index.ts';
 import { LEVELS, bracketFor, endgameAsBuild, expandBuild, finalSplit, pointsAtLevel, specBySlug, splitLabel, validateGuide } from '../src/lib/guide.ts';
 
 const problems: string[] = [];
@@ -62,6 +64,24 @@ function checkDungeons(guide: ClassGuide): void {
   }
   if (guide.dungeons.filter((d) => d.isNew).length !== 9) fail(`${guide.id}: expected nine new dungeons`);
 }
+
+// ---------------------------------------------------------------- Where to level (/zones/)
+problems.push(...validateWorld());
+// The in-game Group Finder's levels for the Classic dungeons (Forever Mastery's
+// read of client 1.60.1.70790), written out independently of the world data.
+const groupFinder: Record<string, [number, number]> = {
+  'ragefire-chasm': [13, 18], 'wailing-caverns': [15, 24], deadmines: [17, 26], 'shadowfang-keep': [20, 30],
+  'blackfathom-deeps': [24, 32], stockade: [24, 32], gnomeregan: [29, 38], 'razorfen-kraul': [29, 38],
+  'scarlet-monastery': [30, 46], 'razorfen-downs': [37, 46], uldaman: [41, 51], zulfarrak: [44, 54], maraudon: [46, 55],
+  'sunken-temple': [50, 60], 'blackrock-depths': [52, 60], 'dire-maul': [54, 60], 'blackrock-spire': [55, 60],
+  scholomance: [58, 60], stratholme: [58, 60],
+};
+for (const [id, range] of Object.entries({ ...official, ...groupFinder })) {
+  const d = worldDungeons.find((x) => x.id === id);
+  if (!d || JSON.stringify(d.levels) !== JSON.stringify(range)) fail(`world dungeon ${id} levels ${JSON.stringify(d?.levels)} != ${JSON.stringify(range)}`);
+}
+// Every level has exactly one world bracket.
+for (const n of LEVELS) if (worldBrackets.filter((b) => n >= b.min && n <= b.max).length !== 1) fail(`world: level ${n} needs exactly one bracket`);
 
 // ---------------------------------------------------------------- Paladin
 const paladin = getClass('paladin');

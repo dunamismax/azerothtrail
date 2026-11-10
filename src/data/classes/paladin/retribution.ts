@@ -19,7 +19,7 @@ export const retribution: SpecGuide = {
     'Holy instead if you would rather heal. Healers find dungeon groups fastest.',
     'Keep your one-hander and shield, or your healing set, in their own bag, and make a second action bar layout.',
   ],
-  notes: ['every-spec-levels', 'pursuit-level', 'removed-blessings'],
+  notes: ['first-week-tuning', 'every-spec-levels', 'pursuit-level', 'removed-blessings'],
   sections: [
     {
       id: 'setup',

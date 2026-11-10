@@ -15,6 +15,7 @@ import type {
   TrainingLevel,
   UpdateNote,
 } from '../data/types.ts';
+import { worldDungeonById } from '../data/world/index.ts';
 
 export const MIN_LEVEL = 1;
 export const MAX_LEVEL = 60;
@@ -245,15 +246,28 @@ export function dungeonById(guide: ClassGuide, id: string): Dungeon {
 
 export type RangeStatus = 'in-range' | 'below' | 'above' | 'unknown';
 
+/** A dungeon's levels: Blizzard's for the new ones, else the in-game Group Finder's from the world data. */
+export function dungeonLevels(d: Dungeon): readonly [number, number] | null {
+  return d.official ?? worldDungeonById(d.id)?.levels ?? null;
+}
+
 export function rangeStatus(d: Dungeon, level: number): RangeStatus {
-  if (!d.official) return 'unknown';
-  if (level < d.official[0]) return 'below';
-  if (level > d.official[1]) return 'above';
+  const levels = dungeonLevels(d);
+  if (!levels) return 'unknown';
+  if (level < levels[0]) return 'below';
+  if (level > levels[1]) return 'above';
   return 'in-range';
 }
 
 export function rangeLabel(d: Dungeon): string {
-  return d.official ? `${d.official[0]}-${d.official[1]}` : 'Classic';
+  const levels = dungeonLevels(d);
+  return levels ? `${levels[0]}-${levels[1]}` : 'Classic';
+}
+
+/** Who set the range shown by rangeLabel. */
+export function rangeSourceLabel(d: Dungeon): string {
+  if (d.official) return 'Official';
+  return dungeonLevels(d) ? 'Group Finder' : 'Classic dungeon';
 }
 
 /** Dungeons to show for a level: the bracket's picks still in (or near) range, else the next new one. */
@@ -416,6 +430,12 @@ export function validateGuide(guide: ClassGuide): string[] {
     if (prev) check(t.level > prev.level, `training levels not ascending at ${t.level}`);
   });
   for (const d of guide.dungeons) if (d.official) check(d.official[0] <= d.official[1] && d.official[1] <= MAX_LEVEL, `dungeon ${d.id} has a bad range`);
+  // Every class dungeon is in the world list, with the same levels.
+  for (const d of guide.dungeons) {
+    const w = worldDungeonById(d.id);
+    check(w !== undefined, `dungeon ${d.id} is missing from the world dungeon list`);
+    if (w && d.official) check(JSON.stringify(d.official) === JSON.stringify(w.levels), `dungeon ${d.id} levels differ from the world list`);
+  }
 
   return problems;
 }

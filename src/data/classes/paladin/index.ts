@@ -16,7 +16,7 @@ export const paladin: ClassGuide = {
   ruleset: 'Normal PvE',
   tagline: 'Holy, Protection or Retribution, each with its own build from 10 to 60.',
   pitch: 'A plate-wearing hybrid that heals itself: tank, heal or hit hard, and survive almost anything on the way to 60.',
-  lastVerified: '2026-11-08',
+  lastVerified: '2026-11-10',
   races: [
     { id: 'human', name: 'Human', faction: 'alliance', startZone: 'Northshire Valley, Elwynn Forest' },
     { id: 'dwarf', name: 'Dwarf', faction: 'alliance', startZone: 'Coldridge Valley, Dun Morogh' },

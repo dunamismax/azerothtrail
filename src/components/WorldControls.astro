@@ -1,0 +1,40 @@
+---
+import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import { worldBrackets } from '../data/world/index.ts';
+import { LEVELS, MAX_LEVEL, MIN_LEVEL, levelSpan } from '../lib/guide.ts';
+
+// Level and faction for the class-free zone finder (/zones/ and the home page).
+// The slider sits over the world brackets, each as wide as the levels it covers.
+---
+<div class="prefs world-prefs js-only" role="group" aria-label="Your character">
+  <div>
+    <label class="label" for="pref-level">Level</label>
+    <div class="stepper">
+      <button type="button" data-level-step="-1" aria-label="Previous level">&minus;</button>
+      <select id="pref-level" name="level">
+        {LEVELS.map((n) => <option value={n}>{n}</option>)}
+      </select>
+      <button type="button" data-level-step="1" aria-label="Next level">+</button>
+    </div>
+  </div>
+  <fieldset>
+    <legend>Faction</legend>
+    <div class="choices">
+      {FACTIONS.map((f) => (
+        <label class="choice"><input type="radio" name="faction" value={f} /><span>{FACTION_LABEL[f]}</span></label>
+      ))}
+    </div>
+  </fieldset>
+</div>
+<div class="trail js-only">
+  <input class="trail-range" type="range" min={MIN_LEVEL} max={MAX_LEVEL} step="1" value="1" data-level-range aria-label="Level" />
+  <ol class="trail-brackets" aria-label="Level brackets">
+    {worldBrackets.map((b) => (
+      <li data-span={b.max - b.min + 1}>
+        <a href={`/zones/#${b.id}`} data-set-level={String(b.min)} data-min={b.min} data-max={b.max} title={`${levelSpan(b.min, b.max)}: ${b.title}`} aria-label={`Levels ${levelSpan(b.min, b.max)}: ${b.title}`}>
+          <span class="trail-from">{b.min}</span><span class="trail-span">{levelSpan(b.min, b.max)}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>

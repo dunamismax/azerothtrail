@@ -44,7 +44,7 @@ async function get(path: string): Promise<Got> {
 const ids = (html: string) => new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
 const hrefs = (html: string) => [...html.matchAll(/\s(?:href|src)="([^"]+)"/g)].map((m) => m[1] ?? '');
 
-const pages: string[] = ['/', '/404.html', '/status/'];
+const pages: string[] = ['/', '/zones/', '/404.html', '/status/'];
 for (const g of classes) {
   pages.push(`/${g.id}/`, `/${g.id}/route/`, `/${g.id}/quests/`, `/${g.id}/specs/`, `/${g.id}/sources/`);
   for (const s of g.specs) pages.push(specPath(g, s), specPath(g, s, true));

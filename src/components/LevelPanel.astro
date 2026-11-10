@@ -1,6 +1,7 @@
 ---
 import type { ClassGuide, SpecGuide, TrainSpell } from '../data/types.ts';
 import { FACTIONS, FACTION_LABEL, ROLE_LABEL } from '../data/types.ts';
+import { dungeonZoneName, worldDungeons } from '../data/world/index.ts';
 import {
   FIRST_TALENT_LEVEL,
   MAX_LEVEL,
@@ -16,6 +17,7 @@ import {
   nextTrainingFor,
   pointsAtLevel,
   rangeLabel,
+  rangeSourceLabel,
   specPath,
   splitLabel,
   trainingAt,
@@ -43,6 +45,9 @@ const nextMilestone = guide.milestones.find((m) => m.level > level);
 const branches = bracket.raceBranches;
 const spellName = (s: TrainSpell) => `${s.name}${s.rank ? ` ${s.rank}` : ''}`;
 const statusTag = { 'in-range': ['tag-ok', 'In range'], below: ['tag-warn', 'Below range'], above: ['tag', 'Above range'], unknown: ['tag', 'Range not published'] } as const;
+const zonesHref = `/zones/?level=${level}`;
+// Every other dungeon whose levels include this one, from the full list.
+const alsoInRange = worldDungeons.filter((d) => level >= d.levels[0] && level <= d.levels[1] && !dungeons.some((p) => p.dungeon.id === d.id));
 const headingId = `panel-${level}-title`;
 const total = MAX_LEVEL - FIRST_TALENT_LEVEL + 1;
 const treeNames = guide.trees.map((t) => t.name).join(' / ');
@@ -103,7 +108,7 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
           <ul>{b.steps.map((s) => <li>{s}</li>)}</ul>
         </div>
       ))}
-      <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a></p>
+      <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a> · <a href={zonesHref}>Every zone and dungeon for level {level}</a></p>
     </div>
 
     <div class="card card-talent">
@@ -157,14 +162,14 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
 
     <div class="card">
       <p class="card-label">Dungeon nearby <span class="tag tag-optional">Optional</span></p>
-      {dungeons.length === 0 ? (
-        <p>No dungeon worth the trip yet. Keep questing; the first new dungeon opens at 13.</p>
-      ) : (
+      {dungeons.length === 0 && alsoInRange.length === 0 ? (
+        <p>No dungeon worth the trip yet. Keep questing; the first dungeons open at 13.</p>
+      ) : dungeons.length === 0 ? null : (
         <ul class="spells">
           {dungeons.map(({ dungeon, note, status }) => (
             <li>
               <b>{dungeon.name}</b>
-              <span class="tag">{dungeon.official ? `Official ${rangeLabel(dungeon)}` : 'Classic dungeon'}</span>
+              <span class="tag">{rangeSourceLabel(dungeon)} {rangeLabel(dungeon)}</span>
               <span class={`tag ${statusTag[status][0]}`}>{statusTag[status][1]}</span>
               {dungeon.easierFor && <span class={`tag tag-${dungeon.easierFor}`}>Easier {FACTION_LABEL[dungeon.easierFor]} access</span>}
               <span class="why">{dungeon.zone}. {note}{dungeon.access ? ` ${dungeon.access}` : ''}</span>
@@ -172,6 +177,12 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
           ))}
         </ul>
       )}
+      {alsoInRange.length > 0 && (
+        <p class="small"><b>{dungeons.length === 0 ? `In range at ${level}` : 'Also in range'}:</b> {alsoInRange.map((d, i) => (
+          <><a href={`/zones/#dungeon-${d.id}`}>{d.name}</a> <span class="muted">{d.levels[0]}-{d.levels[1]}, {dungeonZoneName(d)}{d.easierFor ? `, easier for ${FACTION_LABEL[d.easierFor]}` : ''}</span>{i < alsoInRange.length - 1 ? '; ' : '.'}</>
+        ))}</p>
+      )}
+      <p class="small"><a href={zonesHref}>Every zone and dungeon for level {level}</a></p>
       {nextMilestone && <p class="small muted">Coming up at {nextMilestone.level}: {nextMilestone.text}</p>}
     </div>
   </div>

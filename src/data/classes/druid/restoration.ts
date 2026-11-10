@@ -19,7 +19,7 @@ export const restoration: SpecGuide = {
     'Balance instead if you prefer to stay at range.',
     'Make a second action bar layout for healing and keep your healing gear in its own bag.',
   ],
-  notes: ['every-spec-levels', 'wild-growth-prereq', 'bloom-fix', 'swiftmend-tooltip'],
+  notes: ['first-week-tuning', 'every-spec-levels', 'wild-growth-prereq', 'bloom-fix', 'swiftmend-tooltip'],
   sections: [
     {
       id: 'forms',

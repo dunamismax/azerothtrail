@@ -19,7 +19,7 @@ export const balance: SpecGuide = {
     'Feral instead if you want a tank slot, or a faster melee option for questing.',
     'Make a second action bar layout and keep your second set in its own bag.',
   ],
-  notes: ['every-spec-levels', 'moonkin-level', 'legacy-talents'],
+  notes: ['first-week-tuning', 'every-spec-levels', 'moonkin-level', 'legacy-talents'],
   sections: [
     {
       id: 'early-levels',

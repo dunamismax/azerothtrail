@@ -62,6 +62,7 @@ const lastVerified = classes.map((c) => c.lastVerified).sort().at(-1) ?? '';
         <nav class="class-switch" aria-label="Class guides and server status">
           <ul>
             {classes.map((c) => <li><a href={classPath(c)} data-class={c.id} aria-current={c.id === guide?.id ? 'true' : undefined}>{c.name}</a></li>)}
+            <li><a href="/zones/" aria-current={path === '/zones/' ? 'page' : undefined}><span class="nav-long">Where to level</span><span class="nav-short">Zones</span></a></li>
             <li class="status-link-item"><a class="status-link" href="/status/" aria-current={path === '/status/' ? 'page' : undefined}><span class="status-dot" data-status-dot aria-hidden="true"></span><span>Server status</span></a></li>
           </ul>
         </nav>

@@ -6,7 +6,7 @@ import { LEVELS, classPath, levelHref, specPath } from '../lib/guide.ts';
 // registry, so a new class or spec is listed without touching this file.
 export const GET: APIRoute = ({ site }) => {
   const base = (site?.toString() ?? 'https://azerothtrail.com/').replace(/\/$/, '');
-  const paths: { path: string; lastmod?: string }[] = [{ path: '/' }, { path: '/status/' }];
+  const paths: { path: string; lastmod?: string }[] = [{ path: '/' }, { path: '/zones/' }, { path: '/status/' }];
   for (const g of classes) {
     const lastmod = g.lastVerified;
     for (const page of ['', 'route', 'quests', 'specs', 'sources']) paths.push({ path: classPath(g, page), lastmod });

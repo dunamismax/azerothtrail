@@ -35,7 +35,7 @@ export const overview: GuideSection[] = [
       'Keep every Waylaid Supplies crate you find. The first turn-in gives 50 Merchant Favor coins.',
       'Rotate weapon types on easy mobs to keep every weapon skill at your level. Low skill means misses.',
       'Ask any Druid you meet for Thorns: it stacks with Retribution Aura.',
-      'Do every Paladin class quest, and finish a zone’s dungeon quests before you go in. Dungeon kills give little experience; dungeon quests give a lot.',
+      'Do every Paladin class quest, and finish a zone’s dungeon quests before you go in. Dungeon kills give 50% more experience since November 9, and dungeon quests still give the most.',
       'Log out at an inn.',
     ],
     notes: ['dungeon-xp'],

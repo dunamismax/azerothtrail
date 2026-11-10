@@ -1,0 +1,94 @@
+---
+import { FACTIONS, FACTION_LABEL } from '../data/types.ts';
+import type { WorldBracket } from '../data/world/index.ts';
+import { dungeonZoneName, dungeonsForBracket, worldNotes, zoneById } from '../data/world/index.ts';
+import { formatDate, levelSpan } from '../lib/guide.ts';
+
+interface Props {
+  bracket: WorldBracket;
+  /** Heading level: h2 on /zones/, h3 inside the home page's section. */
+  heading?: 'h2' | 'h3';
+  /** Link sources and notes to /zones/ instead of this page. */
+  remote?: boolean;
+}
+
+// One level bracket: where each faction should quest and every dungeon in
+// range. With JavaScript only the bracket holding your level is shown (the
+// app marks it .is-current); without it every bracket shows.
+const { bracket: b, heading = 'h2', remote = false } = Astro.props;
+const H = heading;
+const span = levelSpan(b.min, b.max);
+const dungeons = dungeonsForBracket(b);
+const base = remote ? '/zones/' : '';
+const range = (l: readonly [number, number]) => levelSpan(l[0], l[1]);
+const notes = (b.notes ?? []).map((id) => worldNotes.find((n) => n.id === id)).filter((n) => n !== undefined);
+---
+<article class="where-panel" id={remote ? undefined : b.id} data-min={b.min} data-max={b.max} aria-labelledby={`${b.id}-title${remote ? '-home' : ''}`}>
+  <div class="where-head">
+    <H id={`${b.id}-title${remote ? '-home' : ''}`}><span class="levels">{span}</span> {b.title}</H>
+  </div>
+
+  <div class="where-grid">
+    {FACTIONS.map((f) => {
+      const pick = b[f];
+      return (
+        <section class="card where-faction" data-for={f} aria-label={`${FACTION_LABEL[f]}: where to quest`}>
+          <p class="card-label"><span class={`tag tag-${f}`}>{FACTION_LABEL[f]}</span> Where to quest</p>
+          <p class="where-go">{pick.go}</p>
+          <ul class="zone-picks">
+            {pick.zones.map((id) => {
+              const z = zoneById(id);
+              return (
+                <li data-min={z.levels[0]} data-max={z.levels[1]}>
+                  <a href={`${base}#zone-${z.id}`}><b>{z.name}</b></a>
+                  <span class="zone-range">{range(z.levels)}</span>
+                  {z.isNew && <span class="tag tag-accent">New</span>}
+                  <span class="zone-hubs">{(z.hubs[f] ?? []).join(' · ')}</span>
+                </li>
+              );
+            })}
+          </ul>
+          {pick.also.length > 0 && (
+            <p class="small"><b>Also good:</b> {pick.also.map((id, i) => {
+              const z = zoneById(id);
+              return <><a href={`${base}#zone-${z.id}`}>{z.name}</a> <span class="muted">{range(z.levels)}</span>{i < pick.also.length - 1 ? ', ' : ''}</>;
+            })}</p>
+          )}
+          {pick.travel && <p class="small muted"><b>Travel:</b> {pick.travel}</p>}
+        </section>
+      );
+    })}
+
+  <section class="card where-dungeons" aria-label={`Dungeons for levels ${span}`}>
+    <p class="card-label">Dungeons {span} <span class="tag tag-optional">Optional</span></p>
+    {dungeons.length === 0 ? (
+      <p>No dungeon is in range yet: the first ones open at 13.</p>
+    ) : (
+      <ul class="dungeon-picks">
+        {dungeons.map((d) => (
+          <li data-min={d.levels[0]} data-max={d.levels[1]}>
+            <a href={`${base}#dungeon-${d.id}`}><b>{d.name}</b></a>
+            <span class="zone-range">{range(d.levels)}</span>
+            {d.isNew && <span class="tag tag-accent">New</span>}
+            {b.best.includes(d.id) && <span class="tag tag-ok">Pick</span>}
+            {d.easierFor && <span class={`tag tag-${d.easierFor}`}>Easier for {FACTION_LABEL[d.easierFor]}</span>}
+            <span class="tag inrange">In range now</span>
+            <span class="why">{dungeonZoneName(d)}: {d.location}.{d.note ? ` ${d.note}` : ''}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+    <p class="small muted">Since November 9, dungeon kills give 50% more experience. Pick up a dungeon’s quests before you go in.</p>
+  </section>
+  </div>
+
+  <ul class="where-tips">{b.tips.map((t) => <li>{t}</li>)}</ul>
+
+  {notes.map((n) => (
+    <aside class={`note note-${n.kind}`} aria-label={n.title}>
+      <p class="note-title"><span class={`tag ${{ update: 'tag-optional', correction: 'tag-horde', uncertain: 'tag-uncertain', confirmed: 'tag-ok' }[n.kind]}`}>{{ update: 'Update', correction: 'Correction', uncertain: 'Unconfirmed', confirmed: 'Checked' }[n.kind]}</span> {n.title} <span class="muted small">{formatDate(n.date)}</span></p>
+      <p>{n.body}</p>
+    </aside>
+  ))}
+  <p class="sources">Sources: {b.sources.map((s, i) => <><a href={`${base}#src-${s}`}>[{s}]</a>{i < b.sources.length - 1 ? ' ' : ''}</>)}</p>
+</article>

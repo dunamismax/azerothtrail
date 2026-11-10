@@ -603,3 +603,45 @@ kbd { font-family: var(--mono); font-size: 0.82em; padding: 0.05rem 0.4rem; bord
   .subnav, .trail, .toc, .theme-toggle, .status-strip { display: none !important; }
   .card, .bracket, .build-card, .spec-card, .class-pick { box-shadow: none; }
 }
+
+/* ---- Where to level: the class-free zone finder (/zones/, home) ---------- */
+.where-panel { scroll-margin-top: 1rem; margin-top: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+.where-panel.is-current { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+/* With JavaScript only the bracket holding the chosen level shows. */
+.js .where-finder .where-panel:not(.is-current) { display: none; }
+.where-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.35rem 0.6rem; margin-bottom: 0.75rem; }
+.where-head h2, .where-head h3 { margin: 0; border: 0; padding: 0; font-size: clamp(1.25rem, 3.4vw, 1.6rem); }
+.where-grid { display: grid; gap: 0.75rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 52rem) { .where-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.where-panel .card { background: var(--surface-2); box-shadow: none; }
+.where-panel .card > .card-label { color: var(--accent); display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.45rem; margin-bottom: 0.6rem; border-bottom: 1px solid var(--line); }
+.where-go { font-size: 1.05rem; text-wrap: pretty; }
+.zone-picks, .dungeon-picks { list-style: none; padding: 0; margin: 0 0 0.6rem; display: grid; gap: 0.35rem; }
+.zone-picks li + li, .dungeon-picks li + li { margin: 0; }
+.zone-picks li, .dungeon-picks li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.15rem 0.5rem; padding: 0.4rem 0.6rem; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.zone-picks li b, .dungeon-picks li b { font-size: 1.02rem; }
+.zone-range { font-family: var(--serif); font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+.zone-hubs { flex-basis: 100%; font-size: 0.88rem; color: var(--muted); }
+.dungeon-picks .why { flex-basis: 100%; font-size: 0.88rem; color: var(--muted); }
+/* Both factions: their cards side by side, dungeons below. One faction: its card and the dungeons side by side. */
+.where-dungeons { grid-column: 1 / -1; }
+html[data-faction]:not([data-show-all]) .where-dungeons { grid-column: auto; }
+.inrange { display: none; color: var(--ok); border-color: currentColor; }
+.js .zone-picks li.is-current, .js .dungeon-picks li.is-current { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.js .dungeon-picks li.is-current > .inrange { display: inline-block; }
+.js .dungeon-picks li:not(.is-current) { opacity: 0.62; }
+.where-tips { margin: 0.75rem 0 0; }
+.where-home { margin-top: 1.5rem; }
+.where-home > h2 { margin-bottom: 0.25rem; }
+.world-prefs { margin-bottom: 0.5rem; }
+@media (min-width: 46rem) { .world-prefs { display: flex; } }
+table .zone-new { margin-left: 0.3rem; }
+
+/* Header links stay on one line; the zone finder link shortens on phones. */
+.class-switch a { white-space: nowrap; }
+.class-switch ul { flex-wrap: wrap; }
+.nav-short { display: none; }
+@media (max-width: 30rem) {
+  .nav-long { display: none; }
+  .nav-short { display: inline; }
+}

@@ -16,7 +16,7 @@ export const druid: ClassGuide = {
   ruleset: 'Normal PvE',
   tagline: 'Balance, Feral or Restoration, each with its own build from 10 to 60.',
   pitch: 'The shapeshifter: Cat, Bear, Moonkin or healer, with Travel Form and a heal for every bad pull on the way to 60.',
-  lastVerified: '2026-11-08',
+  lastVerified: '2026-11-10',
   races: [
     { id: 'nightelf', name: 'Night Elf', faction: 'alliance', startZone: 'Teldrassil' },
     { id: 'skyborne-high', name: 'High Order Skyborne', faction: 'alliance', startZone: 'Zephras Isle' },

@@ -1,0 +1,109 @@
+---
+import WorldBracketPanel from '../components/WorldBracketPanel.astro';
+import WorldControls from '../components/WorldControls.astro';
+import { classes } from '../data/registry.ts';
+import { FACTION_LABEL } from '../data/types.ts';
+import { dungeonZoneName, worldBrackets, worldDungeons, worldNotes, worldSources, worldVerified, zones } from '../data/world/index.ts';
+import Layout from '../layouts/Layout.astro';
+import { classPath, formatDate, levelSpan } from '../lib/guide.ts';
+
+// Where to level at any level, for any class: the bracket for your level up
+// top, then every zone and every dungeon by level.
+const byLevel = [...zones].sort((a, b) => a.levels[0] - b.levels[0] || a.levels[1] - b.levels[1] || a.name.localeCompare(b.name));
+const factionsOf = (z: (typeof zones)[number]) => (['alliance', 'horde'] as const).filter((f) => (z.hubs[f]?.length ?? 0) > 0).join(' ');
+const kindTag = { update: 'tag-optional', correction: 'tag-horde', uncertain: 'tag-uncertain', confirmed: 'tag-ok' } as const;
+const kindLabel = { update: 'Update', correction: 'Correction', uncertain: 'Unconfirmed', confirmed: 'Checked' } as const;
+---
+<Layout
+  title="Where to level"
+  path="/zones/"
+  description="WoW Forever zones and dungeons by level, for any class: where to quest at every level from 1 to 60 for Alliance and Horde, the quest hubs, and every dungeon in range."
+>
+  <header class="page-head" id="now">
+    <p class="eyebrow">World of Warcraft: Forever · any class</p>
+    <h1>Where should I level at <span data-level-text>1</span>?</h1>
+    <p class="lead">Pick your level and faction. You get the zone to go to, its quest hubs, zones that work just as well when it’s crowded, and every dungeon in range. Checked against the November 9 hotfixes.</p>
+    <p class="verified">Last verified {formatDate(worldVerified)} against the <a href="#sources">sources</a>.</p>
+  </header>
+
+  <WorldControls />
+  <div class="toolbar js-only">
+    <button type="button" data-copy-link data-copy-base="/zones/">Copy link to this level</button>
+    <span class="small muted hint-keys">Press <kbd>[</kbd> and <kbd>]</kbd> to step a level.</span>
+    <span class="small muted" data-copy-status role="status"></span>
+  </div>
+  <noscript>
+    <p class="callout">Without JavaScript every bracket is shown below, for both factions.</p>
+  </noscript>
+
+  <div class="where-finder" aria-live="polite">
+    {worldBrackets.map((b) => <WorldBracketPanel bracket={b} />)}
+  </div>
+
+  <p class="small">For your class’s talent point, trainer and class quests at this level: {classes.map((c, i) => <><a href={classPath(c)}>{c.name} guide</a>{i < classes.length - 1 ? ' · ' : ''}</>)}.</p>
+
+  <section class="section" id="all-zones" aria-labelledby="zones-title">
+    <h2 id="zones-title">Every zone by level</h2>
+    <p class="small muted">Zones in range at your level are highlighted. Choosing a faction hides zones where it has no town to start from.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Zone</th><th scope="col">Levels</th><th scope="col">Alliance hubs</th><th scope="col">Horde hubs</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          {byLevel.map((z) => (
+            <tr id={`zone-${z.id}`} data-min={z.levels[0]} data-max={z.levels[1]} data-for={factionsOf(z)}>
+              <th scope="row">{z.name}{z.isNew && <span class="tag tag-accent zone-new">New</span>}<span class="muted small"><br />{z.continent}</span></th>
+              <td class="nowrap"><span class="zone-range">{levelSpan(z.levels[0], z.levels[1])}</span></td>
+              <td>{z.hubs.alliance?.join(', ') ?? <span class="muted">None</span>}</td>
+              <td>{z.hubs.horde?.join(', ') ?? <span class="muted">None</span>}</td>
+              <td class="small">{z.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" id="all-dungeons" aria-labelledby="dungeons-title">
+    <h2 id="dungeons-title">Every dungeon by level</h2>
+    <p class="small muted">New dungeons show Blizzard’s levels; Classic dungeons show the in-game Group Finder’s. Dungeons in range at your level are highlighted.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Dungeon</th><th scope="col">Levels</th><th scope="col">Where</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          {worldDungeons.map((d) => (
+            <tr id={`dungeon-${d.id}`} data-min={d.levels[0]} data-max={d.levels[1]}>
+              <th scope="row">{d.name}{d.isNew && <span class="tag tag-accent zone-new">New</span>}</th>
+              <td class="nowrap"><span class="zone-range">{levelSpan(d.levels[0], d.levels[1])}</span><span class="muted small"><br />{d.levelSource === 'blizzard' ? 'Blizzard' : 'Group Finder'}</span></td>
+              <td>{dungeonZoneName(d)}<span class="muted small">. {d.location}</span>{d.easierFor && <><br /><span class={`tag tag-${d.easierFor}`}>Easier for {FACTION_LABEL[d.easierFor]}</span></>}</td>
+              <td class="small">{d.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section" id="notes" aria-labelledby="notes-title">
+    <h2 id="notes-title">Update notes</h2>
+    {worldNotes.map((n) => (
+      <aside class={`note note-${n.kind}`} id={`note-${n.id}`} aria-label={`${kindLabel[n.kind]}: ${n.title}`}>
+        <p class="note-title"><span class={`tag ${kindTag[n.kind]}`}>{kindLabel[n.kind]}</span> {n.title} <span class="muted small">{formatDate(n.date)}</span></p>
+        <p>{n.body}</p>
+        <p class="sources">Sources: {n.sources.map((s, i) => <><a href={`#src-${s}`}>[{s}]</a>{i < n.sources.length - 1 ? ' ' : ''}</>)}</p>
+      </aside>
+    ))}
+  </section>
+
+  <section class="section" id="sources" aria-labelledby="sources-title">
+    <h2 id="sources-title">Sources</h2>
+    <ol class="source-list">
+      {worldSources.map((s) => (
+        <li id={`src-${s.id}`} class="note">
+          <p class="note-title"><span class="tag">[{s.id}]</span> <a href={s.url} rel="noopener noreferrer">{s.title}</a> <span class="muted small">{s.publisher}</span></p>
+          <p class="small">{s.covers}</p>
+          <p class="small muted">{s.checked ? `Checked ${formatDate(s.checked)}` : 'Listed for reference'}{s.sourceUpdated && ` · source updated ${formatDate(s.sourceUpdated)}`}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Layout>

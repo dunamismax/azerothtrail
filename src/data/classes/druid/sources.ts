@@ -76,10 +76,10 @@ export const sources: Source[] = [
     covers: 'Deep Resto (18/0/33) for dungeons; NG/RG (21/0/30) now recommended for raids.',
   },
   {
-    id: '13', checked: '2026-11-07',
-    title: 'WoW Forever hotfixes, November 6, 2026', publisher: 'Blizzard forums',
-    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-hotfixes-november-6-2026/2403040',
-    covers: 'Bloom now heals, Swiftmend tooltip corrected, Zephras Druid trainer fixed (Nov 5), Ruins of Lordaeron quest at 15 for Horde.',
+    id: '13', checked: '2026-11-10', sourceUpdated: '2026-11-09',
+    title: 'WoW Forever hotfixes, November 5-9, 2026', publisher: 'Blizzard forums',
+    url: 'https://us.forums.blizzard.com/en/wow/t/wow-forever-hotfixes-november-9-2026/2403040',
+    covers: 'November 5-6: Bloom now heals, Swiftmend and Ravage tooltips corrected, Shadowmeld no longer allows Ravage or Pounce, Zephras Druid trainer fixed, Ruins of Lordaeron quest at 15 for Horde. November 9: dungeon kill experience +50%, Natural Instinct now applies to Lacerate and Pounce, Feral Charge (Cat) enters combat at once, Pounce stun shows on the target, Idol of Ferocity tooltip, Drowned City and Shaper’s Terrace fixes, lower player caps in crowded zones.',
   },
   {
     id: '14', checked: '2026-11-07',
@@ -195,6 +195,18 @@ export const sources: Source[] = [
     url: 'https://www.icy-veins.com/wow-forever/feral-druid-melee-dps-and-tank-pve-stat-priority',
     covers: 'Threat and damage: weapon DPS, Expertise, hit to 8%, Agility, Strength. Mitigation: Armor, Defense to 440, Stamina, Agility, Dodge.',
   },
+  {
+    id: '33', checked: '2026-11-10', sourceUpdated: '2026-11-06',
+    title: 'Class Tuning Incoming – November 10', publisher: 'Blizzard forums',
+    url: 'https://eu.forums.blizzard.com/en/wow/t/class-tuning-incoming-10-november/640100',
+    covers: 'The first class tuning pass: Hunter pets and Voidwalkers, Affliction Warlock, Enhancement Shaman. Nothing for Druids. Blizzard plans further class changes on Tuesdays when needed.',
+  },
+  {
+    id: '34', checked: '2026-11-10', sourceUpdated: '2026-11-03',
+    title: 'WoW Forever dungeons by level', publisher: 'Forever Mastery',
+    url: 'https://forevermastery.com/en/dungeons',
+    covers: 'All 28 dungeons with their levels: Blizzard’s ranges for the nine new ones, the in-game Group Finder’s for the 19 Classic ones (client 1.60.1.70790).',
+  },
 ];
 
 export const notes: UpdateNote[] = [
@@ -210,6 +222,31 @@ export const notes: UpdateNote[] = [
     body: 'Wowhead’s November 4 build page recommends Nature’s Grace / Improved Regrowth (21/0/30) for raids, because Wild Growth now has a 3-second cast and Bloom replaced Gift of the Earthmother. Deep Resto (18/0/33 there) remains its dungeon pick. Keep this guide’s Deep Resto build for five-player runs.',
     previously: 'Compare Deep Resto with Nature’s Grace / Improved Regrowth for raids.',
     sources: ['12'],
+  },
+  {
+    id: 'first-week-tuning', kind: 'confirmed', date: '2026-11-10',
+    title: 'No Druid balance changes after launch',
+    body: 'The launch-week hotfixes (November 5-9) fixed Druid bugs and tooltips but changed no numbers. Blizzard’s first class tuning, planned for November 10, covers Hunter pets, Voidwalkers, Affliction Warlocks and Enhancement Shamans. None of the Icy Veins guides behind these builds has changed since November 4, so every talent order and priority here still stands.',
+    sources: ['13', '33', '05', '24', '28'],
+  },
+  {
+    id: 'natural-instinct-fix', kind: 'update', date: '2026-11-09',
+    title: 'Natural Instinct now works on Lacerate and Pounce',
+    body: 'Natural Instinct’s extra critical strike damage was not applying to Lacerate or Pounce until the November 9 hotfix, so both now hit harder on a crit. The same hotfix makes Feral Charge (Cat) put you in combat at once, shows the Pounce stun on the target, shows Lacerate on the Cooldown Manager, and removes Mangle from the Idol of Ferocity tooltip (it never discounted Mangle).',
+    sources: ['13'],
+  },
+  {
+    id: 'shadowmeld-opener', kind: 'correction', date: '2026-11-06',
+    title: 'Shadowmeld no longer opens with Ravage or Pounce',
+    body: 'At launch, Night Elf Druids could use Shadowmeld like Prowl to open with Ravage or Pounce. The November 6 hotfix removed that: open from Prowl in Cat Form.',
+    sources: ['13'],
+  },
+  {
+    id: 'dungeon-xp', kind: 'update', date: '2026-11-09',
+    title: 'Dungeon kills give 50% more experience',
+    body: 'Forever launched with much lower experience for dungeon kills. The November 9 hotfix raised the experience from every enemy kill in a dungeon by 50%. Questing is still the main road, but a run with its quests in your log is now worth the time on its own.',
+    previously: 'Kill experience inside dungeons is low: run them for their quests.',
+    sources: ['13'],
   },
   {
     id: 'bloom-fix', kind: 'update', date: '2026-11-06',
