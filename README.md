@@ -177,7 +177,7 @@ Mostly a content task:
    `endgame`.
 3. Add it to `classes` in `src/data/registry.ts`. All pages, the 60 level
    pages, the sitemap and the spec stylesheet are generated for it. Every class
-   uses the same gold accent; there are no per-class colours to add.
+   uses the same copper accent; there are no per-class colours to add.
 4. Write each spec's source order into `scripts/verify-content.ts`, then run
    `npm test`.
 

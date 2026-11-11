@@ -88,29 +88,6 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
   </div>
 
   <div class="grid">
-    <div class="card">
-      <p class="card-label">Where to quest</p>
-      {FACTIONS.map((f) => {
-        const route = bracket[f];
-        return (
-          <div class="faction-col" data-for={f}>
-            <h3><span class={`tag tag-${f}`}>{FACTION_LABEL[f]}</span></h3>
-            <p>{route.primary}</p>
-            {route.hubs.length > 0 && <ul class="chips" aria-label="Hubs">{route.hubs.map((h) => <li>{h}</li>)}</ul>}
-            {route.alternatives.length > 0 && <p class="small"><b>Alternative:</b> {route.alternatives.join('; ')}.</p>}
-            {route.travel.length > 0 && <p class="small muted"><b>Travel:</b> {route.travel.join(' ')}</p>}
-          </div>
-        );
-      })}
-      {branches.map((b) => (
-        <div class="branch" data-for={b.races}>
-          <h4>{b.title}{b.uncertain && <span class="tag tag-uncertain">Unconfirmed</span>}</h4>
-          <ul>{b.steps.map((s) => <li>{s}</li>)}</ul>
-        </div>
-      ))}
-      <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a> · <a href={zonesHref}>Every zone and dungeon for level {level}</a></p>
-    </div>
-
     <div class="card card-talent">
       <p class="card-label">Talent point</p>
       {talentCards.map(({ spec, first, point, next, catchUp }) => (
@@ -132,6 +109,29 @@ const nextList = (t: SpecTraining) => t.core.map(spellName).join(', ') || 'optio
         </div>
       ))}
       {level >= 40 && <p class="small muted">Second spec: follow another spec’s build up to your level. <a href={classPath(guide, 'specs')}>Compare specs</a>.</p>}
+    </div>
+
+    <div class="card">
+      <p class="card-label">Where to quest</p>
+      {FACTIONS.map((f) => {
+        const route = bracket[f];
+        return (
+          <div class="faction-col" data-for={f}>
+            <h3><span class={`tag tag-${f}`}>{FACTION_LABEL[f]}</span></h3>
+            <p>{route.primary}</p>
+            {route.hubs.length > 0 && <ul class="chips" aria-label="Hubs">{route.hubs.map((h) => <li>{h}</li>)}</ul>}
+            {route.alternatives.length > 0 && <p class="small"><b>Alternative:</b> {route.alternatives.join('; ')}.</p>}
+            {route.travel.length > 0 && <p class="small muted"><b>Travel:</b> {route.travel.join(' ')}</p>}
+          </div>
+        );
+      })}
+      {branches.map((b) => (
+        <div class="branch" data-for={b.races}>
+          <h4>{b.title}{b.uncertain && <span class="tag tag-uncertain">Unconfirmed</span>}</h4>
+          <ul>{b.steps.map((s) => <li>{s}</li>)}</ul>
+        </div>
+      ))}
+      <p class="small"><a href={bracketHref(guide, bracket)}>Full {levelSpan(bracket.min, bracket.max)} route, travel and notes</a> · <a href={zonesHref}>Every zone and dungeon for level {level}</a></p>
     </div>
 
     <div class="card">

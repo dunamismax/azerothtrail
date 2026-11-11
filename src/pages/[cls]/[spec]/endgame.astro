@@ -32,7 +32,7 @@ const checklist = spec.endgame.checklist;
       {checklist && <li><a href={`#${checklist.id}`}>{checklist.title}</a></li>}
     </ul>
   </nav>
-  {spec.endgameNotes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+  {spec.endgameNotes && spec.endgameNotes.length > 0 && <div class="note-stack">{spec.endgameNotes.map((id) => <UpdateNote guide={guide} id={id} />)}</div>}
 
   <section class="section" id="builds" aria-labelledby="builds-title">
     <h2 id="builds-title">Level-60 talent builds</h2>

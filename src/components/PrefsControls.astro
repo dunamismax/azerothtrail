@@ -17,7 +17,7 @@ const { guide, level = true, spec = true, faction = true } = Astro.props;
 ---
 <div class:list={['prefs', 'js-only', { 'prefs-wide': spec && faction }]} role="group" aria-label="Your character">
   {level && (
-    <div>
+    <div class="level-bar">
       <label class="label" for="pref-level">Level</label>
       <div class="stepper">
         <button type="button" data-level-step="-1" aria-label="Previous level">&minus;</button>

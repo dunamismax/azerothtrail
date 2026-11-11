@@ -49,7 +49,7 @@ const at40 = pointsAtLevel(points, 40)[0];
   </nav>
 
   <PrefsControls guide={guide} spec={false} faction={false} />
-  {spec.notes?.map((id) => <UpdateNote guide={guide} id={id} />)}
+  {spec.notes && spec.notes.length > 0 && <div class="note-stack">{spec.notes.map((id) => <UpdateNote guide={guide} id={id} />)}</div>}
 
   <section class="section" id="build" aria-labelledby="build-title">
     <h2 id="build-title">Every talent point, 10 to 60</h2>
